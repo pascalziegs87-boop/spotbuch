@@ -392,12 +392,15 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
 #run.client .rimg svg{border-radius:0}
 #run.client .rx{display:block;position:absolute;top:calc(var(--st) + 8px);right:8px;width:44px;height:44px;border:0;background:none;color:rgba(255,255,255,.35);font-size:26px}
 /* ---- Menüleiste ---- */
-:root{--tbh:calc(60px + var(--sb))}
+:root{--tbh:calc(54px + var(--sb) * .6)}
 #btnList{display:none}
-#tabs{position:fixed;left:0;right:0;bottom:0;height:var(--tbh);padding-bottom:var(--sb);z-index:720;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-top:1px solid var(--line)}
-#tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--mute);padding:6px 0 0}
+#tabs{position:fixed;left:0;right:0;bottom:0;height:var(--tbh);padding-bottom:calc(var(--sb) * .6);z-index:720;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-top:1px solid var(--line)}
+#tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;color:var(--mute);padding:4px 0 2px}
+.tico{display:grid;place-items:center;width:56px;height:30px;border-radius:15px;transition:background .2s,color .2s}
 #tabs button[aria-current=page]{color:var(--pin)}
-#tabs svg.i{width:24px;height:24px}
+#tabs button[aria-current=page] .tico{background:var(--pin);color:#fff}
+#tabs button[aria-current=page] span:last-child{font-weight:700}
+#tabs svg.i{width:22px;height:22px}
 #sheet{bottom:var(--tbh)}
 #sheet.full{max-height:calc(100vh - var(--st) - var(--tbh) - 16px)}
 #sheetBody{padding-bottom:20px}
@@ -474,10 +477,10 @@ h3 .sum{font-weight:500;color:var(--mute);margin-left:6px}h3 .sum.over{color:#c2
 </div>
 
 <nav id="tabs" aria-label="Hauptmenü">
-  <button data-tab="map" aria-current="page"><svg class="i" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg><span>Karte</span></button>
-  <button data-tab="spots"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Spots</span></button>
-  <button data-tab="shoots"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/></svg><span>Shootings</span></button>
-  <button data-tab="poses"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v7M7 11l5-2 5 2M9 21l3-6 3 6"/></svg><span>Posen</span></button>
+  <button data-tab="map" aria-current="page"><span class="tico"><svg class="i" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></span><span>Karte</span></button>
+  <button data-tab="spots"><span class="tico"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>Spots</span></button>
+  <button data-tab="shoots"><span class="tico"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/></svg></span><span>Shootings</span></button>
+  <button data-tab="poses"><span class="tico"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v7M7 11l5-2 5 2M9 21l3-6 3 6"/></svg></span><span>Posen</span></button>
 </nav>
 <div id="run" hidden><div class="rbar" id="runBar"></div><div class="rimg" id="runImg"></div><div class="rinfo" id="runInfo"></div><div class="rnav" id="runNav"></div><div class="rgridw" id="runGrid"></div><button class="rx" aria-label="Zurück">×</button></div>
 <input type="file" id="fPose" accept="image/*" hidden>
@@ -1103,7 +1106,7 @@ const Sketch=(()=>{
     up:(s,H,hp)=>[[hp[0]+s*H*.07,hp[1]+H*.17],[hp[0]+s*H*.03,hp[1]+H*.31]],ride:(s,H,hp)=>[[hp[0]+s*H*.26,hp[1]+H*.1],[hp[0]+s*H*.22,hp[1]+H*.4]]};
   const HIP={stand:.47,box:.30,sit:.09,kneel:.29};
   const f=n=>n.toFixed(1),pt=p=>f(p[0])+' '+f(p[1]);
-  const SKIN='#e3b18e',SKIN2='#c98f6b';
+  const SKIN='#55606e',SA='#1b1d21',SB='#5a6472';
   const STY={
     w:{hair:'#6b4226',long:true,top:'#d9654b',bottom:'#d9654b',dress:'knee',sleeve:'short'},
     m:{hair:'#2b2118',top:'#4a6d96',bottom:'#2f3540',sleeve:'rolled'},
@@ -1114,7 +1117,7 @@ const Sketch=(()=>{
   const cap=(a,b,c,w)=>`<path d="M${pt(a)}L${pt(b)}" stroke="${c}" stroke-width="${f(w)}" stroke-linecap="round" fill="none"/>`;
   const mix=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
   function P(o){const H=100*(o.s||1),x=o.x,gy=o.gy??150,m=o.m||'stand',c=o.c||CA,ln=o.lean||0,u=H/100;
-    const st=STY[o.st||(c===CB?'m':c===CK?'k':'w')];
+    let st=STY[o.st||(c===CB?'m':c===CK?'k':'w')];const col=o.sc||(c===CB?SB:SA);st={...st,hair:col,top:col,bottom:col,edge:col,shirt:null};const sk=col;
     const hipY=o.hipY??gy-H*HIP[m],hip=[x,hipY],R=p=>rot(p,hip,ln);
     const neck=R([x,hipY-H*.29]),head=R([x,hipY-H*.405]),shL=R([x-H*.1,hipY-H*.265]),shR=R([x+H*.1,hipY-H*.265]);
     const arm=(sh,s,a)=>{if(Array.isArray(a)){const mx=(sh[0]+a[0])/2,my=(sh[1]+a[1])/2;return [[mx+s*H*.04,my+H*.05],a]}
@@ -1133,9 +1136,9 @@ const Sketch=(()=>{
     const hr=[H*.072,H*.088];
     if(st.long)out.push(`<ellipse cx="${f(head[0])}" cy="${f(head[1]+H*.045)}" rx="${f(hr[0]*1.25)}" ry="${f(hr[1]*1.45)}" fill="${st.hair}" transform="rotate(${ln} ${f(head[0])} ${f(head[1])})"/>`);
     // Beine
-    const legC=st.dress?SKIN:st.bottom,thW=(st.dress?9.5:st.kid?11:12.5)*u,caW=(st.dress?8:st.kid?9:10)*u;
-    const shoe=(k,ft,s)=>{const dx=ft[0]-k[0],dir=Math.abs(dx)<2?s:Math.sign(dx);return `<ellipse cx="${f(ft[0]+dir*2.2*u)}" cy="${f(ft[1]-1.6*u)}" rx="${f(5.4*u)}" ry="${f(2.9*u)}" fill="${o.st==='bride'?'#efe9df':'#33302d'}"/>`};
-    for(const [hp,k,ft,s] of [[hpL,kL,fL,-1],[hpR,kR,fR,1]]){out.push(cap(hp,k,legC,thW),cap(k,ft,st.dress?SKIN:legC,caW));if(st.kid&&!st.dress)out.push(cap(mix(k,ft,.15),ft,SKIN,caW*.85));out.push(shoe(k,ft,s))}
+    const legC=st.dress?sk:st.bottom,thW=(st.dress?9.5:st.kid?11:12.5)*u,caW=(st.dress?8:st.kid?9:10)*u;
+    const shoe=(k,ft,s)=>{const dx=ft[0]-k[0],dir=Math.abs(dx)<2?s:Math.sign(dx);return `<ellipse cx="${f(ft[0]+dir*2.2*u)}" cy="${f(ft[1]-1.6*u)}" rx="${f(5.4*u)}" ry="${f(2.9*u)}" fill="${col}"/>`};
+    for(const [hp,k,ft,s] of [[hpL,kL,fL,-1],[hpR,kR,fR,1]]){out.push(cap(hp,k,legC,thW),cap(k,ft,st.dress?sk:legC,caW));if(st.kid&&!st.dress)out.push(cap(mix(k,ft,.15),ft,sk,caW*.85));out.push(shoe(k,ft,s))}
     // Kleid
     if(st.dress){const sit=m==='sit',kn=m==='kneel',box=m==='box';
       const hemY=st.dress==='long'&&m==='stand'?gy-1.5:sit?hipY+H*.07:kn?hipY+H*.17:box?hipY+H*.1:hipY+H*.22;
@@ -1146,18 +1149,18 @@ const Sketch=(()=>{
     out.push(`<path d="M${pt(sL)}L${pt(sR)}L${pt(waR)}L${pt(waL)}Z" fill="${st.top}" stroke="${st.edge||st.top}" stroke-width="${f(5*u)}" stroke-linejoin="round"/>`);
     if(st.shirt)out.push(`<path d="M${pt(mix(sL,sR,.42))}L${pt(mix(sL,sR,.58))}L${pt(mix(neck,hip,.38))}Z" fill="${st.shirt}"/>`);
     // Hals & Kopf
-    out.push(cap(neck,mix(neck,head,.55),SKIN,6.5*u));
-    out.push(`<ellipse cx="${f(head[0])}" cy="${f(head[1])}" rx="${f(hr[0])}" ry="${f(hr[1])}" fill="${SKIN}" transform="rotate(${ln} ${f(head[0])} ${f(head[1])})"/>`);
+    out.push(cap(neck,mix(neck,head,.55),sk,6.5*u));
+    out.push(`<ellipse cx="${f(head[0])}" cy="${f(head[1])}" rx="${f(hr[0])}" ry="${f(hr[1])}" fill="${sk}" transform="rotate(${ln} ${f(head[0])} ${f(head[1])})"/>`);
     const capP=`M${f(head[0]-hr[0]*1.04)} ${f(head[1]+hr[1]*.05)}Q${f(head[0]-hr[0]*1.1)} ${f(head[1]-hr[1]*1.35)} ${f(head[0])} ${f(head[1]-hr[1]*1.12)}Q${f(head[0]+hr[0]*1.15)} ${f(head[1]-hr[1]*1.3)} ${f(head[0]+hr[0]*1.04)} ${f(head[1]+hr[1]*.05)}Q${f(head[0]+hr[0]*.6)} ${f(head[1]-hr[1]*.55)} ${f(head[0]-hr[0]*.1)} ${f(head[1]-hr[1]*.5)}Q${f(head[0]-hr[0]*.7)} ${f(head[1]-hr[1]*.4)} ${f(head[0]-hr[0]*1.04)} ${f(head[1]+hr[1]*.05)}Z`;
     out.push(`<path d="${capP}" fill="${st.hair}" transform="rotate(${ln} ${f(head[0])} ${f(head[1])})"/>`);
-    out.push(`<ellipse cx="${f(head[0])}" cy="${f(head[1]+hr[1]*.28)}" rx="${f(hr[0]*.95)}" ry="${f(hr[1]*.55)}" fill="${SKIN2}" opacity=".18" transform="rotate(${ln} ${f(head[0])} ${f(head[1])})"/>`);
+    out.push(`<ellipse cx="${f(head[0])}" cy="${f(head[1]+hr[1]*.28)}" rx="${f(hr[0]*.95)}" ry="${f(hr[1]*.55)}" fill="${sk}" opacity=".18" transform="rotate(${ln} ${f(head[0])} ${f(head[1])})"/>`);
     // Arme
-    const upC=st.sleeve==='none'?SKIN:st.top,loC=st.sleeve==='long'?st.top:SKIN,uaW=(st.kid?7.5:8.5)*u,faW=(st.kid?6.5:7)*u;
+    const upC=st.sleeve==='none'?sk:st.top,loC=st.sleeve==='long'?st.top:sk,uaW=(st.kid?7.5:8.5)*u,faW=(st.kid?6.5:7)*u;
     for(const [sh,e,h] of [[sL,eL,hL],[sR,eR,hR]]){out.push(cap(sh,e,upC,uaW));if(st.sleeve==='rolled')out.push(cap(e,mix(e,h,.25),st.top,faW+1));out.push(cap(e,h,loC,faW));
-      if(st.sleeve==='short'||st.sleeve==='rolled')out.push(cap(mix(sh,e,.45),e,SKIN,uaW*.82));out.push(`<circle cx="${f(h[0])}" cy="${f(h[1])}" r="${f(3.8*u)}" fill="${SKIN}"/>`)}
+      if(st.sleeve==='short'||st.sleeve==='rolled')out.push(cap(mix(sh,e,.45),e,sk,uaW*.82));out.push(`<circle cx="${f(h[0])}" cy="${f(h[1])}" r="${f(3.8*u)}" fill="${sk}"/>`)}
     return {svg:`<g opacity="${o.op||1}">${out.join('')}</g>`,head,neck,hip,shL,shR,hL,hR,kL,kR,top:[head[0],head[1]-hr[1]]}}
   const line=(a,b,c,w,ex='')=>`<path d="M${pt(a)}L${pt(b)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" fill="none" ${ex}/>`;
-  const DOG='#a0784f',DOG2='#6e4f33',HORSE='#8b5e3c',MANE='#3a2618';
+  const DOG='#2b2f36',DOG2='#1b1d21',HORSE='#2b2f36',MANE='#15171a';
   function Dog(x,gy,s,fc,mode){const X=d=>x+fc*d*s,Y=d=>gy-d*s,o=[],E=(cx,cy,rx,ry,c,r=0)=>`<ellipse cx="${f(cx)}" cy="${f(cy)}" rx="${f(rx*s)}" ry="${f(ry*s)}" fill="${c}" transform="rotate(${fc*r} ${f(cx)} ${f(cy)})"/>`;
     o.push(`<ellipse cx="${f(x)}" cy="${f(gy+1)}" rx="${f(20*s)}" ry="${f(2.5*s)}" fill="rgba(0,0,0,.10)"/>`);
     if(mode==='sit'){o.push(line([X(-14),Y(5)],[X(-24),Y(3)],DOG,3.5*s),E(X(-5),Y(11),11,10,DOG),line([X(2),Y(26)],[X(5),Y(1.5)],DOG,5*s),line([X(-3),Y(24)],[X(-1),Y(1.5)],DOG2,5*s),
@@ -1171,10 +1174,10 @@ const Sketch=(()=>{
     const leg=(a,b,c)=>line([X(a),Y(58)],[X(b),Y(5)],c,6.2*s)+`<ellipse cx="${f(X(b))}" cy="${f(Y(2.5))}" rx="${f(3.6*s)}" ry="${f(2.6*s)}" fill="${MANE}"/>`;
     const svg=[`<ellipse cx="${f(x)}" cy="${f(gy+1)}" rx="${f(44*s)}" ry="${f(3*s)}" fill="rgba(0,0,0,.10)"/>`,
       `<path d="M${pt([X(-38),Y(66)])}Q${pt([X(-52),Y(52)])} ${pt([X(-46),Y(26)])}" stroke="${MANE}" stroke-width="${f(7*s)}" fill="none" stroke-linecap="round"/>`,
-      leg(-24,-27,'#6e4a2f'),leg(16,18,'#6e4a2f'),E(x,Y(62),35,15,HORSE),leg(-16,-17,HORSE),leg(24,26,HORSE),
+      leg(-24,-27,'#1f2329'),leg(16,18,'#1f2329'),E(x,Y(62),35,15,HORSE),leg(-16,-17,HORSE),leg(24,26,HORSE),
       `<path d="M${pt([X(18),Y(72)])}L${pt([X(36),Y(104)])}L${pt([X(46),Y(100)])}L${pt([X(34),Y(56)])}Z" fill="${HORSE}" stroke="${HORSE}" stroke-width="${f(6*s)}" stroke-linejoin="round"/>`,
       `<path d="M${pt([X(20),Y(74)])}L${pt([X(37),Y(106)])}" stroke="${MANE}" stroke-width="${f(5*s)}" stroke-linecap="round"/>`,
-      E(X(50),Y(94),15,6.5,HORSE,32),E(X(60),Y(86.5),5.5,4.5,'#6e4a2f',32),line([X(39),Y(104)],[X(37),Y(113)],HORSE,4*s),`<circle cx="${f(X(46))}" cy="${f(Y(99))}" r="${f(1.6*s)}" fill="#1b1d21"/>`].join('');
+      E(X(50),Y(94),15,6.5,HORSE,32),E(X(60),Y(86.5),5.5,4.5,'#1f2329',32),line([X(39),Y(104)],[X(37),Y(113)],HORSE,4*s),`<circle cx="${f(X(46))}" cy="${f(Y(99))}" r="${f(1.6*s)}" fill="#1b1d21"/>`].join('');
     return {svg,head:[X(58),Y(88)],neck:[X(32),Y(84)],back:[X(-2),Y(76)]}}
   const ground=`<rect y="150" width="200" height="10" fill="#ebe6dd"/>`;
   const wrap=b=>`<svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" class="sk"><defs><linearGradient id="skbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3efe8"/><stop offset="1" stop-color="#faf8f4"/></linearGradient></defs><rect width="200" height="160" fill="url(#skbg)"/>${ground}${b}</svg>`;
@@ -1189,9 +1192,9 @@ const Sketch=(()=>{
     lookback:()=>{const [a,b]=couple({x:80,lean:-7,ll:'fwd',rl:'back',ra:[100,106]},{x:120,ll:'back',rl:'fwd',la:[100,106]});
       return a.svg+b.svg+`<path d="M${pt([a.top[0]+6,a.top[1]-6])}q-12 -10 -22 2" stroke="${CX}" stroke-width="2.5" fill="none" stroke-linecap="round" marker-end="url(#ar)"/><defs><marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="${CX}"/></marker></defs>`},
     whisper:()=>{const a=P({x:94,lean:-4,la:'front',ra:'front'}),b=P({x:110,s:1.07,c:CB,lean:-15,la:'hip'});return a.svg+b.svg},
-    veil:()=>(()=>{const b=P({x:110,s:1.07,c:CB,st:'groom',lean:-8,la:[96,104]}),a=P({x:92,st:'bride',lean:7,ra:[108,100]});return b.svg+a.svg})()+`<path d="M52 150Q100 4 148 150" fill="rgba(255,255,255,.55)" stroke="#d6cfc4" stroke-width="1.5"/>`,
+    veil:()=>(()=>{const b=P({x:110,s:1.07,c:CB,st:'groom',lean:-8,la:[96,104]}),a=P({x:92,st:'bride',lean:7,ra:[108,100]});return b.svg+a.svg})()+`<path d="M52 150Q100 4 148 150" fill="rgba(255,255,255,.45)" stroke="#c9c3b8" stroke-width="1.5"/>`,
     firstlook:()=>{const b=P({x:122,s:1.07,c:CB,st:'groom',la:'head',ra:'head'}),a=P({x:82,st:'bride',lean:6,ra:b.shL});return b.svg+a.svg},
-    rings:()=>cap([24,175],[86,108],'#2b2f36',22)+cap([84,110],[96,98],'#ffffff',12)+cap([92,102],[104,92],SKIN,13)+cap([176,175],[116,108],SKIN,17)+cap([116,108],[104,96],SKIN,13)+`<circle cx="104" cy="94" r="8" fill="${SKIN}"/><circle cx="99" cy="92" r="5" fill="none" stroke="#d9a441" stroke-width="3"/><circle cx="110" cy="98" r="4.5" fill="none" stroke="#d9a441" stroke-width="3"/>`,
+    rings:()=>cap([24,175],[88,106],SA,22)+cap([88,106],[100,94],SA,13)+cap([176,175],[116,108],SB,17)+cap([116,108],[104,96],SB,13)+`<circle cx="104" cy="94" r="8" fill="${SB}"/><circle cx="99" cy="92" r="5" fill="none" stroke="#d9a441" stroke-width="3"/><circle cx="110" cy="98" r="4.5" fill="none" stroke="#d9a441" stroke-width="3"/>`,
     bouquet:()=>{const a=P({x:100,st:'bride',la:'front',ra:'front'});const c=[a.hL[0]/2+a.hR[0]/2,a.hL[1]/2+a.hR[1]/2];return a.svg+[[0,0,9,'#e9a23b'],[-8,4,7,'#7aa83f'],[8,4,7,'#e2553a'],[0,-7,6,'#f0c36a']].map(([dx,dy,r,c2])=>`<circle cx="${f(c[0]+dx)}" cy="${f(c[1]+dy)}" r="${r}" fill="${c2}"/>`).join('')},
     wall:()=>`<rect x="136" y="20" width="44" height="131" fill="#e3dfd8"/>`+P({x:118,lean:7,la:'cross',ra:'cross',ll:'cross'}).svg,
     hip:()=>P({x:100,lean:-5,la:'hip',ll:'fwd'}).svg,
@@ -1205,7 +1208,7 @@ const Sketch=(()=>{
     shoulders:()=>{const k=P({x:100,s:.5,c:CK,hipY:52,ll:'ride',rl:'ride',la:'wave',ra:'out'}),a=P({x:100,la:k.kL,ra:k.kR});return a.svg+k.svg},
     blanket:()=>`<rect x="26" y="137" width="148" height="15" rx="4" fill="#e3dfd8"/>`+P({x:58,m:'sit'}).svg+P({x:142,s:1.05,c:CB,m:'sit'}).svg+P({x:100,s:.55,c:CK,m:'sit',la:'up',ra:'up'}).svg,
     baby:()=>{const a=P({x:92,la:'front',ra:'front'}),b=P({x:126,s:1.07,c:CB,lean:-9,la:a.shR});const c=[(a.hL[0]+a.hR[0])/2,(a.hL[1]+a.hR[1])/2-3];
-      return b.svg+a.svg+`<ellipse cx="${f(c[0])}" cy="${f(c[1])}" rx="15" ry="7.5" fill="#f6efe3" stroke="#e2cfb0" stroke-width="1.5"/><circle cx="${f(c[0]-11)}" cy="${f(c[1]-3)}" r="5.5" fill="${SKIN}"/><path d="M${f(c[0]-16)} ${f(c[1]-5)}q5 -6 10 -1" fill="#a8742f"/>`},
+      return b.svg+a.svg+`<ellipse cx="${f(c[0])}" cy="${f(c[1])}" rx="15" ry="7.5" fill="#8a93a0"/><circle cx="${f(c[0]-11)}" cy="${f(c[1]-3)}" r="5.5" fill="#8a93a0"/>`},
     dogsit:()=>{const [a,b]=couple({x:62,ra:[100,100]},{x:138,la:[100,100]});return a.svg+b.svg+Dog(100,150,1.05,1,'sit').svg},
     dogwalk:()=>{const d=Dog(146,150,1.15,1,'stand'),a=P({x:70,ll:'fwd',rl:'back',ra:[96,110]});return d.svg+a.svg+`<path d="M${pt(a.hR)}Q120 132 ${pt(d.collar)}" stroke="${CX}" stroke-width="2" fill="none"/>`},
     dogkneel:()=>{const d=Dog(132,150,1.15,-1,'sit'),a=P({x:82,m:'kneel',ra:[d.head[0]+4,d.head[1]-4]});return d.svg+a.svg},
