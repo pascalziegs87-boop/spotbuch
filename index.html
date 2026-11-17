@@ -432,6 +432,13 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
 h3 .sum{font-weight:500;color:var(--mute);margin-left:6px}h3 .sum.over{color:#c23b2a}
 .blks{margin-top:8px}
 .q:disabled{opacity:.4}
+/* ---- Fotos in Kacheln & Zuschneiden ---- */
+.pim img,.sth img{object-fit:contain;background:#ebe6dd}
+.cropf{position:relative;width:100%;aspect-ratio:5/4;overflow:hidden;border-radius:14px;background:#111;touch-action:none;margin:10px auto 8px;cursor:grab}
+.cropf img{position:absolute;left:0;top:0;max-width:none;transform-origin:0 0;user-select:none;-webkit-user-select:none;-webkit-user-drag:none;pointer-events:none}
+.cropf::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.85);background:linear-gradient(90deg,transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px) calc(33.33% + .5px),transparent 0,transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px) calc(66.66% + .5px),transparent 0),linear-gradient(transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px) calc(33.33% + .5px),transparent 0,transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px) calc(66.66% + .5px),transparent 0)}
+.zrow{display:flex;align-items:center;gap:10px;color:var(--mute)}
+.zrow input{flex:1;accent-color:var(--pin);height:28px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -988,7 +995,7 @@ async function deliver(blob,name){const file=new File([blob],name,{type:blob.typ
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}
 const stamp=()=>todayISO();
 async function backup(){busy(true);try{const photos=[];for(const list of S.photos.values())for(const p of list){const {blob,thumb,...m}=p;photos.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}
-  const poses=[];for(const r of await DB.all('poses')){const {blob,thumb,...m}=r;poses.push({...m,data:blob?await blobToData(blob):null,thumbData:thumb?await blobToData(thumb):null})}
+  const poses=[];for(const r of await DB.all('poses')){const {blob,thumb,orig,...m}=r;poses.push({...m,data:blob?await blobToData(blob):null,thumbData:thumb?await blobToData(thumb):null})}
   const json=JSON.stringify({app:'spotbuch',version:2,exported:new Date().toISOString(),spots:S.spots,photos,poses,shoots:S.shoots});
   await deliver(new Blob([json],{type:'application/json'}),`spotbuch-backup-${stamp()}.json`)}finally{busy(false)}}
 async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(await file.text());if(d.app!=='spotbuch')throw new Error('Kein Spotbuch-Backup');
@@ -1273,7 +1280,7 @@ async function saveShoot(x){x.updated=Date.now();await DB.put('shoots',x);if(!S.
 const relTypes=t=>t==='hochzeit'?['hochzeit','paar']:t==='sonst'?[]:[t];
 const fmtD=d=>d?new Date(d+'T12:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short',year:'numeric'}):'ohne Datum';
 const hm=m=>m==null||m===''?'':String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
-const ICS={cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',map:'<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/>',list:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+const ICS={crop:'<path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/>',minus:'<path d="M5 12h14"/>',cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',map:'<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/>',list:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
   grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
   check:'<path d="m5 12 5 5 9-10"/>',up:'<path d="m6 15 6-6 6 6"/>',down:'<path d="m6 9 6 6 6-6"/>',play:'<path d="M7 5v14l12-7z"/>',back:'<path d="m15 18-6-6 6-6"/>',next:'<path d="m9 18 6-6-6-6"/>',plus:'<path d="M12 5v14M5 12h14"/>'};
 Object.assign(IC,ICS);
@@ -1385,7 +1392,7 @@ function renderPoseLib(){S.view='poseLib';S.libTypes=S.libTypes||[];const list=f
 function renderPoseEdit(pid,back){S.view='poseEdit';S.poseBack=back||S.poseBack;const p=pid?S.poses.get(pid):{id:'',title:'',types:S.pickTypes&&S.pickTypes.length?S.pickTypes.filter(t=>t!=='mine'):['paar'],guide:'',tips:'',sk:'custom'};
   showSheet(`<form class="f" id="pf" data-id="${pid||''}" autocomplete="off"><div class="hd"><h2>${pid?'Pose bearbeiten':'Neue Pose'}</h2></div>
    <div class="pprev">${poseImg(p,true)}</div>
-   <div class="row2"><button type="button" class="btn sm" data-sh="posephoto">${ic('cam')} ${p.blob?'Foto ersetzen':'Eigenes Beispielfoto'}</button>${p.blob?`<button type="button" class="btn sm" data-sh="posephotodel">${p.builtin?'Zurück zur Skizze':'Foto entfernen'}</button>`:''}</div>
+   <div class="row2"><button type="button" class="btn sm" data-sh="posephoto">${ic('cam')} ${p.blob?'Foto ersetzen':'Eigenes Beispielfoto'}</button>${p.blob?`<button type="button" class="btn sm" data-sh="cropopen">${ic('crop')} Zuschneiden</button><button type="button" class="btn sm" data-sh="posephotodel">${p.builtin?'Zurück zur Skizze':'Foto entfernen'}</button>`:''}</div>
    <section class="grp"><label>Titel<input type="text" name="title" value="${esc(p.title)}" placeholder="z. B. Stirn an Stirn"></label>
     <div class="lab">Passt zu${optsHTML(STYPES.filter(t=>t[0]!=='sonst'),p.types,'types')}</div></section>
    <section class="grp"><label>Anweisung fürs Paar <span class="ex">– das sagst du vor Ort</span><textarea name="guide" placeholder="Stellt euch …">${esc(p.guide)}</textarea></label>
@@ -1393,8 +1400,43 @@ function renderPoseEdit(pid,back){S.view='poseEdit';S.poseBack=back||S.poseBack;
    <div class="sticky"><button type="button" class="btn" data-sh="poseback">Abbrechen</button><button class="btn acc" type="submit">Speichern</button></div>
    ${pid?`<div class="foot"><span></span><span>${p.builtin?`<button type="button" class="lnk" data-sh="posereset">Auf Standard zurücksetzen</button><button type="button" class="lnk dng" data-sh="posehide">Ausblenden</button>`:`<button type="button" class="lnk dng" data-sh="posedel">${ic('trash')} Löschen</button>`}</span></div>`:''}</form>`,true)}
 function collectPose(f,p){const v=n=>f.querySelector(`[name=${n}]`).value.trim();p.title=v('title')||p.title||'Eigene Pose';p.guide=v('guide');p.tips=v('tips');
+
   const t=[...f.querySelectorAll('[data-multi=types] [aria-pressed=true]')].map(b=>b.dataset.v);p.types=t.length?t:(p.types&&p.types.length?p.types:['paar'])}
 function poseBack(){const b=S.poseBack;if(b&&b.startsWith('pick:'))renderPosePick(b.slice(5));else renderPoseLib()}
+
+/* Zuschneiden */
+const CROP_AR=[['5:4','Kachel 5:4',5/4],['4:5','Hoch 4:5',4/5],['1:1','Quadrat',1],['3:2','Quer 3:2',3/2],['orig','Original',0]];
+function renderPoseCrop(pid){const p=S.poses.get(pid),src=p&&(p.orig||p.blob);if(!src)return;S.view='poseCrop';
+  if(S.crop&&S.crop.url)URL.revokeObjectURL(S.crop.url);S.crop={pid,ar:(p.crop&&p.crop.ar)||'5:4',z:1,ox:null,oy:null,url:URL.createObjectURL(src),iw:0,ih:0};
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Foto zuschneiden</h2><div class="meta"><span>${esc(p.title)}</span></div></div></div>
+   <div class="opts" id="cropAr">${CROP_AR.map(a=>`<button type="button" data-ar="${a[0]}" aria-pressed="${a[0]===S.crop.ar}">${a[1]}</button>`).join('')}</div>
+   <div class="cropf" id="cropF"><img id="cropI" src="${S.crop.url}" alt="" draggable="false"></div>
+   <div class="zrow">${ic('minus')}<input type="range" id="cropZ" min="1" max="4" step="0.01" value="1" aria-label="Zoom">${ic('plus')}</div>
+   <p class="ex">Bild mit dem Finger verschieben, mit zwei Fingern oder dem Regler zoomen. Das Originalfoto bleibt erhalten.</p>
+   <div class="sticky"><button type="button" class="btn" data-sh="cropcancel">Abbrechen</button><button type="button" class="btn acc" data-sh="cropok">Übernehmen</button></div>`,true);
+  const F=$('#cropF'),I=$('#cropI');I.onload=()=>{S.crop.iw=I.naturalWidth;S.crop.ih=I.naturalHeight;cropLayout(true)};if(I.complete&&I.naturalWidth)I.onload();
+  const pts=new Map();let st=null;
+  const stop=e=>e.stopPropagation();F.addEventListener('touchstart',stop,{passive:true});F.addEventListener('touchmove',stop,{passive:true});F.addEventListener('touchend',stop,{passive:true});
+  F.addEventListener('pointerdown',e=>{F.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);st=null});
+  F.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const prev=pts.get(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);const c=S.crop;
+    if(pts.size===1){c.ox+=e.clientX-prev[0];c.oy+=e.clientY-prev[1];cropLayout()}
+    else if(pts.size===2){const [a,b]=[...pts.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);if(!st)st={d,z:c.z};cropZoom(st.z*d/st.d)}});
+  const up=e=>{pts.delete(e.pointerId);st=null};F.addEventListener('pointerup',up);F.addEventListener('pointercancel',up);
+  $('#cropZ').addEventListener('input',e=>cropZoom(+e.target.value));
+  new ResizeObserver(()=>cropLayout()).observe(F.parentElement)}
+function cropFrame(){const c=S.crop;if(!c)return null;const a=CROP_AR.find(x=>x[0]===c.ar),r=a&&a[2]?a[2]:(c.iw&&c.ih?c.iw/c.ih:5/4);const F=$('#cropF');if(!F)return null;F.style.aspectRatio=String(r);const W=F.parentElement.clientWidth,mh=innerHeight*.52;F.style.width=Math.min(W,mh*r)+'px';return F}
+function cropLayout(reset){const c=S.crop;if(!c)return;const F=cropFrame(),I=$('#cropI');if(!F||!I||!c.iw)return;const fw=F.clientWidth,fh=F.clientHeight;if(!fw||!fh)return;
+  const sc=Math.max(fw/c.iw,fh/c.ih)*c.z,w=c.iw*sc,h=c.ih*sc;if(reset||c.ox==null){c.ox=(fw-w)/2;c.oy=(fh-h)/2}
+  c.ox=Math.min(0,Math.max(fw-w,c.ox));c.oy=Math.min(0,Math.max(fh-h,c.oy));c.sc=sc;c.fw=fw;c.fh=fh;
+  I.style.width=w+'px';I.style.height=h+'px';I.style.transform=`translate(${c.ox}px,${c.oy}px)`}
+function cropZoom(z){const c=S.crop;if(!c||!c.sc)return;z=Math.max(1,Math.min(4,z));const cx=(c.fw/2-c.ox)/c.sc,cy=(c.fh/2-c.oy)/c.sc;c.z=z;
+  const sc=Math.max(c.fw/c.iw,c.fh/c.ih)*z;c.ox=c.fw/2-cx*sc;c.oy=c.fh/2-cy*sc;const r=$('#cropZ');if(r)r.value=z;cropLayout()}
+async function cropApply(){const c=S.crop,p=S.poses.get(c.pid);if(!p||!c.sc)return;busy(true);
+  try{const img=$('#cropI'),sx=-c.ox/c.sc,sy=-c.oy/c.sc,sw=c.fw/c.sc,sh=c.fh/c.sc,k=Math.min(1,2048/Math.max(sw,sh));
+    const draw=(W,H,q)=>{const cv=document.createElement('canvas');cv.width=Math.round(W);cv.height=Math.round(H);cv.getContext('2d').drawImage(img,sx,sy,sw,sh,0,0,cv.width,cv.height);return new Promise(r=>cv.toBlob(r,'image/jpeg',q))};
+    const full=await draw(sw*k,sh*k,.88),t=Math.min(1,320/Math.max(sw,sh)),thumb=await draw(sw*t,sh*t,.75);
+    if(!p.orig)p.orig=p.blob;p.blob=full;p.thumb=thumb;p.crop={ar:c.ar};resetUrl(p.id);await savePose(p)}finally{busy(false)}
+  URL.revokeObjectURL(c.url);S.crop=null;toast('Zuschnitt gespeichert');renderPoseEdit(p.id)}
 let pendingPose=null;
 
 /* Shooting-Modus */
@@ -1424,6 +1466,7 @@ const togg=(arr,v)=>arr.includes(v)?arr.filter(x=>x!==v):[...arr,v];
 body.addEventListener('click',async e=>{
   const pt=e.target.closest('[data-pt]');if(pt){S.pickTypes=togg(S.pickTypes||[],pt.dataset.pt);renderPosePick(S.shootId);return}
   const lt=e.target.closest('[data-lt]');if(lt){S.libTypes=togg(S.libTypes||[],lt.dataset.lt);renderPoseLib();return}
+  const ar=e.target.closest('#cropAr [data-ar]');if(ar&&S.crop){S.crop.ar=ar.dataset.ar;S.crop.z=1;const r=$('#cropZ');if(r)r.value=1;document.querySelectorAll('#cropAr [data-ar]').forEach(b=>b.setAttribute('aria-pressed',b===ar));requestAnimationFrame(()=>cropLayout(true));return}
   const sg=e.target.closest('[data-single] button');if(sg){[...sg.parentNode.children].forEach(b=>b.setAttribute('aria-pressed',b===sg));return}
   const b=e.target.closest('[data-sh]');if(!b)return;const a=b.dataset.sh,x=shoot(S.shootId),i=+b.dataset.i;
   if(a==='open')return renderShoot(b.dataset.id||S.shootId);
@@ -1451,7 +1494,10 @@ body.addEventListener('click',async e=>{
   if(a==='poseback')return poseBack();
   if(a==='posephoto'){pendingPose=true;return $('#fPose').click()}
   const f=$('#pf'),pid=f&&f.dataset.id,p=pid&&S.poses.get(pid);
-  if(a==='posephotodel'&&p){collectPose(f,p);p.blob=null;p.thumb=null;resetUrl(p.id);await savePose(p);return renderPoseEdit(p.id)}
+  if(a==='cropopen'&&p){collectPose(f,p);await savePose(p);return renderPoseCrop(p.id)}
+  if(a==='cropcancel'){const id=S.crop&&S.crop.pid;if(S.crop)URL.revokeObjectURL(S.crop.url);S.crop=null;return renderPoseEdit(id)}
+  if(a==='cropok')return cropApply();
+  if(a==='posephotodel'&&p){collectPose(f,p);p.blob=null;p.thumb=null;p.orig=null;p.crop=null;resetUrl(p.id);await savePose(p);return renderPoseEdit(p.id)}
   if(a==='posereset'&&p&&confirm('Text und Foto dieser Pose auf den Standard zurücksetzen?')){await DB.del('poses',p.id);S.poses.set(p.id,{...PBI[p.id]});resetUrl(p.id);return renderPoseEdit(p.id)}
   if(a==='posehide'&&p){p.hidden=true;await savePose(p);toast(`„${p.title}“ ausgeblendet`);return poseBack()}
   if(a==='posedel'&&p&&confirm(`Pose „${p.title}“ löschen?`)){await DB.del('poses',p.id);S.poses.delete(p.id);for(const q of S.shoots){const l=q.items.length;q.items=q.items.filter(t=>t.pose!==p.id);if(q.items.length!==l)await saveShoot(q)}return poseBack()}
@@ -1467,8 +1513,9 @@ body.addEventListener('submit',async e=>{const f=e.target;
     else{collectPose(f,p);await savePose(p)}
     toast('Pose gespeichert');poseBack()}});
 $('#fPose').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file||!pendingPose)return;pendingPose=null;const f=$('#pf');if(!f)return;
-  let id=f.dataset.id,p=id&&S.poses.get(id);if(!p){p={id:uid(),builtin:false,sk:'custom',created:Date.now(),types:[]};id=p.id}collectPose(f,p);
-  busy(true);try{const {full,thumb}=await shrink(file);p.blob=full;p.thumb=thumb;resetUrl(p.id);await savePose(p)}finally{busy(false)}renderPoseEdit(p.id)};
+  let id=f.dataset.id,p=id&&S.poses.get(id),isNew=!p;if(!p){p={id:uid(),builtin:false,sk:'custom',created:Date.now(),types:[]};id=p.id}collectPose(f,p);
+  busy(true);try{const {full,thumb}=await shrink(file);p.blob=full;p.thumb=thumb;p.orig=null;p.crop=null;resetUrl(p.id);await savePose(p);
+    const bk=S.poseBack||'';if(isNew&&bk.startsWith('pick:')){const x=shoot(bk.slice(5));if(x){x.items.push({kind:'pose',pose:p.id,done:false,min:5});await saveShoot(x)}}}finally{busy(false)}renderPoseEdit(p.id)};
 /* Shooting-Modus */
 $('#run').addEventListener('click',e=>{const R=$('#run');if(R.classList.contains('client')){R.classList.remove('client');return}
   const b=e.target.closest('[data-r]');if(!b){if(e.target.closest('#runImg'))R.classList.add('client');return}
@@ -1482,7 +1529,7 @@ $('#run').addEventListener('click',e=>{const R=$('#run');if(R.classList.contains
 document.addEventListener('visibilitychange',async()=>{if(!$('#run').hidden&&document.visibilityState==='visible'&&navigator.wakeLock){try{run.lock=await navigator.wakeLock.request('screen')}catch(e){}}});
 
 /* ---------- Menüleiste unten ---------- */
-function syncTabs(){const v=sheet.hidden?null:S.view,t=!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'||v==='settings'?'map':v==='list'?'spots':v==='poseLib'||v==='poseEdit'&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
+function syncTabs(){const v=sheet.hidden?null:S.view,t=!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'||v==='settings'?'map':v==='list'?'spots':v==='poseLib'||(v==='poseEdit'||v==='poseCrop')&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
   document.querySelectorAll('#tabs [data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===t?'page':'false'))}
 new MutationObserver(syncTabs).observe(sheet,{attributes:true,attributeFilter:['hidden']});
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const t=b.dataset.tab;
