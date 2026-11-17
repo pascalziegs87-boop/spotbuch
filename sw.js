@@ -1,5 +1,5 @@
 // Spotbuch Service Worker: App offline verfügbar + besuchte Kartenkacheln zwischenspeichern
-const SHELL_CACHE = 'spotbuch-shell-v4';
+const SHELL_CACHE = 'spotbuch-shell-v5';
 const TILE_CACHE = 'spotbuch-tiles-v1';
 const MAX_TILES = 4000;
 const SHELL = [

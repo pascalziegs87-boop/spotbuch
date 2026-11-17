@@ -332,6 +332,103 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
 #planner .days button[aria-pressed=true],#planner .dpick.on{background:var(--ink);color:var(--bg)}
 .planbtn{width:100%;margin-top:10px;min-height:50px}
 .planbtn svg.i{color:var(--gold)}
+/* ---- Shootings ---- */
+.ring{display:block;width:30px;height:30px;border-radius:50%;background:conic-gradient(var(--pin) calc(var(--p)*1%),var(--line) 0);-webkit-mask:radial-gradient(circle,transparent 9px,#000 10px);mask:radial-gradient(circle,transparent 9px,#000 10px)}
+.btn.big{width:100%;min-height:54px;font-size:16px;margin:4px 0 6px}
+.btn:disabled{opacity:.45}
+.prog2{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.prog2 i{display:block;height:100%;background:var(--pin);border-radius:3px;transition:width .3s}
+.sl{display:flex;align-items:center;gap:10px;justify-content:space-between;margin-top:10px}
+.sl>div{display:grid;gap:1px}.sl b{font-size:16px}
+.shots{display:grid;gap:8px}
+.shot{display:grid;grid-template-columns:84px minmax(0,1fr) auto;gap:10px;align-items:center;background:var(--soft);border-radius:16px;padding:8px}
+.shot.done{opacity:.6}.shot.done .stx b{text-decoration:line-through}
+.sth{border:0;padding:0;background:none;width:84px;aspect-ratio:5/4;border-radius:10px;overflow:hidden}
+.sth img,.sth svg,.pim img,.pim svg{width:100%;height:100%;object-fit:cover;display:block}
+.stx{display:grid;gap:2px}.stx b{font-size:15px}
+.stx span{font-size:13px;color:var(--mute);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sta{display:flex;flex-direction:column;align-items:center;gap:4px}
+.sta>span{display:flex}
+.ib.chk{width:40px;height:40px;box-shadow:none;background:var(--panel);color:var(--mute);border:2px solid var(--line)}
+.ib.chk.on{background:#3d8b5a;border-color:#3d8b5a;color:#fff}
+.mini{border:0;background:none;width:30px;height:30px;display:grid;place-items:center;color:var(--mute);padding:0}
+.mini svg.i{width:16px;height:16px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-top:8px}
+.pc{position:relative;border:2px solid transparent;background:var(--soft);border-radius:16px;padding:6px 6px 10px;text-align:left;display:grid;gap:6px;color:var(--ink)}
+.pc b{font-size:14px;line-height:1.25;padding:0 4px}
+.pc em{font-style:normal;font-size:12px;color:var(--gold);padding:0 4px;font-weight:600}
+.pc em.sk2{color:var(--mute);font-weight:500}
+.pim{display:block;aspect-ratio:5/4;border-radius:11px;overflow:hidden;background:#f7f5f1}
+.pchk{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.9);border:2px solid var(--line);display:grid;place-items:center;color:transparent}
+.pchk svg.i{width:16px;height:16px}
+.pc.on{border-color:#3d8b5a}.pc.on .pchk{background:#3d8b5a;border-color:#3d8b5a;color:#fff}
+.pc.cur{border-color:var(--pin)}
+.pc.add .pim{opacity:.8}
+.pprev{border-radius:16px;overflow:hidden;background:#f7f5f1;aspect-ratio:5/4;max-height:46vh;margin:0 auto 4px;width:100%}
+.pprev img,.pprev svg{width:100%;height:100%;object-fit:contain;display:block}
+#run{position:fixed;inset:0;z-index:880;background:var(--bg);display:flex;flex-direction:column;padding-top:var(--st)}
+#run[hidden]{display:none}
+.rbar{display:flex;gap:8px;align-items:center;padding:8px 12px}
+.rbar .ib{width:44px;height:44px;box-shadow:none;background:var(--soft);-webkit-backdrop-filter:none;backdrop-filter:none}
+.rt{flex:1;display:grid;gap:6px}.rt b{font-size:15px}
+.rimg{flex:1 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;padding:4px 12px;touch-action:pan-y}
+.rimg img{max-width:100%;max-height:100%;object-fit:contain;border-radius:18px}
+.rimg svg{width:100%;height:100%;max-height:100%;border-radius:18px}
+.rinfo{padding:10px 18px 0;max-height:36vh;overflow:auto}
+.rinfo h2{font-size:24px;line-height:1.15;margin:0 0 6px}
+.okb{font-size:13px;vertical-align:middle;background:#3d8b5a;color:#fff;border-radius:999px;padding:3px 9px;font-weight:600}
+.rg{font-size:18px;line-height:1.45;margin:0 0 8px}
+.rtp{font-size:14px;color:var(--mute);display:flex;gap:8px;align-items:flex-start;margin:0}
+.rtp svg.i{width:18px;height:18px;flex:none;margin-top:1px}
+.rnav{display:grid;grid-template-columns:58px minmax(0,1fr) minmax(0,1.5fr);gap:8px;padding:12px 12px calc(var(--sb) + 12px)}
+.rnav .btn{min-height:58px;font-size:16px}
+.rgridw{display:none}
+#run.grid .rgridw{display:block;position:absolute;left:0;right:0;bottom:0;top:calc(var(--st) + 62px);background:var(--bg);overflow:auto;padding:4px 14px calc(var(--sb) + 16px)}
+.rx{display:none}
+#run.client{background:#000}
+#run.client>*{display:none}
+#run.client .rimg{display:flex;padding:0}
+#run.client .rimg img{border-radius:0}
+#run.client .rimg svg{border-radius:0}
+#run.client .rx{display:block;position:absolute;top:calc(var(--st) + 8px);right:8px;width:44px;height:44px;border:0;background:none;color:rgba(255,255,255,.35);font-size:26px}
+/* ---- Menüleiste ---- */
+:root{--tbh:calc(60px + var(--sb))}
+#btnList{display:none}
+#tabs{position:fixed;left:0;right:0;bottom:0;height:var(--tbh);padding-bottom:var(--sb);z-index:720;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-top:1px solid var(--line)}
+#tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:var(--mute);padding:6px 0 0}
+#tabs button[aria-current=page]{color:var(--pin)}
+#tabs svg.i{width:24px;height:24px}
+#sheet{bottom:var(--tbh)}
+#sheet.full{max-height:calc(100vh - var(--st) - var(--tbh) - 16px)}
+#sheetBody{padding-bottom:20px}
+.fabs{bottom:calc(var(--tbh) + 14px)}
+.menu{bottom:calc(var(--tbh) + 88px)}
+#planner{bottom:calc(var(--tbh) + 8px)}
+#cross .bar{bottom:calc(var(--tbh) + 12px)}
+.sticky{padding-bottom:10px}
+@media (min-width:900px){#sheet{bottom:calc(var(--tbh) + 12px)}#tabs{left:50%;right:auto;transform:translateX(-50%);width:440px;bottom:12px;border:1px solid var(--line);border-radius:18px;height:64px;padding:0;box-shadow:var(--shadow)}#planner{bottom:calc(var(--tbh) + 24px)}}
+.shot{grid-template-columns:52px minmax(0,1fr);row-gap:4px}
+.shot .sta{grid-column:2;flex-direction:row;justify-content:space-between;border-top:1px solid var(--line);padding-top:4px}
+.shot.blk .sta{border-top:0;padding-top:0}
+.shot .stx span{-webkit-line-clamp:3}
+.shot.blk{background:none;border:1px dashed var(--line)}
+.stx2{display:grid;grid-template-columns:76px minmax(0,1fr);gap:10px;align-items:center}
+.sth{width:76px}
+.tm{display:grid;gap:3px;justify-items:start}
+.tm b{font-size:15px;font-variant-numeric:tabular-nums}
+.lp{font-style:normal;font-size:10.5px;font-weight:600;border-radius:6px;padding:1px 5px;background:var(--line)}
+.lp.gold{background:color-mix(in srgb,var(--gold) 30%,transparent)}.lp.blue{background:color-mix(in srgb,var(--blue) 25%,transparent)}.lp.night{background:var(--night);color:#fff}.lp.day{background:var(--day)}
+.mins{display:flex;align-items:center;gap:0}
+.mins b{font-size:13px;min-width:28px;text-align:center;font-variant-numeric:tabular-nums}
+.mins .mini{font-size:18px;font-weight:600;color:var(--ink)}
+.okt{display:inline-flex;align-items:center;gap:4px;justify-self:start;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:3px 10px 3px 6px;font-size:12.5px;font-weight:600;margin-top:4px;min-height:30px;color:var(--mute)}
+.okt svg.i{width:15px;height:15px}
+.okt.on{background:#3d8b5a;border-color:#3d8b5a;color:#fff}
+.kvs{display:grid;gap:8px;margin-top:12px}
+.kv{display:grid;grid-template-columns:5.5em 1fr;gap:10px;font-size:14px}.kv span{color:var(--mute)}.kv b{font-weight:600}
+h3 .sum{font-weight:500;color:var(--mute);margin-left:6px}h3 .sum.over{color:#c23b2a}
+.blks{margin-top:8px}
+.q:disabled{opacity:.4}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -376,6 +473,14 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
   <div class="inf" id="lbInf"></div>
 </div>
 
+<nav id="tabs" aria-label="Hauptmenü">
+  <button data-tab="map" aria-current="page"><svg class="i" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg><span>Karte</span></button>
+  <button data-tab="spots"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Spots</span></button>
+  <button data-tab="shoots"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/></svg><span>Shootings</span></button>
+  <button data-tab="poses"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v7M7 11l5-2 5 2M9 21l3-6 3 6"/></svg><span>Posen</span></button>
+</nav>
+<div id="run" hidden><div class="rbar" id="runBar"></div><div class="rimg" id="runImg"></div><div class="rinfo" id="runInfo"></div><div class="rnav" id="runNav"></div><div class="rgridw" id="runGrid"></div><button class="rx" aria-label="Zurück">×</button></div>
+<input type="file" id="fPose" accept="image/*" hidden>
 <div id="toast" role="status"><span id="toastT"></span><button id="toastB" hidden></button></div>
 <div class="busy" id="busy" hidden>Bilder werden verarbeitet …</div>
 <input type="file" id="fPhotos" accept="image/*" multiple hidden>
@@ -448,8 +553,8 @@ const Sun=(()=>{
 /* ---------- IndexedDB ---------- */
 const rq=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 const DB={db:null,
-  open(){return new Promise((res,rej)=>{const r=indexedDB.open('spotbuch',1);
-    r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('spots',{keyPath:'id'});d.createObjectStore('photos',{keyPath:'id'}).createIndex('spot','spotId')};
+  open(){return new Promise((res,rej)=>{const r=indexedDB.open('spotbuch',2);
+    r.onupgradeneeded=()=>{const d=r.result,h=n=>d.objectStoreNames.contains(n);if(!h('spots'))d.createObjectStore('spots',{keyPath:'id'});if(!h('photos'))d.createObjectStore('photos',{keyPath:'id'}).createIndex('spot','spotId');if(!h('poses'))d.createObjectStore('poses',{keyPath:'id'});if(!h('shoots'))d.createObjectStore('shoots',{keyPath:'id'})};
     r.onsuccess=()=>{this.db=r.result;res()};r.onerror=()=>rej(r.error)})},
   st(n,m='readonly'){return this.db.transaction(n,m).objectStore(n)},
   all(n){return rq(this.st(n).getAll())},put(n,v){return rq(this.st(n,'readwrite').put(v))},del(n,id){return rq(this.st(n,'readwrite').delete(id))}
@@ -565,7 +670,7 @@ const meDist=s=>S.me?dist(S.me.lat,S.me.lng,s.lat,s.lng):null;
 
 /* ---------- Sheet ---------- */
 const sheet=$('#sheet'),body=$('#sheetBody');
-function showSheet(html,full=false){body.innerHTML=html;sheet.hidden=false;sheet.classList.toggle('full',full);body.scrollTop=0}
+function showSheet(html,full=false){body.innerHTML=html;sheet.hidden=false;sheet.classList.toggle('full',full);body.scrollTop=0;if(typeof syncTabs==='function')syncTabs()}
 function closeSheet(){simLayer.clearLayers();if(simTimer){clearInterval(simTimer);simTimer=null}
   if(S.wiz){const ws=spot(S.wiz.id);collectForm(ws);S.wiz=null;if(ws.name==='Neuer Spot'&&!phOf(ws.id).length){S.draft=ws.id;discardDraft();return}
     S.draft=null;if(ws.name==='Neuer Spot')ws.name='Unbenannter Spot';saveSpot(ws);openSpot(ws.id);return}
@@ -642,6 +747,7 @@ function renderSpot(s){const ps=phOf(s.id),d=meDist(s);if(simTimer){clearInterva
   ${ps.length?'':`<button class="empty" data-act="addph">${ic('img')}<b>Referenzfotos hinzufügen</b><span>Kamera, Mediathek oder Dateien</span></button>`}
   ${sunBlock(s)}
   <button class="btn planbtn" data-act="plan">${ic('sun')} Sonnenstand auf der Karte planen</button>
+  <button class="btn planbtn" data-sh="newat">${ic('cal')} Shooting hier planen</button>
   ${s.notes?`<h3>Bildideen & Notizen</h3><div class="card prose">${esc(s.notes)}</div>`:''}
   ${facts.length?`<h3>Vor Ort</h3><div class="card"><dl>${facts.map(x=>`<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join('')}</dl></div>`:''}
   ${(s.tags||[]).length?`<div class="tags">${s.tags.map(t=>`<span>#${esc(t)}</span>`).join('')}</div>`:''}
@@ -879,7 +985,8 @@ async function deliver(blob,name){const file=new File([blob],name,{type:blob.typ
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},2000)}
 const stamp=()=>todayISO();
 async function backup(){busy(true);try{const photos=[];for(const list of S.photos.values())for(const p of list){const {blob,thumb,...m}=p;photos.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}
-  const json=JSON.stringify({app:'spotbuch',version:1,exported:new Date().toISOString(),spots:S.spots,photos});
+  const poses=[];for(const r of await DB.all('poses')){const {blob,thumb,...m}=r;poses.push({...m,data:blob?await blobToData(blob):null,thumbData:thumb?await blobToData(thumb):null})}
+  const json=JSON.stringify({app:'spotbuch',version:2,exported:new Date().toISOString(),spots:S.spots,photos,poses,shoots:S.shoots});
   await deliver(new Blob([json],{type:'application/json'}),`spotbuch-backup-${stamp()}.json`)}finally{busy(false)}}
 async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(await file.text());if(d.app!=='spotbuch')throw new Error('Kein Spotbuch-Backup');
   for(const s of d.spots||[]){migrate(s);const ex=spot(s.id);if(!ex||(s.updated||0)>(ex.updated||0)){await DB.put('spots',s);if(ex)Object.assign(ex,s);else S.spots.push(s);ns++}}
@@ -887,7 +994,10 @@ async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(awa
   for(const p of d.photos||[]){if(have.has(p.id))continue;const {data,thumbData,...m}=p;
     const rec={...m,blob:await (await fetch(data)).blob(),thumb:await (await fetch(thumbData||data)).blob()};await DB.put('photos',rec);
     if(!S.photos.has(rec.spotId))S.photos.set(rec.spotId,[]);S.photos.get(rec.spotId).push(rec);np++}
-  renderMarkers();if(S.view==='welcome'||S.view==='settings'){sheet.hidden=true;S.view=null}toast(`${ns} Spots und ${np} Fotos übernommen`)}catch(e){toast('Backup konnte nicht gelesen werden: '+e.message)}finally{busy(false)}}
+  let nsh=0;for(const r of d.poses||[]){const {data,thumbData,...m}=r;await DB.put('poses',{...m,blob:data?await (await fetch(data)).blob():null,thumb:thumbData?await (await fetch(thumbData)).blob():null})}
+  if(d.poses&&d.poses.length)mergePoses(await DB.all('poses'));
+  for(const x of d.shoots||[]){const ex=shoot(x.id);if(!ex||(x.updated||0)>(ex.updated||0)){await DB.put('shoots',x);if(ex)Object.assign(ex,x);else S.shoots.push(x);nsh++}}
+  renderMarkers();if(S.view==='welcome'||S.view==='settings'){sheet.hidden=true;S.view=null}toast(`${ns} Spots, ${np} Fotos${nsh?`, ${nsh} Shootings`:''} übernommen`)}catch(e){toast('Backup konnte nicht gelesen werden: '+e.message)}finally{busy(false)}}
 const xml=s=>esc(s);
 function descOf(s){return [envNames(s).join(', '),s.notes,s.access&&('Zugang: '+s.access),s.rain&&('Regen: '+s.rain)].filter(Boolean).join('\n')}
 function gpx(){const w=S.spots.map(s=>`<wpt lat="${s.lat}" lon="${s.lng}"><name>${xml(s.name)}</name><desc>${xml(descOf(s))}</desc><type>${xml(envNames(s)[0]||'')}</type></wpt>`).join('\n');
@@ -977,12 +1087,366 @@ body.addEventListener('input',e=>{if(e.target.id==='simT'){S.simMin=+e.target.va
 body.addEventListener('change',e=>{if(e.target.id==='sunDate'&&e.target.value){S.date=e.target.value;const s=spot(S.sel);if(s){drawOverlay(s);renderSpot(s)}}
   if(e.target.dataset.f!=null){S.f[e.target.dataset.f]=e.target.value;renderMarkers();renderList()}
   if(e.target.id==='sort'){S.sort=e.target.value;ls.set('sort',S.sort);renderList()}});
-body.addEventListener('submit',async e=>{e.preventDefault();if(S.wiz)return wizGo(1);const s=spot(S.sel);if(!s)return;collectForm(s);S.draft=null;await saveSpot(s);openSpot(s.id);toast('Gespeichert')});
+body.addEventListener('submit',async e=>{e.preventDefault();if(e.target.id!=='ef')return;if(S.wiz)return wizGo(1);const s=spot(S.sel);if(!s)return;collectForm(s);S.draft=null;await saveSpot(s);openSpot(s.id);toast('Gespeichert')});
+
+/* ---------- Posen-Skizzen (Strichfiguren) ---------- */
+const Sketch=(()=>{
+  const CA='#1b1d21',CB='#e2553a',CK='#d9922c',CD='#8a6f5a',CX='#a3a8b0';
+  const rot=(p,c,d)=>{if(!d)return p;const a=d*rad,x=p[0]-c[0],y=p[1]-c[1];return [c[0]+x*Math.cos(a)-y*Math.sin(a),c[1]+x*Math.sin(a)+y*Math.cos(a)]};
+  const rv=(v,d)=>rot(v,[0,0],d);
+  const ARM={down:s=>[[s*.03,.17],[s*.04,.33]],hip:s=>[[s*.13,.12],[s*.04,.26]],up:s=>[[s*.05,-.15],[s*.02,-.31]],out:s=>[[s*.16,.02],[s*.32,0]],
+    front:s=>[[s*.05,.15],[-s*.05,.2]],wave:s=>[[s*.15,-.02],[s*.17,-.18]],head:s=>[[s*.13,-.1],[-s*.07,-.15]],cross:s=>[[s*.04,.14],[-s*.13,.1]],pocket:s=>[[s*.06,.15],[s*.02,.24]]};
+  const LEG={stand:(s,H,hp,gy)=>[[hp[0]+s*H*.01,hp[1]+H*.235],[hp[0]+s*H*.03,gy]],fwd:(s,H,hp,gy)=>[[hp[0]+s*H*.07,hp[1]+H*.22],[hp[0]+s*H*.16,gy]],
+    back:(s,H,hp,gy)=>[[hp[0]-s*H*.015,hp[1]+H*.235],[hp[0]-s*H*.05,gy]],cross:(s,H,hp,gy,x)=>[[x,hp[1]+H*.23],[x-s*H*.05,gy]],
+    box:(s,H,hp,gy)=>[[hp[0]+s*H*.07,hp[1]+H*.03],[hp[0]+s*H*.08,gy]],sit:(s,H,hp,gy,x)=>[[x+s*H*.22,hp[1]+H*.03],[x-s*H*.05,hp[1]+H*.08]],
+    kneel:(s,H,hp,gy)=>s<0?[[hp[0]-H*.02,gy-2],[hp[0]-H*.15,gy]]:[[hp[0]+H*.14,gy-H*.17],[hp[0]+H*.16,gy]],
+    up:(s,H,hp)=>[[hp[0]+s*H*.07,hp[1]+H*.17],[hp[0]+s*H*.03,hp[1]+H*.31]],ride:(s,H,hp)=>[[hp[0]+s*H*.26,hp[1]+H*.1],[hp[0]+s*H*.22,hp[1]+H*.4]]};
+  const HIP={stand:.47,box:.30,sit:.09,kneel:.29};
+  const f=n=>n.toFixed(1),pt=p=>f(p[0])+' '+f(p[1]);
+  function P(o){const H=100*(o.s||1),x=o.x,gy=o.gy??150,m=o.m||'stand',c=o.c||CA,ln=o.lean||0;
+    const hipY=o.hipY??gy-H*HIP[m],hip=[x,hipY],R=p=>rot(p,hip,ln);
+    const neck=R([x,hipY-H*.29]),head=R([x,hipY-H*.40]),shL=R([x-H*.1,hipY-H*.27]),shR=R([x+H*.1,hipY-H*.27]);
+    const arm=(sh,s,a)=>{if(Array.isArray(a)){const mx=(sh[0]+a[0])/2,my=(sh[1]+a[1])/2;return [[mx+s*H*.04,my+H*.05],a]}
+      const A=ARM[a||'down'](s),e=rv([A[0][0]*H,A[0][1]*H],ln),h=rv([A[1][0]*H,A[1][1]*H],ln);return [[sh[0]+e[0],sh[1]+e[1]],[sh[0]+h[0],sh[1]+h[1]]]};
+    const [eL,hL]=arm(shL,-1,o.la),[eR,hR]=arm(shR,1,o.ra);
+    const hpL=[x-H*.05,hipY],hpR=[x+H*.05,hipY],dl=m==='stand'?'stand':m;
+    const [kL,fL]=LEG[o.ll||dl](-1,H,hpL,gy,x),[kR,fR]=LEG[o.rl||dl](1,H,hpR,gy,x);
+    const w=f(7*H/100);
+    const svg=`<g stroke="${c}" stroke-width="${w}" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="${o.op||1}"><path d="M${pt(neck)}L${pt(hip)}M${pt(shL)}L${pt(shR)}M${pt(hpL)}L${pt(hpR)}M${pt(shL)}L${pt(eL)}L${pt(hL)}M${pt(shR)}L${pt(eR)}L${pt(hR)}M${pt(hpL)}L${pt(kL)}L${pt(fL)}M${pt(hpR)}L${pt(kR)}L${pt(fR)}"/></g><circle cx="${f(head[0])}" cy="${f(head[1])}" r="${f(H*.085)}" fill="${c}" opacity="${o.op||1}"/>`;
+    return {svg,head,neck,hip,shL,shR,hL,hR,kL,kR,top:[head[0],head[1]-H*.085]}}
+  const line=(a,b,c,w,ex='')=>`<path d="M${pt(a)}L${pt(b)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" fill="none" ${ex}/>`;
+  function Dog(x,gy,s,fc,mode){const X=d=>x+fc*d*s,Y=d=>gy-d*s,c=CD,o=[];
+    if(mode==='sit'){o.push(`<circle cx="${f(X(-6))}" cy="${f(Y(10))}" r="${f(9*s)}" fill="${c}"/>`,line([X(-6),Y(12)],[X(4),Y(30)],c,10*s),line([X(4),Y(28)],[X(6),gy],c,4*s),line([X(0),Y(26)],[X(1),gy],c,4*s),
+      `<circle cx="${f(X(7))}" cy="${f(Y(38))}" r="${f(6.5*s)}" fill="${c}"/>`,line([X(7),Y(38)],[X(15),Y(36)],c,5*s),line([X(5),Y(43)],[X(2),Y(35)],c,4*s),line([X(-14),Y(4)],[X(-22),Y(2)],c,3*s));
+      return {svg:o.join(''),head:[X(9),Y(38)],collar:[X(5),Y(32)]}}
+    o.push(line([X(-16),Y(24)],[X(14),Y(26)],c,11*s),line([X(12),Y(24)],[X(13),gy],c,4*s),line([X(6),Y(24)],[X(6),gy],c,4*s),line([X(-14),Y(23)],[X(-15),gy],c,4*s),line([X(-8),Y(23)],[X(-8),gy],c,4*s),
+      line([X(14),Y(26)],[X(20),Y(36)],c,7*s),`<circle cx="${f(X(22))}" cy="${f(Y(38))}" r="${f(6.5*s)}" fill="${c}"/>`,line([X(22),Y(38)],[X(30),Y(35)],c,5*s),line([X(20),Y(42)],[X(17),Y(34)],c,4*s),
+      `<path d="M${pt([X(-16),Y(26)])}Q${pt([X(-24),Y(34)])} ${pt([X(-22),Y(42)])}" stroke="${c}" stroke-width="${f(3*s)}" fill="none" stroke-linecap="round"/>`);
+    return {svg:o.join(''),head:[X(24),Y(38)],collar:[X(18),Y(32)]}}
+  function Horse(x,gy,s,fc){const X=d=>x+fc*d*s,Y=d=>gy-d*s,c=CD;
+    const svg=[line([X(-30),Y(62)],[X(26),Y(62)],c,24*s),line([X(20),Y(56)],[X(21),gy],c,6*s),line([X(12),Y(56)],[X(12),gy],c,6*s),line([X(-24),Y(56)],[X(-25),gy],c,6*s),line([X(-16),Y(56)],[X(-16),gy],c,6*s),
+      line([X(24),Y(66)],[X(42),Y(100)],c,14*s),line([X(42),Y(100)],[X(60),Y(84)],c,11*s),line([X(42),Y(100)],[X(40),Y(111)],c,4*s),
+      `<path d="M${pt([X(-40),Y(66)])}Q${pt([X(-52),Y(50)])} ${pt([X(-48),Y(28)])}" stroke="${c}" stroke-width="${f(5*s)}" fill="none" stroke-linecap="round"/>`].join('');
+    return {svg,head:[X(58),Y(86)],neck:[X(33),Y(83)],back:[X(-2),Y(74)]}}
+  const ground=`<path d="M10 151H190" stroke="${CX}" stroke-width="2" stroke-dasharray="2 6" stroke-linecap="round"/>`;
+  const wrap=b=>`<svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" class="sk"><rect width="200" height="160" fill="#f7f5f1"/>${ground}${b}</svg>`;
+  const couple=(a,b)=>[P(Object.assign({x:84},a)),P(Object.assign({x:116,s:1.07,c:CB},b))];
+  const D={
+    walk:()=>{const [a,b]=couple({x:80,ll:'fwd',rl:'back',ra:[100,106]},{x:120,ll:'back',rl:'fwd',la:[100,106]});return a.svg+b.svg},
+    forehead:()=>{const b=P({x:112,s:1.07,c:CB,lean:-12,la:[94,104]}),a=P({x:90,lean:10,ra:[110,99]});return b.svg+a.svg},
+    backhug:()=>{const b=P({x:110,s:1.07,c:CB,lean:-8,la:[95,101],ra:[106,101]}),a=P({x:100,ra:'front',la:'down'});return b.svg+a.svg},
+    foreheadkiss:()=>{const a=P({x:92,lean:4,ra:[108,99]}),b=P({x:113,s:1.12,c:CB,lean:-17,la:[97,103]});return a.svg+b.svg},
+    twirl:()=>{const a=P({x:88,lean:6,ra:'up',ll:'fwd',rl:'back'}),b=P({x:120,s:1.07,c:CB,la:a.hR});return a.svg+b.svg},
+    sit:()=>{const a=P({x:78,m:'sit',lean:9,ra:'front'}),b=P({x:124,s:1.05,c:CB,m:'sit',lean:-6,la:a.shR});return a.svg+b.svg},
+    lookback:()=>{const [a,b]=couple({x:80,lean:-7,ll:'fwd',rl:'back',ra:[100,106]},{x:120,ll:'back',rl:'fwd',la:[100,106]});
+      return a.svg+b.svg+`<path d="M${pt([a.top[0]+6,a.top[1]-6])}q-12 -10 -22 2" stroke="${CX}" stroke-width="2.5" fill="none" stroke-linecap="round" marker-end="url(#ar)"/><defs><marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="${CX}"/></marker></defs>`},
+    whisper:()=>{const a=P({x:94,lean:-4,la:'front',ra:'front'}),b=P({x:110,s:1.07,c:CB,lean:-15,la:'hip'});return a.svg+b.svg},
+    veil:()=>`<path d="M48 150Q100 6 152 150" fill="rgba(255,255,255,.75)" stroke="${CX}" stroke-width="2" stroke-dasharray="3 5"/>`+(()=>{const b=P({x:110,s:1.07,c:CB,lean:-8,la:[96,104]}),a=P({x:92,lean:7,ra:[108,100]});return b.svg+a.svg})(),
+    firstlook:()=>{const b=P({x:122,s:1.07,c:CB,la:'head',ra:'head'}),a=P({x:82,lean:6,ra:b.shL,op:.95});return b.svg+a.svg},
+    rings:()=>line([30,170],[94,98],CA,16)+line([172,170],[108,98],CB,16)+`<circle cx="94" cy="96" r="13" fill="${CA}"/><circle cx="108" cy="96" r="13" fill="${CB}"/><circle cx="101" cy="86" r="7" fill="none" stroke="${CK}" stroke-width="4"/>`,
+    bouquet:()=>{const a=P({x:100,la:'front',ra:'front'});const c=[a.hL[0]/2+a.hR[0]/2,a.hL[1]/2+a.hR[1]/2];return a.svg+[[0,0,9,'#e9a23b'],[-8,4,7,'#7aa83f'],[8,4,7,'#e2553a'],[0,-7,6,'#f0c36a']].map(([dx,dy,r,c2])=>`<circle cx="${f(c[0]+dx)}" cy="${f(c[1]+dy)}" r="${r}" fill="${c2}"/>`).join('')},
+    wall:()=>`<rect x="136" y="20" width="44" height="131" fill="#e3dfd8"/>`+P({x:118,lean:7,la:'cross',ra:'cross',ll:'cross'}).svg,
+    hip:()=>P({x:100,lean:-5,la:'hip',ll:'fwd'}).svg,
+    stroll:()=>P({x:100,ll:'fwd',rl:'back',ra:'front'}).svg,
+    step:()=>`<rect x="66" y="120" width="68" height="31" rx="3" fill="#e3dfd8"/>`+P({x:100,m:'box',la:'front',ra:'front'}).svg,
+    hair:()=>P({x:100,la:'head',ra:'head',ll:'cross'}).svg,
+    shoulder:()=>P({x:100,lean:-6,ra:'pocket'}).svg+`<path d="M86 52q-14 -6 -22 6" stroke="${CX}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
+    famline:()=>{const a=P({x:38,s:.95,ra:[59,113]}),k1=P({x:78,s:.55,c:CK,la:[59,113],ra:[98,118]}),k2=P({x:118,s:.6,c:CK,la:[98,118],ra:[141,112]}),b=P({x:160,s:1.04,c:CB,la:[141,112]});return a.svg+b.svg+k1.svg+k2.svg},
+    swing:()=>{const k=P({x:100,s:.55,c:CK,gy:118,ll:'up',rl:'up',la:[72,90],ra:[128,90]}),a=P({x:52,ra:[72,90]}),b=P({x:148,s:1.07,c:CB,la:[128,90]});return a.svg+b.svg+k.svg},
+    huddle:()=>{const a=P({x:80,lean:10,ra:[97,110]}),b=P({x:122,s:1.07,c:CB,lean:-10,la:[105,110]}),k=P({x:101,s:.55,c:CK});return a.svg+b.svg+k.svg},
+    shoulders:()=>{const k=P({x:100,s:.5,c:CK,hipY:52,ll:'ride',rl:'ride',la:'wave',ra:'out'}),a=P({x:100,la:k.kL,ra:k.kR});return a.svg+k.svg},
+    blanket:()=>`<rect x="26" y="137" width="148" height="15" rx="4" fill="#e3dfd8"/>`+P({x:58,m:'sit'}).svg+P({x:142,s:1.05,c:CB,m:'sit'}).svg+P({x:100,s:.55,c:CK,m:'sit',la:'up',ra:'up'}).svg,
+    baby:()=>{const a=P({x:92,la:'front',ra:'front'}),b=P({x:126,s:1.07,c:CB,lean:-9,la:a.shR});const c=[(a.hL[0]+a.hR[0])/2,(a.hL[1]+a.hR[1])/2-3];
+      return b.svg+a.svg+`<ellipse cx="${f(c[0])}" cy="${f(c[1])}" rx="15" ry="7" fill="#fff" stroke="${CK}" stroke-width="3"/><circle cx="${f(c[0]-11)}" cy="${f(c[1]-3)}" r="5" fill="${CK}"/>`},
+    dogsit:()=>{const [a,b]=couple({x:62,ra:[100,100]},{x:138,la:[100,100]});return a.svg+b.svg+Dog(100,150,1.05,1,'sit').svg},
+    dogwalk:()=>{const d=Dog(146,150,1.15,1,'stand'),a=P({x:70,ll:'fwd',rl:'back',ra:[96,110]});return d.svg+a.svg+`<path d="M${pt(a.hR)}Q120 132 ${pt(d.collar)}" stroke="${CX}" stroke-width="2" fill="none"/>`},
+    dogkneel:()=>{const d=Dog(132,150,1.15,-1,'sit'),a=P({x:82,m:'kneel',ra:[d.head[0]+4,d.head[1]-4]});return d.svg+a.svg},
+    dogkiss:()=>{const d=Dog(120,150,1.15,-1,'sit'),a=P({x:94,m:'kneel',lean:16,ra:d.collar});return d.svg+a.svg},
+    dogtreat:()=>{const d=Dog(100,150,1.6,1,'sit');return d.svg+`<circle cx="112" cy="28" r="5" fill="${CK}"/><path d="M${pt(d.head)}L110 34" stroke="${CX}" stroke-width="2" stroke-dasharray="3 5"/>`},
+    horsestand:()=>{const h=Horse(138,150,1,-1),a=P({x:46,ra:h.neck});return h.svg+a.svg},
+    horselead:()=>{const h=Horse(140,150,1,-1),a=P({x:52,ll:'fwd',rl:'back',ra:[74,104]});return h.svg+a.svg+`<path d="M${pt(a.hR)}Q84 116 ${pt(h.head)}" stroke="${CX}" stroke-width="2" fill="none"/>`},
+    horsehead:()=>{const h=Horse(144,150,1,-1),a=P({x:66,lean:12,ra:h.head});return h.svg+a.svg},
+    horseride:()=>{const h=Horse(96,150,1,1),a=P({x:92,s:.9,hipY:h.back[1]-2,m:'box',gy:h.back[1]+30,la:'front',ra:'front'});return h.svg+a.svg+line(a.hR,h.head,CX,1.5)},
+    custom:()=>P({x:100,op:.35}).svg+`<circle cx="150" cy="40" r="16" fill="none" stroke="${CX}" stroke-width="3"/><path d="M144 40h12M150 34v12" stroke="${CX}" stroke-width="3" stroke-linecap="round"/>`
+  };
+  return {svg:k=>wrap((D[k]||D.custom)()),has:k=>!!D[k]};
+})();
+
+/* ---------- Shootings & Posen ---------- */
+const STYPES=[['paar','Paarshooting'],['hochzeit','Hochzeit'],['portrait','Portrait'],['familie','Familie'],['hund','Mit Hund'],['pferd','Mit Pferd'],['sonst','Sonstiges']];
+const PB=[
+ ['p_walk','walk',['paar','hochzeit'],'Hand in Hand spazieren','Geht langsam auf mich zu, haltet euch an der Hand und schaut euch an – nicht in die Kamera. Ruhig mal lachen.','Serienbild, leicht von unten. Mehrmals laufen lassen.'],
+ ['p_forehead','forehead',['paar','hochzeit'],'Stirn an Stirn','Ganz nah zueinander, Stirn an Stirn, Augen schließen und einmal tief durchatmen.','Gegenlicht, offene Blende, eng schneiden.'],
+ ['p_backhug','backhug',['paar','hochzeit'],'Umarmung von hinten','Einer umarmt den anderen von hinten, Kinn auf die Schulter. Beide schauen in dieselbe Richtung.','Auf Augenhöhe, Hintergrund weit.'],
+ ['p_kiss','foreheadkiss',['paar','hochzeit'],'Kuss auf die Stirn','Kuss auf die Stirn, der andere schließt die Augen und lächelt.','Nah ran, auf die Augen fokussieren.'],
+ ['p_twirl','twirl',['paar','hochzeit'],'Drehung','Hand hoch und langsam drunter durchdrehen – gern mehrmals hintereinander.','Serienbild, 1/500 s oder schneller.'],
+ ['p_sit','sit',['paar','hochzeit'],'Nebeneinander sitzen','Setzt euch eng nebeneinander, Kopf an die Schulter, erzählt euch etwas Lustiges.','Von leicht oben oder auf Bodenhöhe.'],
+ ['p_lookback','lookback',['paar','hochzeit'],'Weggehen & zurückschauen','Geht Hand in Hand von mir weg, auf mein Zeichen schaut einer über die Schulter zurück.','Von hinten, Weg als Führungslinie.'],
+ ['p_whisper','whisper',['paar','hochzeit'],'Ins Ohr flüstern','Flüstere ihm/ihr etwas Albernes ins Ohr – echtes Lachen gewinnt.','Auf das lachende Gesicht fokussieren.'],
+ ['h_veil','veil',['hochzeit'],'Unter dem Schleier','Schleier über euch beide legen, Stirn an Stirn, ganz ruhig.','Gegenlicht, Schleier leuchten lassen.'],
+ ['h_firstlook','firstlook',['hochzeit'],'First Look','Bräutigam schaut weg, Braut tippt auf die Schulter – erst dann umdrehen.','Auf das Gesicht des Umdrehenden fokussieren, Serienbild.'],
+ ['h_rings','rings',['hochzeit'],'Ringe – Hände','Hände übereinander legen, Ringe nach oben, ganz entspannt.','Makro oder 85 mm nah, Hintergrund weich.'],
+ ['h_bouquet','bouquet',['hochzeit'],'Brautstrauß','Strauß locker auf Bauchnabelhöhe, Ellbogen leicht vom Körper.','Ganzkörper und Halbtotale.'],
+ ['po_wall','wall',['portrait'],'An die Wand lehnen','Mit der Schulter an die Wand lehnen, Arme locker verschränken, ein Bein überkreuzen.','Seitlich fotografieren, Wand als Linie.'],
+ ['po_hip','hip',['portrait'],'Hand an die Hüfte','Gewicht aufs hintere Bein, eine Hand an die Hüfte, Kinn leicht nach vorn.','Leicht von oben, 85 mm.'],
+ ['po_walk','stroll',['portrait'],'Lockeres Gehen','Geh langsam an mir vorbei und schau einfach geradeaus.','Mitziehen, Serienbild.'],
+ ['po_step','step',['portrait','familie'],'Auf einer Stufe sitzen','Auf die Stufe setzen, Unterarme auf die Knie, leicht nach vorne lehnen.','Auf Augenhöhe gehen.'],
+ ['po_hair','hair',['portrait'],'Hände im Haar','Beide Hände locker durchs Haar, Blick nach oben oder zur Seite.','Nah, Lichtrichtung beachten.'],
+ ['po_shoulder','shoulder',['portrait'],'Blick über die Schulter','Wegdrehen und nur über die Schulter zu mir schauen.','Auf das vordere Auge fokussieren.'],
+ ['f_line','famline',['familie'],'Hand in Hand in einer Reihe','Alle an die Hand nehmen und langsam auf mich zulaufen.','Serienbild, Kinder reden lassen.'],
+ ['f_swing','swing',['familie'],'Kind schwingen','Kind an beiden Händen nehmen und auf drei hochschwingen.','1/1000 s, Serienbild.'],
+ ['f_huddle','huddle',['familie'],'Kuschelgruppe','Alle ganz eng zusammen, Kind vorne in die Mitte.','Köpfe auf unterschiedliche Höhen bringen.'],
+ ['f_shoulders','shoulders',['familie'],'Auf den Schultern','Kind auf die Schultern, Kind darf winken oder Grimassen machen.','Leicht von unten, Himmel als Hintergrund.'],
+ ['f_blanket','blanket',['familie'],'Alle auf der Decke','Gemeinsam auf die Decke setzen, Kind in die Mitte, kitzeln erlaubt.','Von oben (Leiter) oder Bodenhöhe.'],
+ ['f_baby','baby',['familie'],'Baby im Arm','Baby im Arm halten, Partner legt die Hand auf die Schulter, beide schauen aufs Baby.','Nah, warmes Licht.'],
+ ['d_sit','dogsit',['hund'],'Hund sitzt vor euch','Hund mittig vor euch setzen lassen, ihr haltet euch an der Hand.','Leckerli über der Kamera für den Blick.'],
+ ['d_walk','dogwalk',['hund'],'Spaziergang an der Leine','Ganz normal mit dem Hund auf mich zu spazieren.','Leine durchhängen lassen, Serienbild.'],
+ ['d_kneel','dogkneel',['hund'],'Auf Augenhöhe','In die Hocke gehen, Hand auf den Hundekopf, beide schauen zu mir.','Selbst auch runter auf Hundehöhe.'],
+ ['d_kiss','dogkiss',['hund'],'Kuss für den Hund','Hund an sich ziehen und einen Kuss auf den Kopf geben.','Nah, Augen des Hundes scharf.'],
+ ['d_treat','dogtreat',['hund'],'Hundeportrait mit Leckerli','Hund sitzen lassen – ich halte ein Leckerli über die Kamera.','Quietschie hilft, Augen fokussieren.'],
+ ['r_stand','horsestand',['pferd'],'Neben dem Pferd','Neben den Pferdekopf stellen, Hand an den Hals, zum Pferd schauen.','Pferd Ohren nach vorn: Geräusch machen.'],
+ ['r_lead','horselead',['pferd'],'Pferd führen','Pferd locker am Strick auf mich zu führen.','Seitlich versetzt, Serienbild.'],
+ ['r_head','horsehead',['pferd'],'Stirn ans Pferd','Stirn sanft an den Pferdekopf lehnen, Augen zu.','Eng schneiden, Gegenlicht.'],
+ ['r_ride','horseride',['pferd'],'Im Sattel','Aufrecht sitzen, Zügel locker, Blick nach vorn.','Pferd leicht schräg, Beine sichtbar.']
+].map(([id,sk,types,title,guide,tips],i)=>({id,sk,types,title,guide,tips,builtin:true,order:i}));
+const PBI=Object.fromEntries(PB.map(p=>[p.id,p]));
+S.poses=new Map();S.shoots=[];
+function mergePoses(rows){S.poses=new Map(PB.map(p=>[p.id,{...p}]));for(const r of rows){const b=PBI[r.id];S.poses.set(r.id,b?{...b,...r,builtin:true,sk:b.sk}:r)}}
+const poseList=types=>[...S.poses.values()].filter(p=>!p.hidden&&(!types||!types.length||p.types.some(t=>types.includes(t)))).sort((a,b)=>(a.order??999)-(b.order??999)||(a.created||0)-(b.created||0));
+function poseImg(p,full){if(p.blob)return `<img src="${url(p,full?'f':'t')}" alt="${esc(p.title)}">`;return Sketch.svg(p.sk||'custom')}
+async function savePose(p){p.updated=Date.now();const rec={...p};if(rec.builtin){const b=PBI[p.id];for(const k of ['sk','order','builtin'])delete rec[k];rec.id=p.id;rec.builtin=true;rec.order=b.order}
+  await DB.put('poses',rec);S.poses.set(p.id,p)}
+const resetUrl=id=>{for(const k of ['t','f']){const u=S.urls.get(id+k);if(u){URL.revokeObjectURL(u);S.urls.delete(id+k)}}};
+const shoot=id=>S.shoots.find(x=>x.id===id);
+async function saveShoot(x){x.updated=Date.now();await DB.put('shoots',x);if(!S.shoots.includes(x))S.shoots.push(x)}
+const relTypes=t=>t==='hochzeit'?['hochzeit','paar']:t==='sonst'?[]:[t];
+const fmtD=d=>d?new Date(d+'T12:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short',year:'numeric'}):'ohne Datum';
+const hm=m=>m==null||m===''?'':String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const ICS={cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',map:'<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/>',list:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  grid:'<rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/>',
+  check:'<path d="m5 12 5 5 9-10"/>',up:'<path d="m6 15 6-6 6 6"/>',down:'<path d="m6 9 6 6 6-6"/>',play:'<path d="M7 5v14l12-7z"/>',back:'<path d="m15 18-6-6 6-6"/>',next:'<path d="m9 18 6-6-6-6"/>',plus:'<path d="M12 5v14M5 12h14"/>'};
+Object.assign(IC,ICS);
+
+/* Liste */
+function renderShoots(){S.view='shoots';const today=todayISO();
+  const arr=[...S.shoots].sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999')),up=arr.filter(x=>!x.date||x.date>=today),past=arr.filter(x=>x.date&&x.date<today).reverse();
+  const card=x=>{const ps=x.items.filter(t=>t.kind!=='block'),n=ps.length,d=ps.filter(i=>i.done).length,sp=spot((x.spots||[])[0]),p=sp&&cover(sp);
+    return `<button class="li" data-sh="open" data-id="${x.id}"><span class="th" style="${p?`background-image:url(${url(p,'t')})`:''};--c:var(--pin)">${p?'':ic('list')}</span>
+      <span class="tx"><b>${esc(x.name)}</b><small>${esc(lab(STYPES,x.type))} · ${fmtD(x.date)}${x.time!=null&&x.time!==''?' · '+hm(x.time):''}</small><small>${sp?esc(sp.name)+' · ':''}${n?`${d}/${n} Posen`:'Noch keine Posen'}</small></span>
+      <span class="d">${n?`<i class="ring" style="--p:${Math.round(d/n*100)}"></i>`:''}</span></button>`};
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Shootings</h2><div class="meta"><span>${up.length} geplant</span></div></div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
+   <div class="row2"><button class="btn acc" data-sh="new">${ic('plus')} Neues Shooting</button><button class="btn" data-sh="lib">${ic('grid')} Posen-Bibliothek</button></div>
+   ${up.length?`<h3>Geplant</h3>${up.map(card).join('')}`:`<div class="empty static">${ic('list')}<b>Noch kein Shooting geplant</b><span>Lege ein Shooting an, wähle Spot und Posen und arbeite die Posen vor Ort ab.</span></div>`}
+   ${past.length?`<h3>Vergangen</h3>${past.map(card).join('')}`:''}`,true)}
+
+/* Anlegen / Bearbeiten */
+function renderShootEdit(id,pre={}){S.view='shootEdit';const x=shoot(id)||{type:'paar',date:'',time:'',duration:60,spots:pre.spot?[pre.spot]:[],clients:'',notes:'',name:''};
+  const sp=[...S.spots].sort((a,b)=>(x.spots.includes(b.id)-x.spots.includes(a.id))||a.name.localeCompare(b.name,'de'));
+  showSheet(`<form class="f" id="sf" data-id="${id||''}" autocomplete="off"><div class="hd"><h2>${id?'Shooting bearbeiten':'Neues Shooting'}</h2></div>
+   <section class="grp"><label>Name<input type="text" name="name" value="${esc(x.name)}" placeholder="z. B. Paarshooting Lisa & Tom"></label>
+    <div class="lab">Art<div class="opts" data-single="type">${STYPES.map(t=>`<button type="button" data-v="${t[0]}" aria-pressed="${x.type===t[0]}">${t[1]}</button>`).join('')}</div></div>
+    <div class="two"><label>Datum<input type="date" name="date" value="${x.date||''}"></label><label>Start<input type="time" name="time" value="${hm(x.time)}"></label></div>
+    <label>Dauer<select name="duration">${[30,45,60,75,90,120,150,180,240,300,480].map(m=>`<option value="${m}" ${(+x.duration||60)===m?'selected':''}>${fmtDur(m)}</option>`).join('')}</select></label>
+    <label>Kunden<input type="text" name="clients" value="${esc(x.clients)}" placeholder="Namen, Telefon …"></label></section>
+   <section class="grp"><h4>Spot</h4>${S.spots.length?`<div class="opts" data-multi="spots">${sp.map(s=>`<button type="button" data-v="${s.id}" aria-pressed="${x.spots.includes(s.id)}">${esc(s.name)}</button>`).join('')}</div>`:'<p class="ex">Noch keine Spots angelegt – du kannst später einen zuordnen.</p>'}</section>
+   <section class="grp"><label>Notizen<textarea name="notes" placeholder="Wünsche, Outfit, Ablauf …">${esc(x.notes)}</textarea></label></section>
+   <div class="sticky"><button type="button" class="btn" data-sh="${id?'open':'list'}" data-id="${id||''}">Abbrechen</button><button class="btn acc" type="submit">${id?'Speichern':'Weiter zu den Posen'}</button></div></form>`,true)}
+async function submitShoot(f){const id=f.dataset.id,v=n=>f.querySelector(`[name=${n}]`).value.trim();
+  const x=shoot(id)||{id:uid(),items:[],created:Date.now()},isNew=!id;
+  x.type=(f.querySelector('[data-single=type] [aria-pressed=true]')||{dataset:{v:'paar'}}).dataset.v;
+  x.name=v('name')||lab(STYPES,x.type)+(v('date')?' '+new Date(v('date')+'T12:00').toLocaleDateString('de-DE'):'');
+  x.date=v('date');const t=v('time');x.time=t?(+t.slice(0,2))*60+(+t.slice(3,5)):'';x.clients=v('clients');x.notes=v('notes');x.duration=+v('duration')||60;
+  const g=f.querySelector('[data-multi=spots]');x.spots=g?[...g.querySelectorAll('[aria-pressed=true]')].map(b=>b.dataset.v):(x.spots||[]);
+  await saveShoot(x);if(isNew){S.pickTypes=relTypes(x.type);renderPosePick(x.id)}else renderShoot(x.id)}
+
+/* Detail = Planungsmodus */
+const BLOCKS=['Begrüßung & Kennenlernen','Anfahrt / Ortswechsel','Outfitwechsel','Pause','Puffer'];
+const itMin=t=>t.min??(t.kind==='block'?10:5);
+function shotTime(x,k){if(x.time===''||x.time==null)return null;let m=+x.time;for(let q=0;q<k;q++)m+=itMin(x.items[q]);return m}
+const atDate=(x,m)=>{const q=new Date((x.date||todayISO())+'T00:00');q.setMinutes(m);return q};
+function renderShoot(id){const x=shoot(id);if(!x)return renderShoots();S.view='shoot';S.shootId=id;
+  const poses=x.items.filter(t=>t.kind!=='block'),n=poses.length,d=poses.filter(t=>t.done).length,sp=(x.spots||[]).map(spot).filter(Boolean),s0=sp[0];
+  const planned=x.items.reduce((a,t)=>a+itMin(t),0),dur=+x.duration||60,hasT=x.time!==''&&x.time!=null;
+  let light='';if(s0&&x.date){const t=Sun.times(new Date(x.date+'T12:00'),s0.lat,s0.lng);
+    light=`<div class="kv"><span>Licht</span><b>Goldene Stunde ${fmtT(t.goldA)}–${fmtT(t.blueA)} · Sonnenuntergang ${fmtT(t.set)}</b></div>`}
+  const row=(t,i)=>{const st=shotTime(x,i),ph=st!=null&&s0?phaseOf(Sun.position(atDate(x,st),s0.lat,s0.lng).alt):null;
+    const tm=`<div class="tm"><b>${st!=null?hm(st%1440):'–'}</b>${ph?`<i class="lp ${ph[1]}" title="${ph[0]}">${ph[0].replace(' Stunde','')}</i>`:''}</div>`;
+    const ctl=`<div class="sta"><span class="mins"><button class="mini" data-sh="min" data-i="${i}" data-d="-5" aria-label="5 Minuten weniger">−</button><b>${itMin(t)}′</b><button class="mini" data-sh="min" data-i="${i}" data-d="5" aria-label="5 Minuten mehr">+</button></span>
+      <span><button class="mini" data-sh="mv" data-i="${i}" data-d="-1" aria-label="Nach oben">${ic('up')}</button><button class="mini" data-sh="mv" data-i="${i}" data-d="1" aria-label="Nach unten">${ic('down')}</button><button class="mini" data-sh="rm" data-i="${i}" aria-label="Entfernen">${ic('x')}</button></span></div>`;
+    if(t.kind==='block')return `<div class="shot blk">${tm}<div class="stx"><b>${esc(t.title)}</b></div>${ctl}</div>`;
+    const p=S.poses.get(t.pose);if(!p)return '';
+    return `<div class="shot ${t.done?'done':''}">${tm}<div class="stx2"><button class="sth" data-sh="runat" data-i="${i}">${poseImg(p)}</button><div class="stx"><b>${esc(p.title)}</b><span>${esc(p.guide||'')}</span>
+      <button class="okt ${t.done?'on':''}" data-sh="toggle" data-i="${i}">${ic('check')} ${t.done?'Erledigt':'Abhaken'}</button></div></div>${ctl}</div>`};
+  showSheet(`<div class="hd"><div style="flex:1"><h2>${esc(x.name)}</h2><div class="meta"><span class="tag">${esc(lab(STYPES,x.type))}</span><span>${fmtD(x.date)}</span></div></div>
+    <button class="ib" data-sh="list" aria-label="Zurück zu den Shootings">${ic('back')}</button></div>
+   <div class="qa"><button class="q pri" data-sh="run" ${n?'':'disabled'}>${ic('play')}<span>${d&&d<n?'Fortsetzen':'Starten'}</span></button>
+    <button class="q" data-sh="ics">${ic('cal')}<span>Kalender</span></button><button class="q" data-sh="sun" ${s0?'':'disabled'}>${ic('sun')}<span>Licht</span></button><button class="q" data-sh="edit">${ic('edit')}<span>Bearbeiten</span></button></div>
+   ${n?`<div class="prog2"><i style="width:${d/n*100}%"></i></div><p class="ex" style="margin:4px 0 0">${d} von ${n} Posen erledigt</p>`:''}
+   <div class="card kvs"><div class="kv"><span>Zeit</span><b>${hasT?`${hm(x.time)}–${hm((+x.time+dur)%1440)} Uhr · ${fmtDur(dur)}`:'Noch keine Uhrzeit'}</b></div>
+    ${x.clients?`<div class="kv"><span>Kunden</span><b>${esc(x.clients)}</b></div>`:''}${light}</div>
+   ${sp.length?`<h3>Spot</h3>${sp.map(s=>{const p=cover(s);return `<button class="li" data-open="${s.id}"><span class="th" style="${p?`background-image:url(${url(p,'t')})`:''};--c:${envOf(s).color}">${p?'':ic('pin')}</span><span class="tx"><b>${esc(s.name)}</b><small>${esc(envNames(s).join(', '))}${s.parking?' · Parkplatz hinterlegt':''}</small></span><span class="d">${fmtDist(meDist(s))}</span></button>`}).join('')}`:`<p class="ex">Kein Spot zugeordnet – unter „Bearbeiten“ auswählen.</p>`}
+   <h3>Ablauf ${x.items.length?`<span class="sum ${planned>dur?'over':''}">${fmtDur(planned)} von ${fmtDur(dur)} verplant</span>`:''}</h3>
+   ${hasT?'':'<p class="ex">Tipp: Startzeit eintragen, dann siehst du für jede Pose Uhrzeit und Lichtphase.</p>'}
+   <div class="shots">${x.items.map(row).join('')}</div>
+   ${hasT&&x.items.length?`<p class="ex">Ende laut Ablauf: ${hm((shotTime(x,x.items.length))%1440)} Uhr</p>`:''}
+   <div class="row2" style="margin-top:10px"><button class="btn" data-sh="pick">${ic('plus')} Posen</button><button class="btn" data-sh="blkmenu">${ic('plus')} Block</button></div>
+   <div class="opts blks" id="blks" hidden>${BLOCKS.map(b=>`<button type="button" data-sh="blk" data-t="${esc(b)}">${esc(b)}</button>`).join('')}</div>
+   ${x.notes?`<h3>Notizen</h3><div class="card prose">${esc(x.notes)}</div>`:''}
+   <div class="foot"><span>${d?`<button class="lnk" data-sh="reset">Häkchen zurücksetzen</button>`:''}</span><span><button class="lnk dng" data-sh="del">${ic('trash')} Shooting löschen</button></span></div>`,true)}
+
+/* Kalender (.ics) */
+function icsText(x){const sp=(x.spots||[]).map(spot).filter(Boolean),s0=sp[0],dur=+x.duration||60,pad=n=>String(n).padStart(2,'0');
+  const st=x.time!==''&&x.time!=null?atDate(x,+x.time):null,en=st?new Date(st.getTime()+dur*6e4):null;
+  const loc=d=>`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}T${pad(d.getHours())}${pad(d.getMinutes())}00`;
+  const e=t=>String(t||'').replace(/\\/g,'\\\\').replace(/\n/g,'\\n').replace(/,/g,'\\,').replace(/;/g,'\;');
+  const lines=[];if(x.clients)lines.push('Kunden: '+x.clients);
+  if(s0){lines.push('Spot: '+s0.name);if(x.date){const t=Sun.times(new Date(x.date+'T12:00'),s0.lat,s0.lng);lines.push(`Goldene Stunde: ${fmtT(t.goldA)}–${fmtT(t.blueA)} · Sonnenuntergang ${fmtT(t.set)}`)}
+    lines.push('Route: https://maps.apple.com/?daddr='+s0.lat.toFixed(6)+','+s0.lng.toFixed(6));if(s0.parking)lines.push('Parkplatz: https://maps.apple.com/?daddr='+s0.parking.lat.toFixed(6)+','+s0.parking.lng.toFixed(6))}
+  if(x.items.length){lines.push('','Ablauf:');x.items.forEach((t,i)=>{const m=shotTime(x,i),p=t.kind==='block'?null:S.poses.get(t.pose);lines.push(`${m!=null?hm(m%1440)+' ':''}${t.kind==='block'?t.title:(p?p.title:'Pose')} (${itMin(t)} min)`)})}
+  if(x.notes)lines.push('','Notizen:',x.notes);
+  const ev=['BEGIN:VEVENT','UID:'+x.id+'@spotbuch','DTSTAMP:'+new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',
+    st?'DTSTART:'+loc(st):'DTSTART;VALUE=DATE:'+(x.date||todayISO()).replace(/-/g,''),st?'DTEND:'+loc(en):'',
+    'SUMMARY:'+e(x.name),s0?'LOCATION:'+e(s0.name):'',s0?`GEO:${s0.lat.toFixed(6)};${s0.lng.toFixed(6)}`:'','DESCRIPTION:'+e(lines.join('\n')),
+    st?'BEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:'+e(x.name)+'\r\nTRIGGER:-PT2H\r\nEND:VALARM':'','END:VEVENT'].filter(Boolean);
+  const fold=l=>{const o=[];let r=l;while(r.length>72){o.push(r.slice(0,72));r=' '+r.slice(72)}o.push(r);return o.join('\r\n')};
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Spotbuch//DE','CALSCALE:GREGORIAN',...ev.join('\r\n').split('\r\n').map(fold),'END:VCALENDAR'].join('\r\n')}
+async function exportIcs(x){if(!x.date){toast('Bitte zuerst ein Datum eintragen');return renderShootEdit(x.id)}
+  const name=(x.name||'shooting').replace(/[^\wäöüÄÖÜß-]+/g,'-')+'.ics';await deliver(new Blob([icsText(x)],{type:'text/calendar'}),name)}
+
+/* Posen auswählen */
+function typeChips(sel,attr){return `<div class="envrow">${STYPES.filter(t=>t[0]!=='sonst').map(t=>`<button ${attr}="${t[0]}" aria-pressed="${sel.includes(t[0])}">${t[1]}</button>`).join('')}<button ${attr}="mine" aria-pressed="${sel.includes('mine')}">Eigene</button></div>`}
+const filterPoses=sel=>{const mine=sel.includes('mine'),ts=sel.filter(t=>t!=='mine');return poseList(ts.length?ts:null).filter(p=>!mine||!p.builtin||p.blob)};
+function renderPosePick(id){const x=shoot(id);S.view='posePick';S.shootId=id;S.pickTypes=S.pickTypes||relTypes(x.type);const inS=new Set(x.items.map(i=>i.pose));
+  const list=filterPoses(S.pickTypes);
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Posen auswählen</h2><div class="meta"><span>${x.items.length} im Shooting · tippen zum Hinzufügen</span></div></div></div>
+   ${typeChips(S.pickTypes,'data-pt')}
+   <div class="pgrid">${list.map(p=>`<button class="pc ${inS.has(p.id)?'on':''}" data-sh="pk" data-p="${p.id}"><span class="pim">${poseImg(p)}</span><b>${esc(p.title)}</b>${p.blob?'<em>Eigenes Foto</em>':''}<i class="pchk">${ic('check')}</i></button>`).join('')}
+    <button class="pc add" data-sh="newpose"><span class="pim">${Sketch.svg('custom')}</span><b>Eigene Pose anlegen</b></button></div>
+   <div class="sticky"><button class="btn acc" data-sh="open" data-id="${id}">Fertig</button></div>`,true)}
+
+/* Bibliothek & Pose bearbeiten */
+function renderPoseLib(){S.view='poseLib';S.libTypes=S.libTypes||[];const list=filterPoses(S.libTypes);
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Posen-Bibliothek</h2><div class="meta"><span>${list.length} Posen · Skizzen nach und nach durch eigene Fotos ersetzen</span></div></div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
+   ${typeChips(S.libTypes,'data-lt')}
+   <div class="pgrid">${list.map(p=>`<button class="pc" data-sh="editpose" data-p="${p.id}"><span class="pim">${poseImg(p)}</span><b>${esc(p.title)}</b>${p.blob?'<em>Eigenes Foto</em>':'<em class="sk2">Skizze</em>'}</button>`).join('')}
+    <button class="pc add" data-sh="newpose"><span class="pim">${Sketch.svg('custom')}</span><b>Eigene Pose anlegen</b></button></div>
+   ${[...S.poses.values()].some(p=>p.hidden)?`<button class="lnk" data-sh="unhide" style="margin-top:12px">Ausgeblendete Standard-Posen wieder anzeigen</button>`:''}`,true)}
+function renderPoseEdit(pid,back){S.view='poseEdit';S.poseBack=back||S.poseBack;const p=pid?S.poses.get(pid):{id:'',title:'',types:S.pickTypes&&S.pickTypes.length?S.pickTypes.filter(t=>t!=='mine'):['paar'],guide:'',tips:'',sk:'custom'};
+  showSheet(`<form class="f" id="pf" data-id="${pid||''}" autocomplete="off"><div class="hd"><h2>${pid?'Pose bearbeiten':'Neue Pose'}</h2></div>
+   <div class="pprev">${poseImg(p,true)}</div>
+   <div class="row2"><button type="button" class="btn sm" data-sh="posephoto">${ic('cam')} ${p.blob?'Foto ersetzen':'Eigenes Beispielfoto'}</button>${p.blob?`<button type="button" class="btn sm" data-sh="posephotodel">${p.builtin?'Zurück zur Skizze':'Foto entfernen'}</button>`:''}</div>
+   <section class="grp"><label>Titel<input type="text" name="title" value="${esc(p.title)}" placeholder="z. B. Stirn an Stirn"></label>
+    <div class="lab">Passt zu${optsHTML(STYPES.filter(t=>t[0]!=='sonst'),p.types,'types')}</div></section>
+   <section class="grp"><label>Anweisung fürs Paar <span class="ex">– das sagst du vor Ort</span><textarea name="guide" placeholder="Stellt euch …">${esc(p.guide)}</textarea></label>
+    <label>Meine Notizen <span class="ex">– Technik, Perspektive; sieht das Paar nie</span><textarea name="tips" placeholder="Brennweite, Licht, Perspektive …">${esc(p.tips)}</textarea></label></section>
+   <div class="sticky"><button type="button" class="btn" data-sh="poseback">Abbrechen</button><button class="btn acc" type="submit">Speichern</button></div>
+   ${pid?`<div class="foot"><span></span><span>${p.builtin?`<button type="button" class="lnk" data-sh="posereset">Auf Standard zurücksetzen</button><button type="button" class="lnk dng" data-sh="posehide">Ausblenden</button>`:`<button type="button" class="lnk dng" data-sh="posedel">${ic('trash')} Löschen</button>`}</span></div>`:''}</form>`,true)}
+function collectPose(f,p){const v=n=>f.querySelector(`[name=${n}]`).value.trim();p.title=v('title')||p.title||'Eigene Pose';p.guide=v('guide');p.tips=v('tips');
+  const t=[...f.querySelectorAll('[data-multi=types] [aria-pressed=true]')].map(b=>b.dataset.v);p.types=t.length?t:(p.types&&p.types.length?p.types:['paar'])}
+function poseBack(){const b=S.poseBack;if(b&&b.startsWith('pick:'))renderPosePick(b.slice(5));else renderPoseLib()}
+let pendingPose=null;
+
+/* Shooting-Modus */
+const run={id:null,i:0,idx:[],lock:null};
+const runIt=k=>shoot(run.id).items[run.idx[k]];
+async function startRun(id,itemIdx){const x=shoot(id);if(!x)return;run.id=id;run.idx=x.items.map((t,k)=>t.kind==='block'?-1:k).filter(k=>k>=0);if(!run.idx.length)return;
+  run.i=itemIdx!=null?Math.max(0,run.idx.indexOf(itemIdx)):Math.max(0,run.idx.findIndex(k=>!x.items[k].done));
+  $('#run').hidden=false;$('#run').classList.remove('client','grid');document.body.classList.add('running');renderRun();
+  try{if(navigator.wakeLock)run.lock=await navigator.wakeLock.request('screen')}catch(e){}}
+function stopRun(){$('#run').hidden=true;document.body.classList.remove('running');try{run.lock&&run.lock.release()}catch(e){}run.lock=null;if(S.view==='shoot')renderShoot(run.id)}
+function renderRun(){const x=shoot(run.id),it=runIt(run.i),p=it&&S.poses.get(it.pose),n=run.idx.length,d=run.idx.filter(k=>x.items[k].done).length;if(!p)return;
+  const st=shotTime(x,run.idx[run.i]);
+  $('#runBar').innerHTML=`<button class="ib" data-r="close" aria-label="Shooting-Modus beenden">${ic('x')}</button><div class="rt"><b>Pose ${run.i+1} von ${n}${st!=null?` · geplant ${hm(st%1440)}`:''}</b><div class="prog2"><i style="width:${d/n*100}%"></i></div></div>
+    <button class="ib" data-r="grid" aria-label="Übersicht">${ic('grid')}</button><button class="ib" data-r="client" aria-label="Dem Paar zeigen">${ic('eye')}</button>`;
+  $('#runImg').innerHTML=poseImg(p,true);
+  $('#runInfo').innerHTML=`<h2>${esc(p.title)}${it.done?' <span class="okb">Erledigt</span>':''}</h2>${p.guide?`<p class="rg">${esc(p.guide)}</p>`:''}${p.tips?`<p class="rtp">${ic('cam')} ${esc(p.tips)}</p>`:''}`;
+  $('#runNav').innerHTML=`<button class="btn" data-r="prev" ${run.i?'':'disabled'} aria-label="Vorherige Pose">${ic('back')}</button><button class="btn" data-r="skip">Überspringen</button>
+    <button class="btn ${it.done?'':'acc'}" data-r="done">${it.done?'Nicht erledigt':ic('check')+' Erledigt'}</button>`;
+  $('#runGrid').innerHTML=`<div class="pgrid">${run.idx.map((k,j)=>{const t=x.items[k],q=S.poses.get(t.pose);return q?`<button class="pc ${t.done?'on':''} ${j===run.i?'cur':''}" data-r="go" data-i="${j}"><span class="pim">${poseImg(q)}</span><b>${j+1}. ${esc(q.title)}</b><i class="pchk">${ic('check')}</i></button>`:''}).join('')}</div>`}
+async function runDone(){const x=shoot(run.id),it=runIt(run.i);it.done=!it.done;await saveShoot(x);
+  if(it.done){const n=run.idx.length;let j=-1;for(let k=1;k<=n;k++){const q=(run.i+k)%n;if(!runIt(q).done){j=q;break}}
+    if(j<0){renderRun();toast('Alle Posen erledigt – stark!','Beenden',stopRun,6000);return}run.i=j}
+  renderRun()}
+
+/* ---------- Shooting-Ereignisse ---------- */
+const togg=(arr,v)=>arr.includes(v)?arr.filter(x=>x!==v):[...arr,v];
+body.addEventListener('click',async e=>{
+  const pt=e.target.closest('[data-pt]');if(pt){S.pickTypes=togg(S.pickTypes||[],pt.dataset.pt);renderPosePick(S.shootId);return}
+  const lt=e.target.closest('[data-lt]');if(lt){S.libTypes=togg(S.libTypes||[],lt.dataset.lt);renderPoseLib();return}
+  const sg=e.target.closest('[data-single] button');if(sg){[...sg.parentNode.children].forEach(b=>b.setAttribute('aria-pressed',b===sg));return}
+  const b=e.target.closest('[data-sh]');if(!b)return;const a=b.dataset.sh,x=shoot(S.shootId),i=+b.dataset.i;
+  if(a==='open')return renderShoot(b.dataset.id||S.shootId);
+  if(a==='list')return renderShoots();
+  if(a==='new')return renderShootEdit(null);
+  if(a==='newat')return renderShootEdit(null,{spot:S.sel});
+  if(a==='lib'){S.libTypes=[];return renderPoseLib()}
+  if(a==='edit')return renderShootEdit(S.shootId);
+  if(a==='del'&&x&&confirm(`Shooting „${x.name}“ löschen?`)){await DB.del('shoots',x.id);S.shoots=S.shoots.filter(q=>q!==x);return renderShoots()}
+  if(a==='run')return startRun(S.shootId);
+  if(a==='runat')return startRun(S.shootId,i);
+  if(a==='toggle'){x.items[i].done=!x.items[i].done;await saveShoot(x);const sc=body.scrollTop;renderShoot(x.id);body.scrollTop=sc;return}
+  if(a==='mv'){const j=i+(+b.dataset.d);if(j<0||j>=x.items.length)return;[x.items[i],x.items[j]]=[x.items[j],x.items[i]];await saveShoot(x);const sc=body.scrollTop;renderShoot(x.id);body.scrollTop=sc;return}
+  if(a==='rm'){x.items.splice(i,1);await saveShoot(x);return renderShoot(x.id)}
+  if(a==='reset'&&confirm('Alle Häkchen zurücksetzen?')){x.items.forEach(t=>t.done=false);await saveShoot(x);return renderShoot(x.id)}
+  if(a==='ics'&&x)return exportIcs(x);
+  if(a==='blkmenu'){const m=$('#blks');if(m)m.hidden=!m.hidden;return}
+  if(a==='blk'&&x){x.items.push({kind:'block',title:b.dataset.t,min:b.dataset.t==='Puffer'?5:10});await saveShoot(x);return renderShoot(x.id)}
+  if(a==='min'&&x){const t=x.items[i];t.min=Math.max(0,Math.min(240,itMin(t)+(+b.dataset.d)));await saveShoot(x);const sc=body.scrollTop;renderShoot(x.id);body.scrollTop=sc;return}
+  if(a==='pick'){S.pickTypes=relTypes(x.type);return renderPosePick(x.id)}
+  if(a==='pk'){const id=b.dataset.p,k=x.items.findIndex(t=>t.pose===id);if(k>=0)x.items.splice(k,1);else x.items.push({kind:'pose',pose:id,done:false,min:5});await saveShoot(x);
+    b.classList.toggle('on',k<0);const m=body.querySelector('.hd .meta span');if(m)m.textContent=`${x.items.length} im Shooting · tippen zum Hinzufügen`;return}
+  if(a==='newpose')return renderPoseEdit(null,S.view==='posePick'?'pick:'+S.shootId:'lib');
+  if(a==='editpose')return renderPoseEdit(b.dataset.p,'lib');
+  if(a==='poseback')return poseBack();
+  if(a==='posephoto'){pendingPose=true;return $('#fPose').click()}
+  const f=$('#pf'),pid=f&&f.dataset.id,p=pid&&S.poses.get(pid);
+  if(a==='posephotodel'&&p){collectPose(f,p);p.blob=null;p.thumb=null;resetUrl(p.id);await savePose(p);return renderPoseEdit(p.id)}
+  if(a==='posereset'&&p&&confirm('Text und Foto dieser Pose auf den Standard zurücksetzen?')){await DB.del('poses',p.id);S.poses.set(p.id,{...PBI[p.id]});resetUrl(p.id);return renderPoseEdit(p.id)}
+  if(a==='posehide'&&p){p.hidden=true;await savePose(p);toast(`„${p.title}“ ausgeblendet`);return poseBack()}
+  if(a==='posedel'&&p&&confirm(`Pose „${p.title}“ löschen?`)){await DB.del('poses',p.id);S.poses.delete(p.id);for(const q of S.shoots){const l=q.items.length;q.items=q.items.filter(t=>t.pose!==p.id);if(q.items.length!==l)await saveShoot(q)}return poseBack()}
+  if(a==='unhide'){for(const q of S.poses.values())if(q.hidden){q.hidden=false;await savePose(q)}return renderPoseLib()}
+  if(a==='sun'&&x){const s0=spot(x.spots[0]);if(!s0)return;if(x.date)S.date=x.date;S.sel=s0.id;renderMarkers();map.setView([s0.lat,s0.lng],Math.max(map.getZoom(),16));
+    S.simMin=x.time!==''&&x.time!=null?x.time:simDefault(s0);S.simFor=planKey(s0);openPlanner()}
+});
+body.addEventListener('submit',async e=>{const f=e.target;
+  if(f.id==='sf'){e.preventDefault();return submitShoot(f)}
+  if(f.id==='pf'){e.preventDefault();const id=f.dataset.id;let p=id&&S.poses.get(id);
+    if(!p){p={id:uid(),builtin:false,sk:'custom',created:Date.now(),types:[]};collectPose(f,p);await savePose(p);
+      const bk=S.poseBack||'';if(bk.startsWith('pick:')){const x=shoot(bk.slice(5));if(x){x.items.push({kind:'pose',pose:p.id,done:false,min:5});await saveShoot(x)}}}
+    else{collectPose(f,p);await savePose(p)}
+    toast('Pose gespeichert');poseBack()}});
+$('#fPose').onchange=async e=>{const file=e.target.files[0];e.target.value='';if(!file||!pendingPose)return;pendingPose=null;const f=$('#pf');if(!f)return;
+  let id=f.dataset.id,p=id&&S.poses.get(id);if(!p){p={id:uid(),builtin:false,sk:'custom',created:Date.now(),types:[]};id=p.id}collectPose(f,p);
+  busy(true);try{const {full,thumb}=await shrink(file);p.blob=full;p.thumb=thumb;resetUrl(p.id);await savePose(p)}finally{busy(false)}renderPoseEdit(p.id)};
+/* Shooting-Modus */
+$('#run').addEventListener('click',e=>{const R=$('#run');if(R.classList.contains('client')){R.classList.remove('client');return}
+  const b=e.target.closest('[data-r]');if(!b){if(e.target.closest('#runImg'))R.classList.add('client');return}
+  const x=shoot(run.id),n=run.idx.length,a=b.dataset.r;
+  if(a==='close')return stopRun();if(a==='grid')return R.classList.toggle('grid');if(a==='client')return R.classList.add('client');
+  if(a==='prev'&&run.i>0)run.i--;if(a==='skip')run.i=(run.i+1)%n;if(a==='go'){run.i=+b.dataset.i;R.classList.remove('grid')}
+  if(a==='done')return runDone();renderRun()});
+{let sx=null;const im=$('#runImg');im.addEventListener('touchstart',e=>{sx=e.touches[0].clientX},{passive:true});
+ im.addEventListener('touchend',e=>{if(sx==null||$('#run').classList.contains('client'))return;const dx=e.changedTouches[0].clientX-sx;sx=null;
+   if(Math.abs(dx)>60){e.preventDefault();run.i=dx<0?(run.i+1)%run.idx.length:Math.max(0,run.i-1);renderRun()}})}
+document.addEventListener('visibilitychange',async()=>{if(!$('#run').hidden&&document.visibilityState==='visible'&&navigator.wakeLock){try{run.lock=await navigator.wakeLock.request('screen')}catch(e){}}});
+
+/* ---------- Menüleiste unten ---------- */
+function syncTabs(){const v=sheet.hidden?null:S.view,t=!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'||v==='settings'?'map':v==='list'?'spots':v==='poseLib'||v==='poseEdit'&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
+  document.querySelectorAll('#tabs [data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===t?'page':'false'))}
+new MutationObserver(syncTabs).observe(sheet,{attributes:true,attributeFilter:['hidden']});
+$('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const t=b.dataset.tab;
+  if(t==='map'){if(S.plan&&!S.sel)closePlanner();if(!sheet.hidden)closeSheet()}
+  if(t==='spots'){if(S.plan)closePlanner();renderList()}
+  if(t==='shoots'){if(S.plan)closePlanner();renderShoots()}
+  if(t==='poses'){if(S.plan)closePlanner();S.libTypes=[];renderPoseLib()}
+  syncTabs()};
 
 /* ---------- Start ---------- */
 (async()=>{
+  mergePoses([]);
   try{await DB.open();S.spots=await DB.all('spots');for(const x of S.spots)if(migrate(x))DB.put('spots',x);for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
-    for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created)}
+    for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);
+    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots')}
   catch(e){toast('Lokaler Speicher nicht verfügbar (privater Modus?) – Daten werden nicht gespeichert',null,null,8000)}
   renderMarkers();
   if(!S.spots.length)renderWelcome();
