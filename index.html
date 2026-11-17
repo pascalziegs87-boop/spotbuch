@@ -252,11 +252,62 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
 .li em{font-style:normal;color:var(--gold)}
 .li .dot{width:8px;height:8px;margin-right:5px;vertical-align:0}
 /* Willkommen */
-.welcome{text-align:center;padding:4px 4px 8px}
+.welcome{text-align:center;padding:4px 4px 8px;position:relative}.welcome .wx{position:absolute;right:-6px;top:-6px;width:40px;height:40px;box-shadow:none;background:var(--soft)}
 .welcome img{border-radius:14px;margin:6px auto 8px;display:block}
 .welcome p{color:var(--mute);margin:6px auto 16px;max-width:34ch}
 .wl{display:grid;gap:8px;text-align:left}
 .wl .btn{justify-content:flex-start;min-height:52px}
+/* ---- v3: Umgebung, Assistent, Simulation ---- */
+.chip svg.i{width:16px;height:16px;color:var(--gold)}
+.chip[aria-pressed=true] svg.i{color:var(--gold)}
+.tag.allday{gap:4px;background:color-mix(in srgb,var(--gold) 16%,transparent)}
+.tag.allday svg.i{width:14px;height:14px;color:var(--gold)}
+.opts button{display:inline-flex;align-items:center;gap:6px}
+.opts button i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.opts button[aria-pressed=true] i{box-shadow:0 0 0 2px var(--bg)}
+.ph .r select{flex:1 1 120px;width:auto;border:1px solid var(--line);background:var(--bg);border-radius:10px;padding:8px;font-size:15px}
+.envrow{display:flex;gap:6px;overflow-x:auto;margin:2px -18px 8px;padding:0 18px;scrollbar-width:none}
+.envrow::-webkit-scrollbar{display:none}
+.envrow button{flex:none;display:inline-flex;align-items:center;gap:6px;border:0;background:var(--soft);border-radius:999px;padding:7px 12px;font-size:14px;font-weight:500;min-height:36px}
+.envrow button i{width:9px;height:9px;border-radius:50%;background:var(--c)}
+.envrow button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.wtop{display:flex;align-items:center;justify-content:space-between;color:var(--mute);font-size:14px;font-weight:600}
+.wtop .ib{width:40px;height:40px;box-shadow:none;background:var(--soft)}
+.prog{display:flex;gap:5px;margin:-4px 0 4px}
+.prog i{flex:1;height:5px;border-radius:3px;background:var(--line)}
+.prog i.on{background:var(--pin)}
+.wiz h2{margin:6px 0 0;font-size:26px;line-height:1.15}
+.hint{margin:-6px 0 2px;color:var(--mute);font-size:15px}
+.btn.ghost{border-color:transparent;background:none;color:var(--mute)}
+.sim{padding:12px 14px}
+.simtop{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;align-items:center}
+@media (max-width:360px){.simtop{grid-template-columns:1fr}}
+.dial{position:relative;min-height:0;aspect-ratio:1;width:100%}
+.dial svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.dial .d0{fill:var(--panel);stroke:var(--line);stroke-width:1.5}
+.dial .d1{fill:none;stroke:var(--line);stroke-width:1}
+.dial .dl{font:600 13px Figtree,system-ui,sans-serif;fill:var(--mute);text-anchor:middle;dominant-baseline:central}
+.dial .dp{fill:none;stroke:var(--gold);stroke-width:2.5;stroke-dasharray:1 5;stroke-linecap:round}
+.dial .dv{stroke:var(--blue);stroke-width:3;stroke-dasharray:6 5;stroke-linecap:round}
+.dial .ds{stroke:var(--gold);stroke-width:2}
+.dial .sun{stroke:#fff;stroke-width:3}
+.dial .sun.day{fill:#f5c242}.dial .sun.gold{fill:#e9a23b}.dial .sun.blue{fill:var(--blue)}.dial .sun.night,.dial .sun.under{fill:#7d828b}
+.simread .st{display:block;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.simread .ph{display:inline-block;margin:6px 0 8px;padding:3px 9px;border-radius:999px;font-size:13px;font-weight:600;background:var(--soft)}
+.simread .ph.gold{background:color-mix(in srgb,var(--gold) 25%,transparent)}
+.simread .ph.blue{background:color-mix(in srgb,var(--blue) 22%,transparent)}
+.simread .ph.night{background:var(--night);color:#fff}
+.simread dl{grid-template-columns:auto 1fr;gap:3px 8px;font-size:13.5px}
+.simread dt{font-size:13px}
+.simctl{display:flex;align-items:center;gap:10px;margin-top:12px}
+.play{width:44px;height:44px;border-radius:50%!important;box-shadow:none!important;background:var(--ink)!important;color:var(--bg)}
+.play.on{background:var(--pin)!important;color:#fff}
+.play svg.i{fill:currentColor;stroke:none;width:18px;height:18px}
+#simT{flex:1;-webkit-appearance:none;appearance:none;height:28px;border-radius:14px;background:linear-gradient(90deg,var(--night),var(--blue) 26%,var(--gold) 32%,var(--day) 45%,var(--day) 60%,var(--gold) 70%,var(--blue) 76%,var(--night));margin:0}
+#simT::-webkit-slider-thumb{-webkit-appearance:none;width:30px;height:30px;border-radius:50%;background:#fff;border:3px solid var(--ink);box-shadow:0 2px 6px rgba(0,0,0,.3)}
+#simT::-moz-range-thumb{width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--ink)}
+.sim .tlx{margin:6px 0 0 54px}
+.sim .ex{margin:10px 0 0}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -309,11 +360,18 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
 <script>
 {
 /* ---------- Konstanten ---------- */
-const CATS=[
-  ['paar','Paarshooting','#e2553a'],['location','Hochzeitslocation','#c2417a'],['natur','Natur & Wald','#3d8b5a'],
-  ['wasser','Wasser & See','#2f7fb8'],['urban','Urban & Architektur','#6b6f78'],['aussicht','Aussicht & Landschaft','#b7791f'],
-  ['regen','Indoor / Regen','#7a5ab8'],['sonst','Sonstiges','#8a8f98']];
-const CAT=Object.fromEntries(CATS.map(c=>[c[0],{name:c[1],color:c[2]}]));
+const ENVS=[['wiese','Wiese & Feld','#7aa83f'],['wald','Wald','#2f6b45'],['wasser','See & Wasser','#2f7fb8'],['fluss','Fluss & Bach','#3fa0b5'],
+  ['aussicht','Aussicht & Berg','#b7791f'],['park','Park & Garten','#5aa36b'],['urban','Stadt & Urban','#6b6f78'],['architektur','Architektur & Brücken','#8a6f5a'],
+  ['lost','Industrie & Lost Place','#7d5a50'],['strand','Strand & Sand','#d4a95a'],['hochzeit','Hochzeitslocation','#c2417a'],['indoor','Indoor / Regen','#7a5ab8']];
+const ENV=Object.fromEntries(ENVS.map(c=>[c[0],{name:c[1],color:c[2]}]));
+const NOENV={name:'Ohne Umgebung',color:'#8a8f98'};
+const MIG={location:'hochzeit',natur:'wald',wasser:'wasser',urban:'urban',aussicht:'aussicht',regen:'indoor'};
+const envOf=s=>ENV[(s.env||[])[0]]||NOENV;
+const envNames=s=>(s.env||[]).map(k=>ENV[k]&&ENV[k].name).filter(Boolean);
+const SHADE=[['','Schatten: keine Angabe'],['ganz','Ganztags im Schatten'],['halb','Lichter Halbschatten (Bäume)'],['vm','Schatten vormittags'],['nm','Schatten nachmittags'],['offen','Offen – volle Sonne']];
+const WX=[['','Wetter?'],['sonne','Sonnig'],['wolken','Bewölkt'],['diesig','Diesig'],['regen','Regen'],['nebel','Nebel'],['schnee','Schnee']];
+function migrate(x){if(x.env)return false;x.env=MIG[x.cat]?[MIG[x.cat]]:[];x.shade=x.shade||'';x.allday=!!x.allday;return true}
+const isAllday=s=>!!s.allday||s.shade==='ganz';
 const STATUS=[['idee','Idee'],['gescoutet','Gescoutet'],['geshootet','Geshootet']];
 const LIGHT=[['bm','Blaue Stunde morgens'],['gm','Goldene Stunde morgens'],['vm','Vormittag'],['mi','Mittag'],['nm','Nachmittag'],['ga','Goldene Stunde abends'],['ba','Blaue Stunde abends'],['na','Nacht']];
 const SEASONS=[['fr','Frühling'],['so','Sommer'],['he','Herbst'],['wi','Winter']];
@@ -372,12 +430,12 @@ const DB={db:null,
 };
 
 /* ---------- Zustand ---------- */
-const S={spots:[],photos:new Map(),urls:new Map(),f:{q:'',cat:'',col:'',status:''},sort:ls.get('sort','dist'),sel:null,date:todayISO(),me:null,pick:null,draft:null,view:null};
+const S={spots:[],photos:new Map(),urls:new Map(),f:{q:'',env:[],allday:false,light:'',col:'',status:''},wiz:null,simMin:0,simFor:'',sort:ls.get('sort','dist'),sel:null,date:todayISO(),me:null,pick:null,draft:null,view:null};
 const phOf=id=>S.photos.get(id)||[];
 const spot=id=>S.spots.find(s=>s.id===id);
 function url(p,kind){const k=p.id+kind;if(!S.urls.has(k)){const b=kind==='t'?(p.thumb||p.blob):p.blob;S.urls.set(k,URL.createObjectURL(b))}return S.urls.get(k)}
 function cover(s){const ps=phOf(s.id);return ps.find(p=>p.id===s.cover)||ps[0]}
-function newSpot(lat,lng,extra={}){const t=Date.now();return Object.assign({id:uid(),name:'Neuer Spot',lat,lng,cat:'paar',status:'idee',col:'',tags:[],rating:0,light:[],seasons:[],notes:'',access:'',rain:'',permit:false,parking:null,cover:null,created:t,updated:t},extra)}
+function newSpot(lat,lng,extra={}){const t=Date.now();return Object.assign({id:uid(),name:'Neuer Spot',lat,lng,env:[],shade:'',allday:false,status:'idee',col:'',tags:[],rating:0,light:[],seasons:[],notes:'',access:'',rain:'',permit:false,parking:null,cover:null,created:t,updated:t},extra)}
 async function saveSpot(s){s.updated=Date.now();await DB.put('spots',s);if(!S.spots.includes(s))S.spots.push(s);renderMarkers()}
 
 /* ---------- EXIF lesen ---------- */
@@ -425,9 +483,12 @@ async function shrink(file){
     const full=await to(2048,.85),thumb=await to(320,.72);return {full:full||file,thumb:thumb||full||file};
   }catch(e){return {full:file,thumb:file}}finally{URL.revokeObjectURL(u)}
 }
+function todFrom(d,lat,lng){if(isNaN(d))return '';const a=Sun.position(d,lat,lng).alt,h=d.getHours()+d.getMinutes()/60,am=h<12.5;
+  return a<-6?'na':a<-4?(am?'bm':'ba'):a<6?(am?'gm':'ga'):h<11?'vm':h<14.5?'mi':'nm'}
 async function addPhoto(spotId,file,exif){
   exif=exif||await readExif(file);const {full,thumb}=await shrink(file);
-  const p={id:uid(),spotId,blob:full,thumb,exif,caption:'',dir:exif.dir??null,created:Date.now()};
+  const sp=spot(spotId),tod=sp&&exif.date?todFrom(new Date(exif.date),exif.lat??sp.lat,exif.lng??sp.lng):'';
+  const p={id:uid(),spotId,blob:full,thumb,exif,caption:'',dir:exif.dir??null,tod,todAuto:!!tod,wx:'',created:Date.now()};
   await DB.put('photos',p);if(!S.photos.has(spotId))S.photos.set(spotId,[]);S.photos.get(spotId).push(p);return p;
 }
 
@@ -442,20 +503,22 @@ setLayer(ls.get('layer','osm'));
 const markers=L.layerGroup().addTo(map),overlay=L.layerGroup().addTo(map);let meMarker=null;
 map.on('moveend',()=>ls.set('view',{c:[map.getCenter().lat,map.getCenter().lng],z:map.getZoom()}));
 const labelZoom=()=>map.getContainer().classList.toggle('labels',map.getZoom()>=15);labelZoom();
-map.on('zoomend',()=>{labelZoom();if(S.sel)drawOverlay(spot(S.sel))});
+map.on('zoomend',()=>{labelZoom();if(S.sel)drawOverlay(spot(S.sel));if(S.view==='spot')updSim()});
 map.on('contextmenu',e=>{if(!S.pick)createAt(e.latlng.lat,e.latlng.lng)});
 
-function pinIcon(s,sel){const p=cover(s),c=(CAT[s.cat]||CAT.sonst).color;
+function pinIcon(s,sel){const p=cover(s),c=envOf(s).color;
   return L.divIcon({className:'pin'+(sel?' sel':''),html:`<div class="pin-b" style="--c:${c}">${p?`<img src="${url(p,'t')}" alt="">`:'<span></span>'}</div><b class="pl">${esc(s.name)}</b>`,iconSize:[44,44],iconAnchor:[22,50]})}
 function filtered(){const f=S.f,q=f.q.trim().toLowerCase();
-  return S.spots.filter(s=>(!f.cat||s.cat===f.cat)&&(!f.col||s.col===f.col)&&(!f.status||s.status===f.status)&&
-    (!q||[s.name,s.notes,s.access,s.rain,s.col,(s.tags||[]).join(' '),(CAT[s.cat]||{}).name,...phOf(s.id).map(p=>p.caption)].join(' ').toLowerCase().includes(q)))}
+  return S.spots.filter(s=>(!f.env.length||(s.env||[]).some(k=>f.env.includes(k)))&&(!f.allday||isAllday(s))&&(!f.light||(s.light||[]).includes(f.light)||phOf(s.id).some(p=>p.tod===f.light))&&(!f.col||s.col===f.col)&&(!f.status||s.status===f.status)&&
+    (!q||[s.name,s.notes,s.access,s.rain,s.col,(s.tags||[]).join(' '),envNames(s).join(' '),...phOf(s.id).map(p=>p.caption)].join(' ').toLowerCase().includes(q)))}
 function renderMarkers(){markers.clearLayers();
   for(const s of filtered()){L.marker([s.lat,s.lng],{icon:pinIcon(s,s.id===S.sel),zIndexOffset:s.id===S.sel?1000:0,keyboard:true,title:s.name}).on('click',()=>openSpot(s.id)).addTo(markers)}
   renderChips()}
-function renderChips(){const n=k=>S.spots.filter(s=>s.cat===k).length;
-  $('#chips').innerHTML=`<button class="chip" data-cat="" aria-pressed="${!S.f.cat}">Alle · ${S.spots.length}</button>`+
-    CATS.filter(c=>n(c[0])).map(c=>`<button class="chip" data-cat="${c[0]}" aria-pressed="${S.f.cat===c[0]}" style="--c:${c[2]}"><i></i>${esc(c[1])} · ${n(c[0])}</button>`).join('')}
+function renderChips(){const n=k=>S.spots.filter(s=>(s.env||[]).includes(k)).length,nd=S.spots.filter(isAllday).length,any=S.f.env.length||S.f.allday;
+  $('#chips').innerHTML=`<button class="chip" data-env="" aria-pressed="${!any}">Alle · ${S.spots.length}</button>`+
+    (nd||S.f.allday?`<button class="chip" data-allday="1" aria-pressed="${S.f.allday}">${ic('sun')}Ganztags · ${nd}</button>`:'')+
+    ENVS.filter(c=>n(c[0])||S.f.env.includes(c[0])).map(c=>`<button class="chip" data-env="${c[0]}" aria-pressed="${S.f.env.includes(c[0])}" style="--c:${c[2]}"><i></i>${esc(c[1])} · ${n(c[0])}</button>`).join('')}
+function toggleEnv(k){S.f.env=S.f.env.includes(k)?S.f.env.filter(x=>x!==k):[...S.f.env,k]}
 function drawOverlay(s){overlay.clearLayers();if(!s)return;
   const z=map.getZoom(),mpp=40075016.686*Math.cos(s.lat*rad)/2**(z+8),len=mpp*150;
   const d=new Date(S.date+'T12:00'),t=Sun.times(d,s.lat,s.lng);
@@ -477,7 +540,10 @@ const meDist=s=>S.me?dist(S.me.lat,S.me.lng,s.lat,s.lng):null;
 /* ---------- Sheet ---------- */
 const sheet=$('#sheet'),body=$('#sheetBody');
 function showSheet(html,full=false){body.innerHTML=html;sheet.hidden=false;sheet.classList.toggle('full',full);body.scrollTop=0}
-function closeSheet(){if(S.draft){discardDraft();return}sheet.hidden=true;S.view=null;if(S.sel){S.sel=null;overlay.clearLayers();renderMarkers()}}
+function closeSheet(){simLayer.clearLayers();if(simTimer){clearInterval(simTimer);simTimer=null}
+  if(S.wiz){const ws=spot(S.wiz.id);collectForm(ws);S.wiz=null;if(ws.name==='Neuer Spot'&&!phOf(ws.id).length){S.draft=ws.id;discardDraft();return}
+    S.draft=null;if(ws.name==='Neuer Spot')ws.name='Unbenannter Spot';saveSpot(ws);openSpot(ws.id);return}
+  if(S.draft){discardDraft();return}sheet.hidden=true;S.view=null;if(S.sel){S.sel=null;overlay.clearLayers();renderMarkers()}}
 $('#grab').onclick=()=>sheet.classList.toggle('full');
 {let y0=null,dy=0,t0=0;
  sheet.addEventListener('touchstart',e=>{if(innerWidth>=900||e.touches.length>1){y0=null;return}const y=e.touches[0].clientY,top=sheet.getBoundingClientRect().top;
@@ -526,16 +592,18 @@ function sunBlock(s){const d=new Date(S.date+'T12:00'),t=Sun.times(d,s.lat,s.lng
    <div><span>Sonnenuntergang · ${t.set&&!isNaN(t.set)?brg(t.set)+'° '+compass(brg(t.set)):''}</span><b>${fmtT(t.set)}</b></div></div>
   <p class="ex">Auf der Karte: gelb = Sonnenaufgang, rot = Sonnenuntergang, blau gestrichelt = Blickrichtung deiner Fotos. Gelände und Gebäude sind nicht eingerechnet.</p></div>`}
 
-function renderSpot(s){const ps=phOf(s.id),c=CAT[s.cat]||CAT.sonst,d=meDist(s);
+const lab=(list,k)=>(list.find(x=>x[0]===k)||[])[1]||'';
+const capOf=p=>[p.caption,lab(LIGHT,p.tod),p.wx&&lab(WX,p.wx),p.exif.fl&&((p.exif.fl35||p.exif.fl)+' mm'),p.exif.f&&('f/'+p.exif.f)].filter(Boolean).map(esc).join(' · ');
+function renderSpot(s){const ps=phOf(s.id),d=meDist(s);if(simTimer){clearInterval(simTimer);simTimer=null}
   const pick=(arr,list)=>list.filter(x=>(arr||[]).includes(x[0])).map(x=>x[1]);
-  const facts=[['Bestes Licht',pick(s.light,LIGHT).join(', ')],['Jahreszeit',pick(s.seasons,SEASONS).join(', ')],['Zugang / Weg',s.access],['Bei Regen',s.rain],['Genehmigung',s.permit?'Ja, vorher klären':''],['Sammlung',s.col]].filter(x=>x[1]);
+  const facts=[['Schatten',s.shade?lab(SHADE,s.shade):''],['Tageszeit',s.allday?'Funktioniert zu jeder Tageszeit':''],['Bestes Licht',pick(s.light,LIGHT).join(', ')],['Jahreszeit',pick(s.seasons,SEASONS).join(', ')],['Zugang / Weg',s.access],['Bei Regen',s.rain],['Genehmigung',s.permit?'Ja, vorher klären':''],['Sammlung',s.col]].filter(x=>x[1]);
   const route=(lat,lng)=>isApple?`https://maps.apple.com/?daddr=${lat},${lng}`:`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
-  const hero=ps.length?`<div class="hero"><div class="track" id="track">${ps.map((p,i)=>`<button class="slide" data-lb="${i}"><img src="${url(p,'f')}" alt="${esc(p.caption||'Referenzfoto')}" ${i?'loading="lazy"':''}>${p.caption||p.exif.fl?`<span class="cap">${esc(p.caption||'')}${p.caption&&p.exif.fl?' · ':''}${p.exif.fl?(p.exif.fl35||p.exif.fl)+' mm':''}${p.exif.f?' · f/'+p.exif.f:''}</span>`:''}</button>`).join('')}</div>
+  const hero=ps.length?`<div class="hero"><div class="track" id="track">${ps.map((p,i)=>`<button class="slide" data-lb="${i}"><img src="${url(p,'f')}" alt="${esc(p.caption||'Referenzfoto')}" ${i?'loading="lazy"':''}>${capOf(p)?`<span class="cap">${capOf(p)}</span>`:''}</button>`).join('')}</div>
     ${ps.length>1?`<div class="dots" id="dots">${ps.map((_,i)=>`<i class="${i?'':'on'}"></i>`).join('')}</div>`:''}
     <button class="ib float" data-act="close" aria-label="Schließen">${ic('x')}</button></div>`:'';
   showSheet(`${hero}
   <div class="hd"><div style="flex:1"><h2>${esc(s.name)}</h2>
-    <div class="meta"><span class="tag" style="--c:${c.color}"><i></i>${esc(c.name)}</span><span class="tag st-${s.status}">${esc((STATUS.find(x=>x[0]===s.status)||STATUS[0])[1])}</span>${s.rating?`<span class="tag gold">${'★'.repeat(s.rating)}</span>`:''}${d!=null?`<span class="dist">${fmtDist(d)}</span>`:''}</div></div>
+    <div class="meta">${(s.env||[]).filter(k=>ENV[k]).map(k=>`<span class="tag" style="--c:${ENV[k].color}"><i></i>${esc(ENV[k].name)}</span>`).join('')}${isAllday(s)?`<span class="tag allday">${ic('sun')}Ganztags</span>`:''}<span class="tag st-${s.status}">${esc((STATUS.find(x=>x[0]===s.status)||STATUS[0])[1])}</span>${s.rating?`<span class="tag gold">${'★'.repeat(s.rating)}</span>`:''}${d!=null?`<span class="dist">${fmtDist(d)}</span>`:''}</div></div>
     ${ps.length?'':`<button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button>`}</div>
   <div class="qa">
     <a class="q pri" href="${route(s.lat,s.lng)}" target="_blank" rel="noopener">${ic('route')}<span>Route</span></a>
@@ -547,68 +615,153 @@ function renderSpot(s){const ps=phOf(s.id),c=CAT[s.cat]||CAT.sonst,d=meDist(s);
   ${isApple?`<a class="alt" href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}" target="_blank" rel="noopener">Route lieber mit Google Maps</a>`:''}
   ${ps.length?'':`<button class="empty" data-act="addph">${ic('img')}<b>Referenzfotos hinzufügen</b><span>Kamera, Mediathek oder Dateien</span></button>`}
   ${sunBlock(s)}
+  ${simBlock(s)}
   ${s.notes?`<h3>Bildideen & Notizen</h3><div class="card prose">${esc(s.notes)}</div>`:''}
   ${facts.length?`<h3>Vor Ort</h3><div class="card"><dl>${facts.map(x=>`<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join('')}</dl></div>`:''}
   ${(s.tags||[]).length?`<div class="tags">${s.tags.map(t=>`<span>#${esc(t)}</span>`).join('')}</div>`:''}
   <div class="foot"><span>${fmtC(s.lat,s.lng)}</span><span><button class="lnk" data-act="move">${ic('move')} Verschieben</button><button class="lnk dng" data-act="del">${ic('trash')} Löschen</button></span></div>`);
+  updSim();
   const tr=$('#track'),dots=$('#dots');if(tr&&dots)tr.addEventListener('scroll',()=>{const i=Math.round(tr.scrollLeft/tr.clientWidth);[...dots.children].forEach((x,j)=>x.classList.toggle('on',i===j))},{passive:true});
 }
 
-/* ---------- Bearbeiten ---------- */
-function renderEdit(s){S.view='edit';const ps=phOf(s.id),cols=[...new Set(S.spots.map(x=>x.col).filter(Boolean))];
-  const opt=(list,sel,key)=>`<div class="opts" data-multi="${key}">${list.map(x=>`<button type="button" data-v="${x[0]}" aria-pressed="${(sel||[]).includes(x[0])}">${x[1]}</button>`).join('')}</div>`;
-  showSheet(`<form class="f" id="ef" autocomplete="off">
-   <div class="hd"><h2>${S.draft===s.id?'Neuer Spot':'Spot bearbeiten'}</h2></div>
-   <section class="grp"><h4>Grunddaten</h4>
-    <label>Name<input type="text" name="name" value="${esc(s.name==='Neuer Spot'?'':s.name)}" placeholder="z. B. Brücke an der Versetalsperre" required></label>
-    <div class="two"><label>Kategorie<select name="cat">${CATS.map(c=>`<option value="${c[0]}" ${c[0]===s.cat?'selected':''}>${c[1]}</option>`).join('')}</select></label>
-    <label>Status<select name="status">${STATUS.map(c=>`<option value="${c[0]}" ${c[0]===s.status?'selected':''}>${c[1]}</option>`).join('')}</select></label></div>
-    <label>Sammlung<input type="text" name="col" list="cols" value="${esc(s.col)}" placeholder="z. B. Sauerland oder Hochzeit Müller 06/27"><datalist id="cols">${cols.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label>
-    <div class="lab">Bewertung<div class="stars" id="stars">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" class="${n<=s.rating?'on':''}" aria-label="${n} Sterne">★</button>`).join('')}</div></div>
-   </section>
-   <section class="grp"><h4>Referenzfotos</h4>
-    ${ps.map(p=>`<div class="ph" data-ph="${p.id}"><img src="${url(p,'t')}" alt="">
+/* ---------- Bearbeiten: Bausteine ---------- */
+const optsHTML=(list,sel,key)=>`<div class="opts" data-multi="${key}">${list.map(x=>`<button type="button" data-v="${x[0]}" aria-pressed="${(sel||[]).includes(x[0])}"${x[2]?` style="--c:${x[2]}"`:''}>${x[2]?'<i></i>':''}${x[1]}</button>`).join('')}</div>`;
+const selHTML=(list,val,attr)=>`<select ${attr}>${list.map(x=>`<option value="${x[0]}" ${x[0]===(val||'')?'selected':''}>${x[1]}</option>`).join('')}</select>`;
+const F={
+  name:s=>`<label>Name<input type="text" name="name" value="${esc(s.name==='Neuer Spot'?'':s.name)}" placeholder="z. B. Brücke an der Versetalsperre" enterkeyhint="next"></label>`,
+  col:s=>{const cols=[...new Set(S.spots.map(x=>x.col).filter(Boolean))];return `<label>Sammlung<input type="text" name="col" list="cols" value="${esc(s.col)}" placeholder="z. B. Sauerland oder Hochzeit Müller 06/27"><datalist id="cols">${cols.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label>`},
+  status:s=>`<label>Status${selHTML(STATUS,s.status,'name="status"')}</label>`,
+  stars:s=>`<div class="lab">Bewertung<div class="stars" id="stars">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" class="${n<=s.rating?'on':''}" aria-label="${n} Sterne">★</button>`).join('')}</div></div>`,
+  env:s=>`<div class="lab">Umgebung <span class="ex">Mehrfachauswahl</span>${optsHTML(ENVS,s.env,'env')}</div>`,
+  photos:s=>{const ps=phOf(s.id);return `${ps.map(p=>`<div class="ph" data-ph="${p.id}"><img src="${url(p,'t')}" alt="">
      <div class="c"><input type="text" data-k="caption" value="${esc(p.caption)}" placeholder="Bildidee, Pose, Perspektive">
+     <div class="r">${selHTML([['','Tageszeit?'],...LIGHT],p.tod,'data-k="tod" aria-label="Tageszeit"')}${selHTML(WX,p.wx,'data-k="wx" aria-label="Wetter"')}</div>
      <div class="r"><input type="number" data-k="dir" min="0" max="359" inputmode="numeric" value="${p.dir??''}" placeholder="Blick °" aria-label="Blickrichtung in Grad">
        <button type="button" class="btn sm" data-ph-act="compass">Kompass</button>
        <button type="button" class="btn sm ${s.cover===p.id||(!s.cover&&ps[0]===p)?'cov':''}" data-ph-act="cover">Titelbild</button>
        <button type="button" class="btn sm dng" data-ph-act="del" aria-label="Foto löschen">${ic('trash')}</button></div>
-     ${exifLine(p.exif)?`<span class="ex">${esc(exifLine(p.exif))}</span>`:''}</div></div>`).join('')}
-    <button type="button" class="btn" data-act="addph">${ic('cam')} Fotos hinzufügen</button>
-   </section>
-   <section class="grp"><h4>Licht & Saison</h4>
-    <div class="lab">Bestes Licht${opt(LIGHT,s.light,'light')}</div>
-    <div class="lab">Jahreszeit${opt(SEASONS,s.seasons,'seasons')}</div>
-   </section>
-   <section class="grp"><h4>Bildideen & Notizen</h4>
-    <textarea name="notes" aria-label="Notizen" placeholder="Posen, Perspektiven, Brennweite, worauf achten …">${esc(s.notes)}</textarea>
-    <label>Tags (mit Komma trennen)<input type="text" name="tags" value="${esc((s.tags||[]).join(', '))}" placeholder="Brücke, Gegenlicht, Wald"></label>
-   </section>
-   <section class="grp"><h4>Vor Ort</h4>
-    <label>Zugang / Weg<textarea name="access" placeholder="Fußweg, Untergrund, kleidtauglich?, Zeitbedarf">${esc(s.access)}</textarea></label>
-    <label>Regen-Alternative<input type="text" name="rain" value="${esc(s.rain)}" placeholder="z. B. Unterführung 200 m nördlich"></label>
-    <label class="chk"><input type="checkbox" name="permit" ${s.permit?'checked':''}>Fotografier-Genehmigung nötig</label>
-    <div class="lab">Parkplatz ${s.parking?`<span class="ex">${fmtC(s.parking.lat,s.parking.lng)}</span>`:''}<div class="row2">
+     ${exifLine(p.exif)?`<span class="ex">${esc(exifLine(p.exif))}${p.todAuto?' · Tageszeit aus Aufnahmezeit erkannt':''}</span>`:''}</div></div>`).join('')}
+    <button type="button" class="btn" data-act="addph">${ic('cam')} ${ps.length?'Weitere Fotos hinzufügen':'Fotos hinzufügen'}</button>`},
+  light:s=>`<div class="lab">Bestes Licht${optsHTML(LIGHT,s.light,'light')}</div>`,
+  shade:s=>`<label>Schatten${selHTML(SHADE,s.shade,'name="shade"')}</label>
+    <label class="chk"><input type="checkbox" name="allday" ${s.allday?'checked':''}>Funktioniert zu jeder Tageszeit</label>`,
+  seasons:s=>`<div class="lab">Jahreszeit${optsHTML(SEASONS,s.seasons,'seasons')}</div>`,
+  notes:s=>`<label>Bildideen & Notizen<textarea name="notes" placeholder="Posen, Perspektiven, Brennweite, worauf achten …">${esc(s.notes)}</textarea></label>`,
+  tags:s=>`<label>Tags (mit Komma trennen)<input type="text" name="tags" value="${esc((s.tags||[]).join(', '))}" placeholder="Brücke, Gegenlicht"></label>`,
+  access:s=>`<label>Zugang / Weg<textarea name="access" placeholder="Fußweg, Untergrund, kleidtauglich?, Zeitbedarf">${esc(s.access)}</textarea></label>`,
+  rain:s=>`<label>Regen-Alternative<input type="text" name="rain" value="${esc(s.rain)}" placeholder="z. B. Unterführung 200 m nördlich"></label>`,
+  permit:s=>`<label class="chk"><input type="checkbox" name="permit" ${s.permit?'checked':''}>Fotografier-Genehmigung nötig</label>`,
+  parking:s=>`<div class="lab">Parkplatz ${s.parking?`<span class="ex">gesetzt · ${fmtC(s.parking.lat,s.parking.lng)}</span>`:''}<div class="row2">
      <button type="button" class="btn sm" data-act="parkhere">Mein Standort</button><button type="button" class="btn sm" data-act="parkmap">Auf Karte setzen</button>
-     ${s.parking?'<button type="button" class="btn sm dng" data-act="parkdel">Entfernen</button>':''}</div></div>
-   </section>
+     ${s.parking?'<button type="button" class="btn sm dng" data-act="parkdel">Entfernen</button>':''}</div></div>`
+};
+const grp=(t,parts,s)=>`<section class="grp"><h4>${t}</h4>${parts.map(k=>F[k](s)).join('')}</section>`;
+
+function renderEdit(s){S.view='edit';S.wiz=null;
+  showSheet(`<form class="f" id="ef" autocomplete="off">
+   <div class="hd"><h2>Spot bearbeiten</h2></div>
+   ${grp('Grunddaten',['name','col','status','stars'],s)}
+   ${grp('Referenzfotos',['photos'],s)}
+   ${grp('Umgebung',['env'],s)}
+   ${grp('Licht & Schatten',['light','shade','seasons'],s)}
+   ${grp('Bildideen & Notizen',['notes','tags'],s)}
+   ${grp('Vor Ort',['access','rain','permit','parking'],s)}
    <div class="sticky"><button type="button" class="btn" data-act="cancel">Abbrechen</button><button class="btn acc" type="submit">Speichern</button></div>
   </form>`,true);
 }
 
-function collectForm(s){const f=$('#ef');if(!f)return;const v=n=>f.elements[n].value.trim();
-  s.name=v('name')||'Unbenannter Spot';s.cat=v('cat');s.status=v('status');s.col=v('col');s.notes=v('notes');s.access=v('access');s.rain=v('rain');
-  s.tags=v('tags').split(',').map(t=>t.trim()).filter(Boolean);s.permit=f.elements.permit.checked;
-  s.rating=f.querySelectorAll('#stars .on').length;
-  for(const g of f.querySelectorAll('[data-multi]'))s[g.dataset.multi]=[...g.querySelectorAll('[aria-pressed=true]')].map(b=>b.dataset.v);
-  for(const row of f.querySelectorAll('[data-ph]')){const p=phOf(s.id).find(x=>x.id===row.dataset.ph);if(!p)continue;
-    p.caption=row.querySelector('[data-k=caption]').value.trim();const d=row.querySelector('[data-k=dir]').value;p.dir=d===''?null:((+d%360)+360)%360;DB.put('photos',p)}
+/* ---------- Assistent für neue Spots ---------- */
+const WIZ=[
+  {t:'Wie heißt der Spot?',h:'Die Position ist gesetzt. Verschieben kannst du sie später jederzeit.',f:['name','col','status']},
+  {t:'Referenzfotos',h:'Füge beliebig viele Fotos hinzu. Tageszeit und Wetter kannst du pro Foto angeben; mit Kameradaten wird die Tageszeit automatisch erkannt.',f:['photos']},
+  {t:'Welche Umgebung?',h:'Mehrfachauswahl. Danach kannst du auf der Karte und in der Liste danach filtern.',f:['env']},
+  {t:'Licht & Schatten',h:'Wann ist das Licht hier am besten, und gibt es Schatten? Spots, die zu jeder Tageszeit funktionieren, findest du später mit dem Filter „Ganztags“.',f:['light','shade','seasons']},
+  {t:'Vor Ort',h:'Was musst du oder das Paar beim Hinkommen wissen?',f:['access','parking','rain','permit']},
+  {t:'Bildideen & Bewertung',h:'Zum Schluss: Ideen für Posen und Perspektiven und wie gut der Spot ist.',f:['notes','tags','stars']}
+];
+function startWizard(s){S.wiz={id:s.id,step:0};S.view='wiz';renderWizard()}
+const reEdit=s=>S.wiz?renderWizard():renderEdit(s);
+function renderWizard(){const w=S.wiz,s=spot(w.id);if(!s)return;S.view='wiz';const st=WIZ[w.step],last=w.step===WIZ.length-1;
+  showSheet(`<form class="f wiz" id="ef" autocomplete="off">
+   <div class="wtop"><span>Neuer Spot · Schritt ${w.step+1} von ${WIZ.length}</span><button type="button" class="ib" data-act="close" aria-label="Assistent schließen">${ic('x')}</button></div>
+   <div class="prog">${WIZ.map((_,i)=>`<i class="${i<=w.step?'on':''}"></i>`).join('')}</div>
+   <h2>${st.t}</h2><p class="hint">${st.h}</p>
+   <section class="grp">${st.f.map(k=>F[k](s)).join('')}</section>
+   <div class="sticky">${w.step?'<button type="button" class="btn" data-act="wback">Zurück</button>':''}
+     ${last?'':'<button type="button" class="btn ghost" data-act="wskip">Überspringen</button>'}
+     <button class="btn acc" type="submit">${last?'Fertig':'Weiter'}</button></div>
+  </form>`,true);
+  if(w.step===0)setTimeout(()=>{const n=$('#ef [name=name]');if(n&&!n.value)n.focus()},250);
 }
+async function wizGo(d){const w=S.wiz,s=spot(w.id);collectForm(s);await saveSpot(s);
+  if(d>0&&w.step===WIZ.length-1)return wizFinish();
+  w.step=Math.max(0,Math.min(WIZ.length-1,w.step+d));renderWizard()}
+async function wizFinish(){const s=spot(S.wiz.id);S.wiz=null;S.draft=null;if(s.name==='Neuer Spot')s.name='Unbenannter Spot';await saveSpot(s);openSpot(s.id);toast('Spot gespeichert')}
+
+function collectForm(s){const f=$('#ef');if(!f)return;const el=n=>f.querySelector(`[name="${n}"]`),v=n=>el(n).value.trim();
+  if(el('name'))s.name=v('name')||(s.name==='Neuer Spot'?'Neuer Spot':'Unbenannter Spot');
+  for(const k of ['col','status','notes','access','rain','shade'])if(el(k))s[k]=v(k);
+  if(el('tags'))s.tags=v('tags').split(',').map(t=>t.trim()).filter(Boolean);
+  for(const k of ['permit','allday'])if(el(k))s[k]=el(k).checked;
+  const st=f.querySelector('#stars');if(st)s.rating=st.querySelectorAll('.on').length;
+  for(const g of f.querySelectorAll('[data-multi]'))s[g.dataset.multi]=[...g.querySelectorAll('[aria-pressed=true]')].map(b=>b.dataset.v);
+  for(const row of f.querySelectorAll('[data-ph]')){const p=phOf(s.id).find(x=>x.id===row.dataset.ph);if(!p)continue;const q=k=>row.querySelector(`[data-k=${k}]`);
+    p.caption=q('caption').value.trim();const d=q('dir').value;p.dir=d===''?null:((+d%360)+360)%360;
+    const tod=q('tod').value;if(tod!==(p.tod||''))p.todAuto=false;p.tod=tod;p.wx=q('wx').value;DB.put('photos',p)}
+}
+
+/* ---------- Lichtsimulation ---------- */
+const simLayer=L.layerGroup().addTo(map);
+const phaseOf=a=>a<-6?['Nacht','night']:a<-4?['Blaue Stunde','blue']:a<6?['Goldene Stunde','gold']:['Tageslicht','day'];
+const angDiff=(a,b)=>{const d=Math.abs(((a-b)%360+360)%360);return d>180?360-d:d};
+function lightType(sunB,alt,dir){if(alt<0||dir==null)return '';const d=angDiff(sunB,dir);
+  return d<35?'Gegenlicht – Sonne vor der Kamera':d<70?'Schräges Gegenlicht':d<110?'Seitenlicht':d<145?'Schräges Frontlicht':'Frontlicht – Sonne im Rücken'}
+function simDefault(s){if(S.date===todayISO()){const n=new Date();return n.getHours()*60+n.getMinutes()}
+  const t=Sun.times(new Date(S.date+'T12:00'),s.lat,s.lng);return t.goldA&&!isNaN(t.goldA)?t.goldA.getHours()*60+t.goldA.getMinutes():18*60}
+const simDate=m=>{const d=new Date(S.date+'T00:00');d.setMinutes(m);return d};
+function dayGrad(s){const t=Sun.times(new Date(S.date+'T12:00'),s.lat,s.lng),d0=new Date(S.date+'T00:00').getTime(),pc=x=>x&&!isNaN(x)?Math.max(0,Math.min(100,(x-d0)/864e3)):null;
+  const g=[[0,pc(t.blueM),'var(--night)'],[pc(t.blueM),pc(t.goldM),'var(--blue)'],[pc(t.goldM),pc(t.goldMEnd),'var(--gold)'],[pc(t.goldMEnd),pc(t.goldA),'var(--day)'],[pc(t.goldA),pc(t.blueA),'var(--gold)'],[pc(t.blueA),pc(t.blueAEnd),'var(--blue)'],[pc(t.blueAEnd),100,'var(--night)']];
+  return g.every(x=>x[0]!=null&&x[1]!=null)?`linear-gradient(90deg,${g.map(x=>`${x[2]} ${x[0].toFixed(2)}% ${x[1].toFixed(2)}%`).join(',')})`:'var(--day)'}
+function simBlock(s){if(S.simFor!==s.id+S.date){S.simMin=simDefault(s);S.simFor=s.id+S.date}
+  return `<h3>Lichtsimulation</h3><div class="sim card">
+   <div class="simtop"><div class="fig dial"><svg id="dial" viewBox="0 0 240 240" role="img" aria-label="Sonnenstand über dem Spot"></svg></div>
+    <div class="simread" id="simRead"></div></div>
+   <div class="simctl"><button type="button" class="ib play" id="simPlay" aria-label="Tagesverlauf abspielen"><svg class="i" viewBox="0 0 24 24"><path d="M7 5v14l12-7z"/></svg></button>
+    <input type="range" id="simT" min="0" max="1435" step="5" value="${S.simMin}" aria-label="Uhrzeit" style="background:${dayGrad(s)}"></div>
+   <div class="tlx"><span>0</span><span>6</span><span>12</span><span>18</span><span>24 Uhr</span></div>
+   <p class="ex">Ziehe den Regler: Auf der Karte zeigt die gelbe Linie zur Sonne, die graue die Schattenrichtung. Im Kreis: Mitte = Sonne senkrecht, Rand = Horizont, blau = Blickrichtung deiner Fotos.</p></div>`}
+function updSim(){const s=spot(S.sel),svg=$('#dial'),rd=$('#simRead');if(!s||!svg)return;
+  const m=S.simMin,t=simDate(m),pos=Sun.position(t,s.lat,s.lng),ph=phaseOf(pos.alt);
+  const C=120,R=96,xy=(b,alt)=>{const r=R*(1-Math.max(0,Math.min(90,alt))/90);return [C+r*Math.sin(b*rad),C-r*Math.cos(b*rad)]};
+  let path='';for(let k=0;k<=288;k++){const p=Sun.position(simDate(k*5),s.lat,s.lng);if(p.alt<0){path+=' ';continue}const [x,y]=xy(p.bearing,p.alt);path+=(path.endsWith(' ')||!path?'M':'L')+x.toFixed(1)+' '+y.toFixed(1)}
+  const dirs=phOf(s.id).filter(p=>p.dir!=null).map(p=>p.dir);
+  const [sx,sy]=xy(pos.bearing,pos.alt);
+  svg.innerHTML=`<circle cx="${C}" cy="${C}" r="${R}" class="d0"/><circle cx="${C}" cy="${C}" r="${R*2/3}" class="d1"/><circle cx="${C}" cy="${C}" r="${R/3}" class="d1"/>
+   <path d="M${C} ${C-R}V${C+R}M${C-R} ${C}H${C+R}" class="d1"/>
+   ${[['N',0],['O',90],['S',180],['W',270]].map(([l,b])=>{const [x,y]=xy(b,-8);return `<text x="${x}" y="${y}" class="dl">${l}</text>`}).join('')}
+   ${dirs.map(d=>{const [x,y]=xy(d,0);return `<line x1="${C}" y1="${C}" x2="${x}" y2="${y}" class="dv"/>`}).join('')}
+   <path d="${path.trim()}" class="dp"/>
+   ${pos.alt>=0?`<line x1="${C}" y1="${C}" x2="${sx}" y2="${sy}" class="ds"/><circle cx="${sx}" cy="${sy}" r="10" class="sun ${ph[1]}"/>`
+     :(()=>{const [hx,hy]=xy(pos.bearing,0);return `<circle cx="${hx}" cy="${hy}" r="7" class="sun under"/>`})()}`;
+  const shadow=pos.alt>0.5?Math.min(99,1.75/Math.tan(pos.alt*rad)):null;
+  const lt=lightType(pos.bearing,pos.alt,dirs[0]);
+  rd.innerHTML=`<b class="st">${fmtT(t)}</b><span class="ph ${ph[1]}">${ph[0]}</span>
+   <dl><dt>Höhe</dt><dd>${pos.alt.toFixed(0)}°${pos.alt<0?' (unter Horizont)':''}</dd><dt>Richtung</dt><dd>${Math.round(pos.bearing)}° ${compass(pos.bearing)}</dd>
+   ${shadow!=null?`<dt>Schatten</dt><dd>${(shadow/1.75).toFixed(1).replace('.',',')} × Körpergröße</dd>`:''}${lt?`<dt>Licht</dt><dd>${lt}</dd>`:''}</dl>`;
+  simLayer.clearLayers();const z=map.getZoom(),len=40075016.686*Math.cos(s.lat*rad)/2**(z+8)*170;
+  if(pos.alt>-6){L.polyline([[s.lat,s.lng],dest(s.lat,s.lng,pos.bearing,len)],{color:'#f2b233',weight:6,opacity:pos.alt<0?.45:.95,interactive:false}).addTo(simLayer);
+    L.circleMarker&&L.circleMarker(dest(s.lat,s.lng,pos.bearing,len),{radius:9,color:'#fff',weight:2,fillColor:'#f2b233',fillOpacity:1,interactive:false}).addTo(simLayer)}
+  if(pos.alt>0.5)L.polyline([[s.lat,s.lng],dest(s.lat,s.lng,(pos.bearing+180)%360,Math.min(len,len*0.25*shadow/1.75+len*0.15))],{color:'#41464f',weight:5,opacity:.7,dashArray:'2 8',lineCap:'round',interactive:false}).addTo(simLayer);
+}
+let simTimer=null;
+function simPlay(btn){if(simTimer){clearInterval(simTimer);simTimer=null;btn.classList.remove('on');return}btn.classList.add('on');
+  simTimer=setInterval(()=>{const r=$('#simT');if(!r||S.view!=='spot'){clearInterval(simTimer);simTimer=null;return}S.simMin=(S.simMin+10)%1440;r.value=S.simMin;updSim()},120)}
+
 async function discardDraft(){const id=S.draft;S.draft=null;const s=spot(id);
   if(s&&s.name==='Neuer Spot'&&!phOf(id).length){await removeSpot(id,true)}sheet.hidden=true;S.sel=null;overlay.clearLayers();renderMarkers()}
 
 /* ---------- Anlegen / Löschen ---------- */
-async function createAt(lat,lng){const s=newSpot(lat,lng);await saveSpot(s);S.draft=s.id;S.sel=s.id;renderMarkers();drawOverlay(s);renderEdit(s)}
+async function createAt(lat,lng){const s=newSpot(lat,lng);await saveSpot(s);S.draft=s.id;S.sel=s.id;renderMarkers();drawOverlay(s);startWizard(s)}
 async function removeSpot(id,silent){const s=spot(id),ps=phOf(id);S.spots=S.spots.filter(x=>x.id!==id);S.photos.delete(id);
   await DB.del('spots',id);for(const p of ps)await DB.del('photos',p.id);
   if(!silent){sheet.hidden=true;S.sel=null;overlay.clearLayers();toast(`„${s.name}“ gelöscht`,'Rückgängig',async()=>{await DB.put('spots',s);for(const p of ps)await DB.put('photos',p);S.spots.push(s);S.photos.set(id,ps);renderMarkers();openSpot(id)},6000)}
@@ -634,11 +787,11 @@ function startPick(mode,id){S.pick={mode,id};sheet.hidden=true;$('#cross').hidde
   $('#crossTxt').textContent=mode==='parking'?'Kreuz auf den Parkplatz schieben':mode==='move'?'Kreuz auf die neue Position schieben':'Kreuz auf den Spot schieben';
   if(id){const s=spot(id);const t=mode==='parking'&&s.parking?s.parking:s;map.panTo([t.lat,t.lng])}}
 function endPick(){$('#cross').hidden=true;$('.fabs').style.display='';const p=S.pick;S.pick=null;return p}
-$('#crossCancel').onclick=()=>{const p=endPick();if(p&&p.id){const s=spot(p.id);p.mode==='parking'?renderEdit(s):openSpot(p.id)}};
+$('#crossCancel').onclick=()=>{const p=endPick();if(p&&p.id){const s=spot(p.id);p.mode==='parking'?reEdit(s):openSpot(p.id)}};
 $('#crossOk').onclick=async()=>{const p=endPick(),c=map.getCenter();if(!p)return;
   if(p.mode==='new')return createAt(c.lat,c.lng);
   const s=spot(p.id);if(p.mode==='move'){s.lat=c.lat;s.lng=c.lng;if(s.name==='Position prüfen')s.name='Neuer Spot';await saveSpot(s);openSpot(s.id);toast('Position gespeichert')}
-  if(p.mode==='parking'){s.parking={lat:c.lat,lng:c.lng};await saveSpot(s);drawOverlay(s);renderEdit(s)}};
+  if(p.mode==='parking'){s.parking={lat:c.lat,lng:c.lng};await saveSpot(s);drawOverlay(s);reEdit(s)}};
 
 /* ---------- Liste ---------- */
 function renderList(){S.view='list';const cols=[...new Set(S.spots.map(x=>x.col).filter(Boolean))].sort();
@@ -648,12 +801,13 @@ function renderList(){S.view='list';const cols=[...new Set(S.spots.map(x=>x.col)
   const sel=(k,list,label)=>`<select data-f="${k}" aria-label="${label}" class="${S.f[k]?'on':''}"><option value="">${label}</option>${list.map(x=>`<option value="${esc(x[0])}" ${S.f[k]===x[0]?'selected':''}>${esc(x[1])}</option>`).join('')}</select>`;
   showSheet(`<div class="hd"><div style="flex:1"><h2>Meine Spots</h2><div class="meta"><span>${arr.length} von ${S.spots.length}${S.f.q?` · Suche „${esc(S.f.q)}“`:''}</span></div></div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
    <div class="seg" role="group" aria-label="Sortierung">${[['dist','Nähe'],['new','Neu'],['rating','Top'],['name','A–Z']].map(x=>`<button data-sort="${x[0]}" aria-pressed="${x[0]===so}">${x[1]}</button>`).join('')}</div>
-   <div class="bar3">${sel('cat',CATS,'Kategorie')}${sel('col',cols.map(c=>[c,c]),'Sammlung')}${sel('status',STATUS,'Status')}</div>
-   ${arr.length?arr.map(({s,d})=>{const p=cover(s),c=CAT[s.cat]||CAT.sonst,n=phOf(s.id).length;return `<button class="li" data-open="${s.id}"><span class="th" style="${p?`background-image:url(${url(p,'t')})`:''};--c:${c.color}">${p?'':ic('pin')}</span>
-     <span class="tx"><b>${esc(s.name)}</b><small><i class="dot" style="background:${c.color}"></i>${esc(c.name)}${s.col?' · '+esc(s.col):''}</small><small>${n} Foto${n===1?'':'s'}${s.rating?' · <em>'+'★'.repeat(s.rating)+'</em>':''}${s.status==='geshootet'?' · geshootet':''}</small></span><span class="d">${fmtDist(d)}</span></button>`}).join('')
+   <div class="envrow">${ENVS.map(c=>`<button data-envf="${c[0]}" aria-pressed="${S.f.env.includes(c[0])}" style="--c:${c[2]}"><i></i>${c[1]}</button>`).join('')}</div>
+   <div class="bar3">${sel('light',LIGHT,'Licht')}${sel('col',cols.map(c=>[c,c]),'Sammlung')}${sel('status',STATUS,'Status')}</div>
+   ${arr.length?arr.map(({s,d})=>{const p=cover(s),c=envOf(s),n=phOf(s.id).length;return `<button class="li" data-open="${s.id}"><span class="th" style="${p?`background-image:url(${url(p,'t')})`:''};--c:${c.color}">${p?'':ic('pin')}</span>
+     <span class="tx"><b>${esc(s.name)}</b><small><i class="dot" style="background:${c.color}"></i>${esc(envNames(s).join(', ')||'Ohne Umgebung')}${isAllday(s)?' · ganztags':''}${s.col?' · '+esc(s.col):''}</small><small>${n} Foto${n===1?'':'s'}${s.rating?' · <em>'+'★'.repeat(s.rating)+'</em>':''}${s.status==='geshootet'?' · geshootet':''}</small></span><span class="d">${fmtDist(d)}</span></button>`}).join('')
    :`<div class="empty static">${ic('pin')}<b>${S.spots.length?'Nichts gefunden':'Noch keine Spots'}</b><span>${S.spots.length?'Suche oder Filter anpassen.':'Tippe auf + oder halte lange auf die Karte.'}</span></div>`}`,true);
 }
-function renderWelcome(){S.view='welcome';showSheet(`<div class="welcome"><img src="icon-192.png" alt="" width="56" height="56"><h2>Dein Spotbuch</h2>
+function renderWelcome(){S.view='welcome';showSheet(`<div class="welcome"><button class="ib wx" data-act="close" aria-label="Schließen">${ic('x')}</button><img src="icon-192.png" alt="" width="56" height="56"><h2>Dein Spotbuch</h2>
   <p>Sammle deine Foto-Locations mit Referenzbildern, Licht und allem, was du vor Ort wissen musst.</p>
   <div class="wl"><button class="btn acc" data-wadd="here">${ic('pin')} Spot an meinem Standort</button>
   <button class="btn" data-wadd="photos">${ic('img')} Aus vorhandenen Fotos anlegen</button>
@@ -679,15 +833,15 @@ async function backup(){busy(true);try{const photos=[];for(const list of S.photo
   const json=JSON.stringify({app:'spotbuch',version:1,exported:new Date().toISOString(),spots:S.spots,photos});
   await deliver(new Blob([json],{type:'application/json'}),`spotbuch-backup-${stamp()}.json`)}finally{busy(false)}}
 async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(await file.text());if(d.app!=='spotbuch')throw new Error('Kein Spotbuch-Backup');
-  for(const s of d.spots||[]){const ex=spot(s.id);if(!ex||(s.updated||0)>(ex.updated||0)){await DB.put('spots',s);if(ex)Object.assign(ex,s);else S.spots.push(s);ns++}}
+  for(const s of d.spots||[]){migrate(s);const ex=spot(s.id);if(!ex||(s.updated||0)>(ex.updated||0)){await DB.put('spots',s);if(ex)Object.assign(ex,s);else S.spots.push(s);ns++}}
   const have=new Set([...S.photos.values()].flat().map(p=>p.id));
   for(const p of d.photos||[]){if(have.has(p.id))continue;const {data,thumbData,...m}=p;
     const rec={...m,blob:await (await fetch(data)).blob(),thumb:await (await fetch(thumbData||data)).blob()};await DB.put('photos',rec);
     if(!S.photos.has(rec.spotId))S.photos.set(rec.spotId,[]);S.photos.get(rec.spotId).push(rec);np++}
-  renderMarkers();toast(`${ns} Spots und ${np} Fotos übernommen`)}catch(e){toast('Backup konnte nicht gelesen werden: '+e.message)}finally{busy(false)}}
+  renderMarkers();if(S.view==='welcome'||S.view==='settings'){sheet.hidden=true;S.view=null}toast(`${ns} Spots und ${np} Fotos übernommen`)}catch(e){toast('Backup konnte nicht gelesen werden: '+e.message)}finally{busy(false)}}
 const xml=s=>esc(s);
-function descOf(s){return [CAT[s.cat]?.name,s.notes,s.access&&('Zugang: '+s.access),s.rain&&('Regen: '+s.rain)].filter(Boolean).join('\n')}
-function gpx(){const w=S.spots.map(s=>`<wpt lat="${s.lat}" lon="${s.lng}"><name>${xml(s.name)}</name><desc>${xml(descOf(s))}</desc><type>${xml(CAT[s.cat]?.name||'')}</type></wpt>`).join('\n');
+function descOf(s){return [envNames(s).join(', '),s.notes,s.access&&('Zugang: '+s.access),s.rain&&('Regen: '+s.rain)].filter(Boolean).join('\n')}
+function gpx(){const w=S.spots.map(s=>`<wpt lat="${s.lat}" lon="${s.lng}"><name>${xml(s.name)}</name><desc>${xml(descOf(s))}</desc><type>${xml(envNames(s)[0]||'')}</type></wpt>`).join('\n');
   deliver(new Blob([`<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Spotbuch" xmlns="http://www.topografix.com/GPX/1/1">\n${w}\n</gpx>`],{type:'application/gpx+xml'}),`spotbuch-${stamp()}.gpx`)}
 function kml(){const p=S.spots.map(s=>`<Placemark><name>${xml(s.name)}</name><description>${xml(descOf(s))}</description><Point><coordinates>${s.lng},${s.lat},0</coordinates></Point></Placemark>`).join('\n');
   deliver(new Blob([`<?xml version="1.0" encoding="UTF-8"?>\n<kml xmlns="http://www.opengis.net/kml/2.2"><Document><name>Spotbuch</name>\n${p}\n</Document></kml>`],{type:'application/vnd.google-earth.kml+xml'}),`spotbuch-${stamp()}.kml`)}
@@ -702,7 +856,7 @@ async function heading(){try{if(typeof DeviceOrientationEvent!=='undefined'&&Dev
 let LB={list:[],i:0};
 function openLB(list,i){LB={list,i};$('#lb').hidden=false;showLB()}
 function showLB(){const p=LB.list[LB.i];if(!p)return;$('#lbImg').innerHTML=`<img src="${url(p,'f')}" alt="${esc(p.caption||'Referenzfoto')}">`;$('#lbN').textContent=`${LB.i+1} / ${LB.list.length}`;
-  $('#lbInf').innerHTML=`${p.caption?`<b>${esc(p.caption)}</b><br>`:''}${esc(exifLine(p.exif)||'Keine Kameradaten')}${p.exif.date?' · '+new Date(p.exif.date).toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'}):''}${p.dir!=null?` · Blick ${p.dir}° ${compass(p.dir)}`:''}`;
+  $('#lbInf').innerHTML=`${p.caption?`<b>${esc(p.caption)}</b><br>`:''}${p.tod||p.wx?esc([lab(LIGHT,p.tod),lab(WX,p.wx)].filter(Boolean).join(' · '))+'<br>':''}${esc(exifLine(p.exif)||'Keine Kameradaten')}${p.exif.date?' · '+new Date(p.exif.date).toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'}):''}${p.dir!=null?` · Blick ${p.dir}° ${compass(p.dir)}`:''}`;
   $('#lbPrev').style.visibility=$('#lbNext').style.visibility=LB.list.length>1?'visible':'hidden'}
 const lbStep=n=>{LB.i=(LB.i+n+LB.list.length)%LB.list.length;showLB()};
 $('#lbClose').onclick=()=>{$('#lb').hidden=true};$('#lbPrev').onclick=()=>lbStep(-1);$('#lbNext').onclick=()=>lbStep(1);
@@ -713,8 +867,9 @@ addEventListener('keydown',e=>{if(!$('#lb').hidden){if(e.key==='Escape')$('#lb')
 /* ---------- Ereignisse ---------- */
 let qT;$('#q').addEventListener('input',e=>{clearTimeout(qT);qT=setTimeout(()=>{S.f.q=e.target.value;renderMarkers();if(S.view==='list')renderList()},150)});
 $('#q').addEventListener('keydown',e=>{if(e.key==='Enter'){e.target.blur();renderList()}});
-$('#chips').onclick=e=>{const b=e.target.closest('[data-cat]');if(!b)return;S.f.cat=b.dataset.cat;renderMarkers();if(S.view==='list')renderList();
-  const f=filtered();if(f.length&&S.f.cat)map.fitBounds(f.map(s=>[s.lat,s.lng]),{maxZoom:15,padding:[60,60]})};
+$('#chips').onclick=e=>{const b=e.target.closest('[data-env],[data-allday]');if(!b)return;
+  if(b.dataset.allday!=null)S.f.allday=!S.f.allday;else if(!b.dataset.env){S.f.env=[];S.f.allday=false}else toggleEnv(b.dataset.env);
+  renderMarkers();if(S.view==='list')renderList();const f=filtered();if(f.length&&(S.f.env.length||S.f.allday))map.fitBounds(f.map(s=>[s.lat,s.lng]),{maxZoom:15,padding:[60,60]})};
 $('#btnList').onclick=()=>S.view==='list'?closeSheet():renderList();
 $('#btnMenu').onclick=()=>S.view==='settings'?closeSheet():renderSettings();
 $('#btnLocate').onclick=()=>locate().catch(()=>{});
@@ -729,8 +884,8 @@ $('#addMenu').onclick=async e=>{const b=e.target.closest('[data-add]');if(!b)ret
   if(k==='photos')$('#fPhotos').click()};
 $('#fPhotos').onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)importAsSpots(f)};
 $('#fAddPh').onchange=async e=>{const files=[...e.target.files];e.target.value='';const s=spot(S.sel);if(!s||!files.length)return;
-  if(S.view==='edit')collectForm(s);busy(true);try{for(const f of files){const p=await addPhoto(s.id,f);if(!s.cover)s.cover=p.id}await saveSpot(s)}finally{busy(false)}
-  S.view==='edit'?renderEdit(s):renderSpot(s);drawOverlay(s)};
+  if(S.view==='edit'||S.view==='wiz')collectForm(s);busy(true);try{for(const f of files){const p=await addPhoto(s.id,f);if(!s.cover)s.cover=p.id}await saveSpot(s)}finally{busy(false)}
+  (S.view==='edit'||S.view==='wiz')?reEdit(s):renderSpot(s);drawOverlay(s)};
 $('#fBackup').onchange=e=>{const f=e.target.files[0];e.target.value='';if(f)restore(f)};
 
 body.addEventListener('click',async e=>{
@@ -741,23 +896,26 @@ body.addEventListener('click',async e=>{
   const mo=e.target.closest('[data-multi] button');if(mo){mo.setAttribute('aria-pressed',mo.getAttribute('aria-pressed')!=='true');return}
   const pa=e.target.closest('[data-ph-act]');if(pa&&s){const row=pa.closest('[data-ph]'),pid=row.dataset.ph,a=pa.dataset.phAct;
     if(a==='compass'){pa.textContent='…';const h=await heading();pa.textContent='Kompass';if(h!=null){row.querySelector('[data-k=dir]').value=h;toast(`Richtung ${h}° ${compass(h)} übernommen`)}else toast('Kein Kompass verfügbar – Richtung von Hand eintragen')}
-    if(a==='cover'){collectForm(s);s.cover=pid;await saveSpot(s);renderEdit(s)}
-    if(a==='del'&&confirm('Dieses Foto löschen?')){collectForm(s);await DB.del('photos',pid);S.photos.set(s.id,phOf(s.id).filter(p=>p.id!==pid));if(s.cover===pid)s.cover=null;await saveSpot(s);renderEdit(s);drawOverlay(s)}
+    if(a==='cover'){collectForm(s);s.cover=pid;await saveSpot(s);reEdit(s)}
+    if(a==='del'&&confirm('Dieses Foto löschen?')){collectForm(s);await DB.del('photos',pid);S.photos.set(s.id,phOf(s.id).filter(p=>p.id!==pid));if(s.cover===pid)s.cover=null;await saveSpot(s);reEdit(s);drawOverlay(s)}
     return}
   const dy=e.target.closest('[data-day]');if(dy){S.date=dayISO(+dy.dataset.day);if(s){drawOverlay(s);renderSpot(s)}return}
   const so=e.target.closest('[data-sort]');if(so){S.sort=so.dataset.sort;ls.set('sort',S.sort);renderList();return}
+  const ef=e.target.closest('[data-envf]');if(ef){toggleEnv(ef.dataset.envf);renderMarkers();renderList();return}
+  if(e.target.closest('#simPlay'))return simPlay(e.target.closest('#simPlay'));
   const wa=e.target.closest('[data-wadd]');if(wa){const k=wa.dataset.wadd;sheet.hidden=true;S.view=null;
     if(k==='here'){try{const m=await locate();createAt(m.lat,m.lng)}catch(x){renderWelcome()}}if(k==='map')startPick('new');if(k==='photos')$('#fPhotos').click();return}
   const b=e.target.closest('[data-act]');if(!b)return;const a=b.dataset.act;
   if(a==='close')closeSheet();
   if(a==='edit'&&s)renderEdit(s);
   if(a==='addph')$('#fAddPh').click();
+  if(a==='wback')return wizGo(-1);if(a==='wskip')return wizGo(1);
   if(a==='cancel'){if(S.draft)discardDraft();else if(s)openSpot(s.id)}
   if(a==='move'&&s)startPick('move',s.id);
   if(a==='del'&&s&&confirm(`„${s.name}“ mit allen Fotos löschen?`))removeSpot(s.id);
-  if(a==='parkhere'&&s){collectForm(s);try{const m=await locate(false);s.parking={lat:m.lat,lng:m.lng};await saveSpot(s);drawOverlay(s);renderEdit(s);toast('Parkplatz gespeichert')}catch(x){}}
+  if(a==='parkhere'&&s){collectForm(s);try{const m=await locate(false);s.parking={lat:m.lat,lng:m.lng};await saveSpot(s);drawOverlay(s);reEdit(s);toast('Parkplatz gespeichert')}catch(x){}}
   if(a==='parkmap'&&s){collectForm(s);await saveSpot(s);startPick('parking',s.id)}
-  if(a==='parkdel'&&s){collectForm(s);s.parking=null;await saveSpot(s);drawOverlay(s);renderEdit(s)}
+  if(a==='parkdel'&&s){collectForm(s);s.parking=null;await saveSpot(s);drawOverlay(s);reEdit(s)}
   if(a==='share'&&s){const txt=`${s.name}\n${fmtC(s.lat,s.lng)}\nhttps://maps.apple.com/?ll=${s.lat},${s.lng}&q=${encodeURIComponent(s.name)}`;
     try{if(navigator.share){const p=cover(s),files=p?[new File([p.blob],'referenz.jpg',{type:'image/jpeg'})]:[];
       await navigator.share(files.length&&navigator.canShare&&navigator.canShare({files})?{text:txt,files}:{text:txt});return}}catch(x){if(x.name==='AbortError')return}
@@ -765,14 +923,15 @@ body.addEventListener('click',async e=>{
   if(a==='backup')backup();if(a==='restore')$('#fBackup').click();if(a==='gpx')gpx();if(a==='kml')kml();
   if(a==='persist'){try{const ok=await navigator.storage.persist();toast(ok?'Speicher ist jetzt dauerhaft':'Browser hat abgelehnt – als Home-Bildschirm-App öffnen');renderSettings()}catch(x){}}
 });
+body.addEventListener('input',e=>{if(e.target.id==='simT'){S.simMin=+e.target.value;updSim()}});
 body.addEventListener('change',e=>{if(e.target.id==='sunDate'&&e.target.value){S.date=e.target.value;const s=spot(S.sel);if(s){drawOverlay(s);renderSpot(s)}}
   if(e.target.dataset.f!=null){S.f[e.target.dataset.f]=e.target.value;renderMarkers();renderList()}
   if(e.target.id==='sort'){S.sort=e.target.value;ls.set('sort',S.sort);renderList()}});
-body.addEventListener('submit',async e=>{e.preventDefault();const s=spot(S.sel);if(!s)return;collectForm(s);S.draft=null;await saveSpot(s);openSpot(s.id);toast('Gespeichert')});
+body.addEventListener('submit',async e=>{e.preventDefault();if(S.wiz)return wizGo(1);const s=spot(S.sel);if(!s)return;collectForm(s);S.draft=null;await saveSpot(s);openSpot(s.id);toast('Gespeichert')});
 
 /* ---------- Start ---------- */
 (async()=>{
-  try{await DB.open();S.spots=await DB.all('spots');for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
+  try{await DB.open();S.spots=await DB.all('spots');for(const x of S.spots)if(migrate(x))DB.put('spots',x);for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
     for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created)}
   catch(e){toast('Lokaler Speicher nicht verfügbar (privater Modus?) – Daten werden nicht gespeichert',null,null,8000)}
   renderMarkers();
