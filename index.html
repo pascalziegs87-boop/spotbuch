@@ -1099,136 +1099,225 @@ body.addEventListener('change',e=>{if(e.target.id==='sunDate'&&e.target.value){S
   if(e.target.id==='sort'){S.sort=e.target.value;ls.set('sort',S.sort);renderList()}});
 body.addEventListener('submit',async e=>{e.preventDefault();if(e.target.id!=='ef')return;if(S.wiz)return wizGo(1);const s=spot(S.sel);if(!s)return;collectForm(s);S.draft=null;await saveSpot(s);openSpot(s.id);toast('Gespeichert')});
 
-/* ---------- Posen-Skizzen (Strichfiguren) ---------- */
+/* ---------- Posen-Skizzen (Silhouetten, Seitenansicht mit Gelenken) ---------- */
 const Sketch=(()=>{
-  const CA='#1b1d21',CB='#e2553a',CK='#d9922c',CD='#8a6f5a',CX='#a3a8b0';
-  const rot=(p,c,d)=>{if(!d)return p;const a=d*rad,x=p[0]-c[0],y=p[1]-c[1];return [c[0]+x*Math.cos(a)-y*Math.sin(a),c[1]+x*Math.sin(a)+y*Math.cos(a)]};
-  const rv=(v,d)=>rot(v,[0,0],d);
-  const ARM={down:s=>[[s*.03,.17],[s*.04,.33]],hip:s=>[[s*.13,.12],[s*.04,.26]],up:s=>[[s*.05,-.15],[s*.02,-.31]],out:s=>[[s*.16,.02],[s*.32,0]],
-    front:s=>[[s*.05,.15],[-s*.05,.2]],wave:s=>[[s*.15,-.02],[s*.17,-.18]],head:s=>[[s*.13,-.1],[-s*.07,-.15]],cross:s=>[[s*.04,.14],[-s*.13,.1]],pocket:s=>[[s*.06,.15],[s*.02,.24]]};
-  const LEG={stand:(s,H,hp,gy)=>[[hp[0]+s*H*.01,hp[1]+H*.235],[hp[0]+s*H*.03,gy]],fwd:(s,H,hp,gy)=>[[hp[0]+s*H*.07,hp[1]+H*.22],[hp[0]+s*H*.16,gy]],
-    back:(s,H,hp,gy)=>[[hp[0]-s*H*.015,hp[1]+H*.235],[hp[0]-s*H*.05,gy]],cross:(s,H,hp,gy,x)=>[[x,hp[1]+H*.23],[x-s*H*.05,gy]],
-    box:(s,H,hp,gy)=>[[hp[0]+s*H*.07,hp[1]+H*.03],[hp[0]+s*H*.08,gy]],sit:(s,H,hp,gy,x)=>[[x+s*H*.22,hp[1]+H*.03],[x-s*H*.05,hp[1]+H*.08]],
-    kneel:(s,H,hp,gy)=>s<0?[[hp[0]-H*.02,gy-2],[hp[0]-H*.15,gy]]:[[hp[0]+H*.14,gy-H*.17],[hp[0]+H*.16,gy]],
-    up:(s,H,hp)=>[[hp[0]+s*H*.07,hp[1]+H*.17],[hp[0]+s*H*.03,hp[1]+H*.31]],ride:(s,H,hp)=>[[hp[0]+s*H*.26,hp[1]+H*.1],[hp[0]+s*H*.22,hp[1]+H*.4]]};
-  const HIP={stand:.47,box:.30,sit:.09,kneel:.29};
-  const f=n=>n.toFixed(1),pt=p=>f(p[0])+' '+f(p[1]);
-  const SKIN='#55606e',SA='#1b1d21',SB='#5a6472';
-  const STY={
-    w:{hair:'#6b4226',long:true,top:'#d9654b',bottom:'#d9654b',dress:'knee',sleeve:'short'},
-    m:{hair:'#2b2118',top:'#4a6d96',bottom:'#2f3540',sleeve:'rolled'},
-    k:{hair:'#a8742f',top:'#e9a23b',bottom:'#4f78a3',sleeve:'short',kid:true},
-    bride:{hair:'#7a4c2c',long:true,top:'#ffffff',bottom:'#ffffff',dress:'long',sleeve:'none',edge:'#d6cfc4'},
-    groom:{hair:'#2b2118',top:'#2b2f36',bottom:'#2b2f36',sleeve:'long',shirt:'#ffffff'}
-  };
-  const cap=(a,b,c,w)=>`<path d="M${pt(a)}L${pt(b)}" stroke="${c}" stroke-width="${f(w)}" stroke-linecap="round" fill="none"/>`;
-  const mix=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
-  function P(o){const H=100*(o.s||1),x=o.x,gy=o.gy??150,m=o.m||'stand',c=o.c||CA,ln=o.lean||0,u=H/100;
-    let st=STY[o.st||(c===CB?'m':c===CK?'k':'w')];const col=o.sc||(c===CB?SB:SA);st={...st,hair:col,top:col,bottom:col,edge:col,shirt:null};const sk=col;
-    const hipY=o.hipY??gy-H*HIP[m],hip=[x,hipY],R=p=>rot(p,hip,ln);
-    const neck=R([x,hipY-H*.29]),head=R([x,hipY-H*.405]),shL=R([x-H*.1,hipY-H*.265]),shR=R([x+H*.1,hipY-H*.265]);
-    const arm=(sh,s,a)=>{if(Array.isArray(a)){const mx=(sh[0]+a[0])/2,my=(sh[1]+a[1])/2;return [[mx+s*H*.04,my+H*.05],a]}
-      const A=ARM[a||'down'](s),e=rv([A[0][0]*H,A[0][1]*H],ln),h=rv([A[1][0]*H,A[1][1]*H],ln);return [[sh[0]+e[0],sh[1]+e[1]],[sh[0]+h[0],sh[1]+h[1]]]};
-    const [eL,hL]=arm(shL,-1,o.la),[eR,hR]=arm(shR,1,o.ra);
-    const hw=st.kid?.07:c===CB||o.st==='groom'?.075:.085;
-    const hpL=[x-H*.05,hipY],hpR=[x+H*.05,hipY],dl=m==='stand'?'stand':m;
-    const [kL,fL]=LEG[o.ll||dl](-1,H,hpL,gy,x),[kR,fR]=LEG[o.rl||dl](1,H,hpR,gy,x);
-    const wst=st.kid?.07:c===CB||o.st==='groom'?.08:.068;
-    const waL=R([x-H*wst,hipY-H*.1]),waR=R([x+H*wst,hipY-H*.1]),hiL=[x-H*hw,hipY+H*.02],hiR=[x+H*hw,hipY+H*.02];
-    const sL=R([x-H*.105,hipY-H*.262]),sR=R([x+H*.105,hipY-H*.262]);
-    const out=[];
-    // Schatten
-    if(m!=='sit'&&!o.nosh)out.push(`<ellipse cx="${f(x)}" cy="${f(gy+1)}" rx="${f(H*.17)}" ry="${f(H*.025)}" fill="rgba(0,0,0,.10)"/>`);
-    // Haare hinten
-    const hr=[H*.072,H*.088];
-    if(st.long)out.push(`<ellipse cx="${f(head[0])}" cy="${f(head[1]+H*.045)}" rx="${f(hr[0]*1.25)}" ry="${f(hr[1]*1.45)}" fill="${st.hair}" transform="rotate(${ln} ${f(head[0])} ${f(head[1])})"/>`);
-    // Beine
-    const legC=st.dress?sk:st.bottom,thW=(st.dress?9.5:st.kid?11:12.5)*u,caW=(st.dress?8:st.kid?9:10)*u;
-    const shoe=(k,ft,s)=>{const dx=ft[0]-k[0],dir=Math.abs(dx)<2?s:Math.sign(dx);return `<ellipse cx="${f(ft[0]+dir*2.2*u)}" cy="${f(ft[1]-1.6*u)}" rx="${f(5.4*u)}" ry="${f(2.9*u)}" fill="${col}"/>`};
-    for(const [hp,k,ft,s] of [[hpL,kL,fL,-1],[hpR,kR,fR,1]]){out.push(cap(hp,k,legC,thW),cap(k,ft,st.dress?sk:legC,caW));if(st.kid&&!st.dress)out.push(cap(mix(k,ft,.15),ft,sk,caW*.85));out.push(shoe(k,ft,s))}
+  const SA='#1b1d21',SA2='#3b4048',SB='#56606d',SB2='#7a838f',CX='#a3a8b0';
+  const f1=n=>n.toFixed(1),pt=p=>f1(p[0])+' '+f1(p[1]);
+  const add=(a,b,k=1)=>[a[0]+b[0]*k,a[1]+b[1]*k],sub=(a,b)=>[a[0]-b[0],a[1]-b[1]],len=v=>Math.hypot(v[0],v[1]),nrm=v=>{const l=len(v)||1;return [v[0]/l,v[1]/l]};
+  const dn=(a,f)=>[f*Math.sin(a*rad),Math.cos(a*rad)];       // Winkel ab "senkrecht nach unten", + = nach vorn
+  const upv=(t,f)=>[f*Math.sin(t*rad),-Math.cos(t*rad)];     // Winkel ab "senkrecht nach oben", + = nach vorn
+  function ik(S,T,L1,L2,bend){let d=sub(T,S),D=len(d);D=Math.min(Math.max(D,Math.abs(L1-L2)+.01),L1+L2-.01);const u=nrm(d);
+    const a=Math.acos((L1*L1+D*D-L2*L2)/(2*L1*D)),c=Math.cos(a*bend),s=Math.sin(a*bend);const e=[u[0]*c-u[1]*s,u[0]*s+u[1]*c];
+    const E=add(S,e,L1);return [E,add(E,nrm(sub(T,E)),L2)]}
+  function capsule(a,b,r1,r2,c){const n=nrm([-(b[1]-a[1]),b[0]-a[0]]);
+    return `<path d="M${pt(add(a,n,r1))}L${pt(add(b,n,r2))}L${pt(add(b,n,-r2))}L${pt(add(a,n,-r1))}Z" fill="${c}"/><circle cx="${f1(a[0])}" cy="${f1(a[1])}" r="${f1(r1)}" fill="${c}"/><circle cx="${f1(b[0])}" cy="${f1(b[1])}" r="${f1(r2)}" fill="${c}"/>`}
+  function smooth(ps){let d=`M${pt(ps[0])}`;for(let i=0;i<ps.length-1;i++){const p0=ps[i-1]||ps[i],p1=ps[i],p2=ps[i+1],p3=ps[i+2]||p2;
+    const c1=add(p1,sub(p2,p0),1/6),c2=add(p2,sub(p3,p1),-1/6);d+=`C${pt(c1)} ${pt(c2)} ${pt(p2)}`}return d}
+  const STY={w:{female:true,dress:'knee',hair:'long'},m:{},k:{kid:true,hair:'kid'},kg:{kid:true,female:true,hair:'pony',dress:'knee'},bride:{female:true,dress:'gown',hair:'bun'},groom:{jacket:true}};
+  // Person: o = {x,y?,f,s,st,c,t,hd,hf,an,af,ln,lf,anT,afT,bn,bf,ft,ground,skirt}
+  function Per(o){const st=STY[o.st||'w'],f=o.f||1,s=(o.s||1)*(st.kid?.6:1),H=100*s,kid=st.kid;
+    const L={tor:(kid?.27:.29)*H,neck:.035*H,head:(kid?.095:.075)*H,ua:.165*H,fa:.15*H,th:.245*H,sh:.235*H,foot:.075*H};
+    const t=o.t||0,P0=[o.x,0];
+    const up=upv(t,f),fr=[f*Math.cos(t*rad),Math.sin(t*rad)];
+    const C=add(P0,up,L.tor),N=add(C,up,L.neck),hu=upv(t+(o.hd||0),f),Hd=add(N,hu,L.head*1.05);
+    const S=add(C,up,-.02*H);
+    const leg=(spec,tgt)=>{if(tgt){const [K,A]=ik(P0,tgt,L.th,L.sh,-f*(o.kb||1));return [K,A]}const K=add(P0,dn(spec[0],f),L.th);return [K,add(K,dn(spec[1],f),L.sh)]};
+    const [Kn,An]=leg(o.ln||[4,0],o.lnT),[Kf,Af]=leg(o.lf||[-4,-2],o.lfT);
+    const foot=(A,fa)=>add(A,[f*Math.cos((fa||0)*rad),Math.sin((fa||0)*rad)],L.foot);
+    const Tn=foot(An,o.fan),Tf=foot(Af,o.faf);
+    const arm=(spec,tgt,bend)=>{if(tgt)return ik(S,tgt,L.ua,L.fa,bend??f);const E=add(S,dn(spec[0],f),L.ua);return [E,add(E,dn(spec[1],f),L.fa)]};
+    const [En,Wn]=arm(o.an||[6,14],o.anT,o.bn),[Ef,Wf]=arm(o.af||[-4,6],o.afT,o.bf);
+    // auf den Boden stellen
+    let pts={P:P0,C,N,Hd,S,Kn,An,Kf,Af,Tn,Tf,En,Wn,Ef,Wf};
+    let dy;if(o.y!=null)dy=o.y;else{const low=Math.max(An[1]+.02*H,Af[1]+.02*H,Tn[1],Tf[1],P0[1]+.06*H,Kn[1]+.035*H,Kf[1]+.035*H);dy=(o.gy??150)-low}
+    for(const k in pts)pts[k]=[pts[k][0],pts[k][1]+dy];
+    // IK-Ziele sind absolut: Arme/Beine mit Ziel neu berechnen
+    if(o.anT){[pts.En,pts.Wn]=ik(pts.S,o.anT,L.ua,L.fa,o.bn??f)}if(o.afT){[pts.Ef,pts.Wf]=ik(pts.S,o.afT,L.ua,L.fa,o.bf??f)}
+    const {P,Hd:HD,S:SS,Kn:KN,An:AN,Kf:KF,Af:AF,Tn:TN,Tf:TF,En:EN,Wn:WN,Ef:EF,Wf:WF}=pts;
+    const c=o.c||(o.st==='m'||o.st==='groom'?SB:SA),c2=o.c2||(c===SB?SB2:SA2);
+    const fem=st.female,w=k=>k*H;
+    // Rumpf-Silhouette
+    const prof=fem?[[-.16,-.06,.035],[0,-.085,.055],[.33,-.052,.044],[.62,-.058,.083],[.85,-.055,.058],[1,-.045,.04]]
+                  :[[-.15,-.06,.04],[0,-.07,.058],[.35,-.062,.058],[.7,-.07,.072],[1,-.058,.05]];
+    const ax=u=>add(P,up,u*L.tor);
+    const back=prof.map(([u,b])=>add(ax(u),fr,w(b)*(kid?.85:1))),front=prof.map(([u,,q])=>add(ax(u),fr,w(q)*(kid?.85:1)));
+    const torso=`<path d="${smooth(back)}L${pt(front[front.length-1])}${smooth(front.slice().reverse()).replace(/^M[^C]*/,'')}Z" fill="${c}"/>`;
+    const far=[],main=[],near=[];
+    const limbW=fem?[.058,.04,.04,.028]:kid?[.06,.042,.042,.03]:[.066,.046,.045,.032];
+    const legS=(Pp,K,A,T,col)=>capsule(Pp,K,w(limbW[0]),w(limbW[1]),col)+capsule(K,A,w(limbW[1]),w(.024),col)+capsule(add(A,[-f*.012*H,0]),T,w(.026),w(.018),col);
+    const armS=(E,Wr,col)=>capsule(SS,E,w(.04),w(.032),col)+capsule(E,Wr,w(.031),w(.022),col)+`<circle cx="${f1(Wr[0])}" cy="${f1(Wr[1])}" r="${f1(w(.026))}" fill="${col}"/>`;
+    far.push(armS(EF,WF,c2),legS(P,KF,AF,TF,c2));
+    // Haare hinten (lang)
+    const hf=o.hf||f,th=t+(o.hd||0),hup=upv(th,f),hfr=[hf*Math.cos(th*rad),Math.sin(th*rad)],hback=[-hfr[0],-hfr[1]];
+    if(st.hair==='long'){const top=add(HD,hup,w(.06)),bk=add(HD,hback,w(.06));const tail=add(add(SS,hback,w(.05)),[0,w(.045)]);
+      main.push(`<path d="M${pt(top)}Q${pt(add(bk,hback,w(.03)))} ${pt(tail)}L${pt(add(SS,hback,w(-.01)))}L${pt(HD)}Z" fill="${c}"/>`)}
+    main.push(legS(P,KN,AN,TN,c),torso);
     // Kleid
-    if(st.dress){const sit=m==='sit',kn=m==='kneel',box=m==='box';
-      const hemY=st.dress==='long'&&m==='stand'?gy-1.5:sit?hipY+H*.07:kn?hipY+H*.17:box?hipY+H*.1:hipY+H*.22;
-      const hemW=st.dress==='long'?.24:sit?.25:.15;
-      out.push(`<path d="M${pt(waL)}L${pt(waR)}L${f(x+H*hemW)} ${f(hemY)}Q${f(x)} ${f(hemY+H*.03)} ${f(x-H*hemW)} ${f(hemY)}Z" fill="${st.bottom}" stroke="${st.edge||st.bottom}" stroke-width="${f(2*u)}" stroke-linejoin="round"/>`)}
-    else out.push(`<path d="M${pt(waL)}L${pt(waR)}L${pt(hiR)}L${pt(hiL)}Z" fill="${st.bottom}" stroke="${st.bottom}" stroke-width="${f(4*u)}" stroke-linejoin="round"/>`);
-    // Oberkörper
-    out.push(`<path d="M${pt(sL)}L${pt(sR)}L${pt(waR)}L${pt(waL)}Z" fill="${st.top}" stroke="${st.edge||st.top}" stroke-width="${f(5*u)}" stroke-linejoin="round"/>`);
-    if(st.shirt)out.push(`<path d="M${pt(mix(sL,sR,.42))}L${pt(mix(sL,sR,.58))}L${pt(mix(neck,hip,.38))}Z" fill="${st.shirt}"/>`);
+    if(st.dress){const wa=ax(.32),wb=add(wa,fr,w(-.05)),wf=add(wa,fr,w(.045));
+      if(st.dress==='gown'){const gy=Math.max(AN[1],AF[1])+w(.02),cx=(KN[0]+KF[0])/2;
+        main.push(`<path d="M${pt(wb)}L${pt(wf)}Q${f1(cx+f*w(.16))} ${f1((wa[1]+gy)/2)} ${f1(cx+f*w(.17))} ${f1(gy)}L${f1(cx-f*w(.34))} ${f1(gy)}Q${f1(cx-f*w(.2))} ${f1(gy-w(.04))} ${pt(wb)}Z" fill="${c}"/>`)}
+      else{const sit=P[1]>Math.min(KN[1],KF[1])-w(.08);if(!sit){const km=[(KN[0]+KF[0])/2,(KN[1]+KF[1])/2],sw=o.skirt||0,hem=km[1]+w(.03),hx=km[0]+f*w(sw);
+        main.push(`<path d="M${pt(wb)}L${pt(wf)}Q${f1(hx+f*w(.11))} ${f1((wa[1]+hem)/2)} ${f1(hx+f*w(.13))} ${f1(hem)}Q${f1(hx)} ${f1(hem+w(.02))} ${f1(hx-f*w(.15))} ${f1(hem)}Q${f1(hx-f*w(.12))} ${f1((wa[1]+hem)/2)} ${pt(wb)}Z" fill="${c}"/>`)}}}
+    if(st.jacket){const a=ax(.05),b=ax(.98);main.push(capsule(a,b,w(.075),w(.06),c))}
     // Hals & Kopf
-    out.push(cap(neck,mix(neck,head,.55),sk,6.5*u));
-    out.push(`<ellipse cx="${f(head[0])}" cy="${f(head[1])}" rx="${f(hr[0])}" ry="${f(hr[1])}" fill="${sk}" transform="rotate(${ln} ${f(head[0])} ${f(head[1])})"/>`);
-    const capP=`M${f(head[0]-hr[0]*1.04)} ${f(head[1]+hr[1]*.05)}Q${f(head[0]-hr[0]*1.1)} ${f(head[1]-hr[1]*1.35)} ${f(head[0])} ${f(head[1]-hr[1]*1.12)}Q${f(head[0]+hr[0]*1.15)} ${f(head[1]-hr[1]*1.3)} ${f(head[0]+hr[0]*1.04)} ${f(head[1]+hr[1]*.05)}Q${f(head[0]+hr[0]*.6)} ${f(head[1]-hr[1]*.55)} ${f(head[0]-hr[0]*.1)} ${f(head[1]-hr[1]*.5)}Q${f(head[0]-hr[0]*.7)} ${f(head[1]-hr[1]*.4)} ${f(head[0]-hr[0]*1.04)} ${f(head[1]+hr[1]*.05)}Z`;
-    out.push(`<path d="${capP}" fill="${st.hair}" transform="rotate(${ln} ${f(head[0])} ${f(head[1])})"/>`);
-    out.push(`<ellipse cx="${f(head[0])}" cy="${f(head[1]+hr[1]*.28)}" rx="${f(hr[0]*.95)}" ry="${f(hr[1]*.55)}" fill="${sk}" opacity=".18" transform="rotate(${ln} ${f(head[0])} ${f(head[1])})"/>`);
-    // Arme
-    const upC=st.sleeve==='none'?sk:st.top,loC=st.sleeve==='long'?st.top:sk,uaW=(st.kid?7.5:8.5)*u,faW=(st.kid?6.5:7)*u;
-    for(const [sh,e,h] of [[sL,eL,hL],[sR,eR,hR]]){out.push(cap(sh,e,upC,uaW));if(st.sleeve==='rolled')out.push(cap(e,mix(e,h,.25),st.top,faW+1));out.push(cap(e,h,loC,faW));
-      if(st.sleeve==='short'||st.sleeve==='rolled')out.push(cap(mix(sh,e,.45),e,sk,uaW*.82));out.push(`<circle cx="${f(h[0])}" cy="${f(h[1])}" r="${f(3.8*u)}" fill="${sk}"/>`)}
-    return {svg:`<g opacity="${o.op||1}">${out.join('')}</g>`,head,neck,hip,shL,shR,hL,hR,kL,kR,top:[head[0],head[1]-hr[1]]}}
+    main.push(capsule(ax(.95),add(HD,hup,-w(.04)),w(.03),w(.028),c));
+    const rot=(t+(o.hd||0))*f,hr=[w(kid?.075:.062),w(kid?.08:.073)];
+    main.push(`<ellipse cx="${f1(HD[0])}" cy="${f1(HD[1])}" rx="${f1(hr[0])}" ry="${f1(hr[1])}" fill="${c}" transform="rotate(${f1(rot)} ${f1(HD[0])} ${f1(HD[1])})"/>`);
+    const nose=add(add(HD,hfr,hr[0]*1.12),hup,-w(.005)),nb1=add(add(HD,hfr,hr[0]*.85),hup,w(.012)),nb2=add(add(HD,hfr,hr[0]*.85),hup,-w(.022));
+    main.push(`<path d="M${pt(nb1)}L${pt(nose)}L${pt(nb2)}Z" fill="${c}"/>`);
+    const chin=add(add(HD,hfr,hr[0]*.6),hup,-hr[1]*.92);main.push(`<circle cx="${f1(chin[0])}" cy="${f1(chin[1])}" r="${f1(w(.022))}" fill="${c}"/>`);
+    if(st.hair==='bun'){const b=add(add(HD,hup,w(.045)),hfr,-w(.06));main.push(`<circle cx="${f1(b[0])}" cy="${f1(b[1])}" r="${f1(w(.033))}" fill="${c}"/>`)}
+    if(st.hair==='pony'){const b=add(add(HD,hup,w(.03)),hfr,-w(.08));main.push(capsule(b,add(b,[ -hf*w(.03),w(.09)]),w(.025),w(.012),c))}
+    if(!fem&&!kid){const b=add(add(HD,hup,w(.045)),hfr,-w(.012));main.push(`<ellipse cx="${f1(b[0])}" cy="${f1(b[1])}" rx="${f1(hr[0]*.95)}" ry="${f1(hr[1]*.55)}" fill="${c}" transform="rotate(${f1(rot)} ${f1(b[0])} ${f1(b[1])})"/>`)}
+    near.push(armS(EN,WN,c));
+    const shadow=o.noshadow?'':`<ellipse cx="${f1((AN[0]+AF[0])/2)}" cy="${f1(Math.max(AN[1],AF[1])+w(.025))}" rx="${f1(w(.2))}" ry="${f1(w(.022))}" fill="rgba(0,0,0,.09)"/>`;
+    const g=a=>`<g opacity="${o.op||1}">${a.join('')}</g>`;
+    return {far:g(far),main:g(main),near:g(near),all:shadow+g(far)+g(main)+g(near),shadow,P,C:pts.C,N:pts.N,Hd:HD,S:SS,Kn:KN,Kf:KF,An:AN,Af:AF,Wn:WN,Wf:WF,H,f,
+      waist:ax(.32),wf:add(ax(.32),fr,w(.06)),wb:add(ax(.32),fr,w(-.07)),chest:add(ax(.75),fr,w(.07)),back:add(ax(.7),fr,w(-.07)),lap:add(P,fr,w(.12)),shoulder:add(SS,up,w(.02))}}
   const line=(a,b,c,w,ex='')=>`<path d="M${pt(a)}L${pt(b)}" stroke="${c}" stroke-width="${w}" stroke-linecap="round" fill="none" ${ex}/>`;
-  const DOG='#2b2f36',DOG2='#1b1d21',HORSE='#2b2f36',MANE='#15171a';
-  function Dog(x,gy,s,fc,mode){const X=d=>x+fc*d*s,Y=d=>gy-d*s,o=[],E=(cx,cy,rx,ry,c,r=0)=>`<ellipse cx="${f(cx)}" cy="${f(cy)}" rx="${f(rx*s)}" ry="${f(ry*s)}" fill="${c}" transform="rotate(${fc*r} ${f(cx)} ${f(cy)})"/>`;
-    o.push(`<ellipse cx="${f(x)}" cy="${f(gy+1)}" rx="${f(20*s)}" ry="${f(2.5*s)}" fill="rgba(0,0,0,.10)"/>`);
-    if(mode==='sit'){o.push(line([X(-14),Y(5)],[X(-24),Y(3)],DOG,3.5*s),E(X(-5),Y(11),11,10,DOG),line([X(2),Y(26)],[X(5),Y(1.5)],DOG,5*s),line([X(-3),Y(24)],[X(-1),Y(1.5)],DOG2,5*s),
-      E(X(1),Y(22),9,14,DOG,-14),E(X(6),Y(38),7.5,7,DOG),E(X(13),Y(35),5.5,3.6,DOG,8),`<circle cx="${f(X(18))}" cy="${f(Y(36))}" r="${f(1.8*s)}" fill="#2b2118"/>`,E(X(1),Y(37),3,6.5,DOG2,-18),
-      E(X(5),Y(1.5),3.6,1.8,DOG2),E(X(-1),Y(1.5),3.6,1.8,DOG2));return {svg:o.join(''),head:[X(9),Y(38)],collar:[X(5),Y(31)]}}
-    o.push(`<path d="M${pt([X(-17),Y(27)])}Q${pt([X(-27),Y(33)])} ${pt([X(-25),Y(42)])}" stroke="${DOG}" stroke-width="${f(3.5*s)}" fill="none" stroke-linecap="round"/>`,
-      line([X(-14),Y(20)],[X(-15),Y(1.5)],DOG2,4.5*s),line([X(9),Y(20)],[X(8),Y(1.5)],DOG2,4.5*s),E(X(-1),Y(25),18,8.5,DOG),line([X(-9),Y(20)],[X(-8),Y(1.5)],DOG,4.8*s),line([X(13),Y(20)],[X(14),Y(1.5)],DOG,4.8*s),
-      E(X(15),Y(31),6,9,DOG,30),E(X(22),Y(38),7,6.5,DOG),E(X(28.5),Y(35.5),5.5,3.4,DOG,8),`<circle cx="${f(X(33))}" cy="${f(Y(36.5))}" r="${f(1.8*s)}" fill="#2b2118"/>`,E(X(17.5),Y(36),3,6.5,DOG2,-20));
-    return {svg:o.join(''),head:[X(24),Y(38)],collar:[X(18),Y(31)]}}
-  function Horse(x,gy,s,fc){const X=d=>x+fc*d*s,Y=d=>gy-d*s,E=(cx,cy,rx,ry,c,r=0)=>`<ellipse cx="${f(cx)}" cy="${f(cy)}" rx="${f(rx*s)}" ry="${f(ry*s)}" fill="${c}" transform="rotate(${fc*r} ${f(cx)} ${f(cy)})"/>`;
-    const leg=(a,b,c)=>line([X(a),Y(58)],[X(b),Y(5)],c,6.2*s)+`<ellipse cx="${f(X(b))}" cy="${f(Y(2.5))}" rx="${f(3.6*s)}" ry="${f(2.6*s)}" fill="${MANE}"/>`;
-    const svg=[`<ellipse cx="${f(x)}" cy="${f(gy+1)}" rx="${f(44*s)}" ry="${f(3*s)}" fill="rgba(0,0,0,.10)"/>`,
-      `<path d="M${pt([X(-38),Y(66)])}Q${pt([X(-52),Y(52)])} ${pt([X(-46),Y(26)])}" stroke="${MANE}" stroke-width="${f(7*s)}" fill="none" stroke-linecap="round"/>`,
-      leg(-24,-27,'#1f2329'),leg(16,18,'#1f2329'),E(x,Y(62),35,15,HORSE),leg(-16,-17,HORSE),leg(24,26,HORSE),
-      `<path d="M${pt([X(18),Y(72)])}L${pt([X(36),Y(104)])}L${pt([X(46),Y(100)])}L${pt([X(34),Y(56)])}Z" fill="${HORSE}" stroke="${HORSE}" stroke-width="${f(6*s)}" stroke-linejoin="round"/>`,
-      `<path d="M${pt([X(20),Y(74)])}L${pt([X(37),Y(106)])}" stroke="${MANE}" stroke-width="${f(5*s)}" stroke-linecap="round"/>`,
-      E(X(50),Y(94),15,6.5,HORSE,32),E(X(60),Y(86.5),5.5,4.5,'#1f2329',32),line([X(39),Y(104)],[X(37),Y(113)],HORSE,4*s),`<circle cx="${f(X(46))}" cy="${f(Y(99))}" r="${f(1.6*s)}" fill="#1b1d21"/>`].join('');
-    return {svg,head:[X(58),Y(88)],neck:[X(32),Y(84)],back:[X(-2),Y(76)]}}
+  const DOG='#2b2f36',DOG2='#1b1d21',HORSE='#2b2f36',HORSE2='#1f2329';
+  function Dog(x,gy,s,fc,mode,look){const X=d=>x+fc*d*s,Y=d=>gy-d*s,o=[],E=(cx,cy,rx,ry,c,r=0)=>`<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(rx*s)}" ry="${f1(ry*s)}" fill="${c}" transform="rotate(${fc*r} ${f1(cx)} ${f1(cy)})"/>`;
+    o.push(`<ellipse cx="${f1(x)}" cy="${f1(gy+1)}" rx="${f1(22*s)}" ry="${f1(2.5*s)}" fill="rgba(0,0,0,.09)"/>`);const lu=look?-12:0;
+    if(mode==='sit'){o.push(line([X(-14),Y(5)],[X(-25),Y(3)],DOG,3.5*s),E(X(-5),Y(11),11,10,DOG),line([X(2),Y(26)],[X(5),Y(1.5)],DOG,5*s),line([X(-3),Y(24)],[X(-1),Y(1.5)],DOG2,5*s),
+      E(X(1),Y(22),9,14,DOG,-14),E(X(6),Y(38+lu/3),7.5,7,DOG),E(X(13),Y(35+lu/2),5.5,3.6,DOG,8+lu*2),E(X(1),Y(37),3,6.5,DOG2,-18),E(X(5),Y(1.5),3.6,1.8,DOG2),E(X(-1),Y(1.5),3.6,1.8,DOG2));
+      return {svg:o.join(''),head:[X(9),Y(38)],nose:[X(16),Y(35+lu/2)],collar:[X(5),Y(31)]}}
+    o.push(`<path d="M${pt([X(-17),Y(27)])}Q${pt([X(-27),Y(33)])} ${pt([X(-25),Y(42)])}" stroke="${DOG}" stroke-width="${f1(3.5*s)}" fill="none" stroke-linecap="round"/>`,
+      line([X(-14),Y(20)],[X(-17),Y(1.5)],DOG2,4.5*s),line([X(9),Y(20)],[X(12),Y(1.5)],DOG2,4.5*s),E(X(-1),Y(25),18,8.5,DOG),line([X(-9),Y(20)],[X(-6),Y(1.5)],DOG,4.8*s),line([X(13),Y(20)],[X(10),Y(1.5)],DOG,4.8*s),
+      E(X(15),Y(31),6,9,DOG,30),E(X(22),Y(38),7,6.5,DOG),E(X(28.5),Y(35.5),5.5,3.4,DOG,8),E(X(17.5),Y(36),3,6.5,DOG2,-20));
+    return {svg:o.join(''),head:[X(24),Y(38)],nose:[X(31),Y(36)],collar:[X(18),Y(31)]}}
+  function Horse(x,gy,s,fc,headDown){const X=d=>x+fc*d*s,Y=d=>gy-d*s,E=(cx,cy,rx,ry,c,r=0)=>`<ellipse cx="${f1(cx)}" cy="${f1(cy)}" rx="${f1(rx*s)}" ry="${f1(ry*s)}" fill="${c}" transform="rotate(${fc*r} ${f1(cx)} ${f1(cy)})"/>`;
+    const leg=(a,b,c)=>capsule([X(a),Y(56)],[X(a+(b-a)*.5),Y(30)],6.5*s,4.5*s,c)+capsule([X(a+(b-a)*.5),Y(30)],[X(b),Y(4)],4.2*s,3.4*s,c)+`<ellipse cx="${f1(X(b)+fc*1)}" cy="${f1(Y(2.5))}" rx="${f1(4*s)}" ry="${f1(2.6*s)}" fill="${c}"/>`;
+    const hd=headDown?18:0,nk1=[X(22),Y(70)],nk2=[X(38),Y(98-hd)],hc=[X(50),Y(90-hd*1.4)];
+    const svg=[`<ellipse cx="${f1(x)}" cy="${f1(gy+1)}" rx="${f1(46*s)}" ry="${f1(3*s)}" fill="rgba(0,0,0,.09)"/>`,
+      `<path d="M${pt([X(-38),Y(68)])}Q${pt([X(-50),Y(54)])} ${pt([X(-44),Y(28)])}" stroke="${HORSE2}" stroke-width="${f1(8*s)}" fill="none" stroke-linecap="round"/>`,
+      leg(-24,-26,HORSE2),leg(18,21,HORSE2),E(x,Y(63),36,17,HORSE),E(X(-26),Y(60),12,15,HORSE),leg(-16,-14,HORSE),leg(26,30,HORSE),
+      capsule(nk1,nk2,13*s,8*s,HORSE),capsule(nk2,hc,8*s,5.5*s,HORSE),`<ellipse cx="${f1(hc[0])}" cy="${f1(hc[1])}" rx="${f1(5.5*s)}" ry="${f1(4.5*s)}" fill="${HORSE}"/>`,
+      line(add(nk2,[-fc*1*s,-3*s]),add(nk2,[fc*-1*s,-12*s]),HORSE,4*s),line(nk1,add(nk2,[-fc*2*s,-2*s]),HORSE2,4*s)].join('');
+    return {svg,head:hc,nose:add(hc,[fc*4*s,1*s]),neck:[(nk1[0]+nk2[0])/2,(nk1[1]+nk2[1])/2],back:[X(-4),Y(79)],withers:[X(16),Y(80)]}}
   const ground=`<rect y="150" width="200" height="10" fill="#ebe6dd"/>`;
   const wrap=b=>`<svg viewBox="0 0 200 160" xmlns="http://www.w3.org/2000/svg" class="sk"><defs><linearGradient id="skbg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3efe8"/><stop offset="1" stop-color="#faf8f4"/></linearGradient></defs><rect width="200" height="160" fill="url(#skbg)"/>${ground}${b}</svg>`;
-  const couple=(a,b)=>[P(Object.assign({x:84},a)),P(Object.assign({x:116,s:1.07,c:CB},b))];
-  const D={
-    walk:()=>{const [a,b]=couple({x:80,ll:'fwd',rl:'back',ra:[100,106]},{x:120,ll:'back',rl:'fwd',la:[100,106]});return a.svg+b.svg},
-    forehead:()=>{const b=P({x:112,s:1.07,c:CB,lean:-12,la:[94,104]}),a=P({x:90,lean:10,ra:[110,99]});return b.svg+a.svg},
-    backhug:()=>{const b=P({x:110,s:1.07,c:CB,lean:-8,la:[95,101],ra:[106,101]}),a=P({x:100,ra:'front',la:'down'});return b.svg+a.svg},
-    foreheadkiss:()=>{const a=P({x:92,lean:4,ra:[108,99]}),b=P({x:113,s:1.12,c:CB,lean:-17,la:[97,103]});return a.svg+b.svg},
-    twirl:()=>{const a=P({x:88,lean:6,ra:'up',ll:'fwd',rl:'back'}),b=P({x:120,s:1.07,c:CB,la:a.hR});return a.svg+b.svg},
-    sit:()=>{const a=P({x:78,m:'sit',lean:9,ra:'front'}),b=P({x:124,s:1.05,c:CB,m:'sit',lean:-6,la:a.shR});return a.svg+b.svg},
-    lookback:()=>{const [a,b]=couple({x:80,lean:-7,ll:'fwd',rl:'back',ra:[100,106]},{x:120,ll:'back',rl:'fwd',la:[100,106]});
-      return a.svg+b.svg+`<path d="M${pt([a.top[0]+6,a.top[1]-6])}q-12 -10 -22 2" stroke="${CX}" stroke-width="2.5" fill="none" stroke-linecap="round" marker-end="url(#ar)"/><defs><marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="${CX}"/></marker></defs>`},
-    whisper:()=>{const a=P({x:94,lean:-4,la:'front',ra:'front'}),b=P({x:110,s:1.07,c:CB,lean:-15,la:'hip'});return a.svg+b.svg},
-    veil:()=>(()=>{const b=P({x:110,s:1.07,c:CB,st:'groom',lean:-8,la:[96,104]}),a=P({x:92,st:'bride',lean:7,ra:[108,100]});return b.svg+a.svg})()+`<path d="M52 150Q100 4 148 150" fill="rgba(255,255,255,.45)" stroke="#c9c3b8" stroke-width="1.5"/>`,
-    firstlook:()=>{const b=P({x:122,s:1.07,c:CB,st:'groom',la:'head',ra:'head'}),a=P({x:82,st:'bride',lean:6,ra:b.shL});return b.svg+a.svg},
-    rings:()=>cap([24,175],[88,106],SA,22)+cap([88,106],[100,94],SA,13)+cap([176,175],[116,108],SB,17)+cap([116,108],[104,96],SB,13)+`<circle cx="104" cy="94" r="8" fill="${SB}"/><circle cx="99" cy="92" r="5" fill="none" stroke="#d9a441" stroke-width="3"/><circle cx="110" cy="98" r="4.5" fill="none" stroke="#d9a441" stroke-width="3"/>`,
-    bouquet:()=>{const a=P({x:100,st:'bride',la:'front',ra:'front'});const c=[a.hL[0]/2+a.hR[0]/2,a.hL[1]/2+a.hR[1]/2];return a.svg+[[0,0,9,'#e9a23b'],[-8,4,7,'#7aa83f'],[8,4,7,'#e2553a'],[0,-7,6,'#f0c36a']].map(([dx,dy,r,c2])=>`<circle cx="${f(c[0]+dx)}" cy="${f(c[1]+dy)}" r="${r}" fill="${c2}"/>`).join('')},
-    wall:()=>`<rect x="136" y="20" width="44" height="131" fill="#e3dfd8"/>`+P({x:118,lean:7,la:'cross',ra:'cross',ll:'cross'}).svg,
-    hip:()=>P({x:100,lean:-5,la:'hip',ll:'fwd'}).svg,
-    stroll:()=>P({x:100,ll:'fwd',rl:'back',ra:'front'}).svg,
-    step:()=>`<rect x="66" y="120" width="68" height="31" rx="3" fill="#e3dfd8"/>`+P({x:100,m:'box',la:'front',ra:'front'}).svg,
-    hair:()=>P({x:100,la:'head',ra:'head',ll:'cross'}).svg,
-    shoulder:()=>P({x:100,lean:-6,ra:'pocket'}).svg+`<path d="M86 52q-14 -6 -22 6" stroke="${CX}" stroke-width="2.5" fill="none" stroke-linecap="round"/>`,
-    famline:()=>{const a=P({x:38,s:.95,ra:[59,113]}),k1=P({x:78,s:.55,c:CK,la:[59,113],ra:[98,118]}),k2=P({x:118,s:.6,c:CK,la:[98,118],ra:[141,112]}),b=P({x:160,s:1.04,c:CB,la:[141,112]});return a.svg+b.svg+k1.svg+k2.svg},
-    swing:()=>{const k=P({x:100,s:.55,c:CK,gy:118,ll:'up',rl:'up',la:[72,90],ra:[128,90]}),a=P({x:52,ra:[72,90]}),b=P({x:148,s:1.07,c:CB,la:[128,90]});return a.svg+b.svg+k.svg},
-    huddle:()=>{const a=P({x:80,lean:10,ra:[97,110]}),b=P({x:122,s:1.07,c:CB,lean:-10,la:[105,110]}),k=P({x:101,s:.55,c:CK});return a.svg+b.svg+k.svg},
-    shoulders:()=>{const k=P({x:100,s:.5,c:CK,hipY:52,ll:'ride',rl:'ride',la:'wave',ra:'out'}),a=P({x:100,la:k.kL,ra:k.kR});return a.svg+k.svg},
-    blanket:()=>`<rect x="26" y="137" width="148" height="15" rx="4" fill="#e3dfd8"/>`+P({x:58,m:'sit'}).svg+P({x:142,s:1.05,c:CB,m:'sit'}).svg+P({x:100,s:.55,c:CK,m:'sit',la:'up',ra:'up'}).svg,
-    baby:()=>{const a=P({x:92,la:'front',ra:'front'}),b=P({x:126,s:1.07,c:CB,lean:-9,la:a.shR});const c=[(a.hL[0]+a.hR[0])/2,(a.hL[1]+a.hR[1])/2-3];
-      return b.svg+a.svg+`<ellipse cx="${f(c[0])}" cy="${f(c[1])}" rx="15" ry="7.5" fill="#8a93a0"/><circle cx="${f(c[0]-11)}" cy="${f(c[1]-3)}" r="5.5" fill="#8a93a0"/>`},
-    dogsit:()=>{const [a,b]=couple({x:62,ra:[100,100]},{x:138,la:[100,100]});return a.svg+b.svg+Dog(100,150,1.05,1,'sit').svg},
-    dogwalk:()=>{const d=Dog(146,150,1.15,1,'stand'),a=P({x:70,ll:'fwd',rl:'back',ra:[96,110]});return d.svg+a.svg+`<path d="M${pt(a.hR)}Q120 132 ${pt(d.collar)}" stroke="${CX}" stroke-width="2" fill="none"/>`},
-    dogkneel:()=>{const d=Dog(132,150,1.15,-1,'sit'),a=P({x:82,m:'kneel',ra:[d.head[0]+4,d.head[1]-4]});return d.svg+a.svg},
-    dogkiss:()=>{const d=Dog(120,150,1.15,-1,'sit'),a=P({x:94,m:'kneel',lean:16,ra:d.collar});return d.svg+a.svg},
-    dogtreat:()=>{const d=Dog(100,150,1.6,1,'sit');return d.svg+`<circle cx="112" cy="28" r="5" fill="${CK}"/><path d="M${pt(d.head)}L110 34" stroke="${CX}" stroke-width="2" stroke-dasharray="3 5"/>`},
-    horsestand:()=>{const h=Horse(138,150,1,-1),a=P({x:46,ra:h.neck});return h.svg+a.svg},
-    horselead:()=>{const h=Horse(140,150,1,-1),a=P({x:52,ll:'fwd',rl:'back',ra:[74,104]});return h.svg+a.svg+`<path d="M${pt(a.hR)}Q84 116 ${pt(h.head)}" stroke="${CX}" stroke-width="2" fill="none"/>`},
-    horsehead:()=>{const h=Horse(144,150,1,-1),a=P({x:66,lean:12,ra:h.head});return h.svg+a.svg},
-    horseride:()=>{const h=Horse(96,150,1,1),a=P({x:92,s:.9,hipY:h.back[1]-2,m:'box',gy:h.back[1]+30,la:'front',ra:'front'});return h.svg+a.svg+line(a.hR,h.head,CX,1.5)},
-    custom:()=>P({x:100,op:.35}).svg+`<circle cx="150" cy="40" r="16" fill="none" stroke="${CX}" stroke-width="3"/><path d="M144 40h12M150 34v12" stroke="${CX}" stroke-width="3" stroke-linecap="round"/>`
-  };
-  return {svg:k=>wrap((D[k]||D.custom)()),has:k=>!!D[k]};
+  const arc=(p,q,c=CX)=>`<path d="M${pt(p)}Q${pt(q[0])} ${pt(q[1])}" stroke="${c}" stroke-width="2" fill="none" stroke-linecap="round" stroke-dasharray="1 5"/>`;
+  const D={};
+  return {D,Per,Dog,Horse,line,arc,capsule,SA,SB,SA2,SB2,CX,add,svg:k=>wrap((D[k]||D.custom)()),has:k=>!!D[k]};
 })();
+
+/* Posen-Definitionen (Seitenansicht) */
+{const {D,Per,Dog,Horse,line,arc,capsule,SA,SB,CX,add}=Sketch;
+ const W=(a)=>a.shadow+a.far+a.main+a.near;
+ // Paar
+ D.walk=()=>{const b=Per({x:104,f:1,st:'m',s:1.06,t:3,ln:[-16,-30],lf:[20,8],fan:40,an:[-18,-8]});
+   const a=Per({x:82,f:1,st:'w',t:4,hd:-8,ln:[22,10],lf:[-18,-34],faf:45,an:[18,4],afT:[95,103],skirt:.02});
+   const bh=Per({x:104,f:1,st:'m',s:1.06,t:3,ln:[-16,-30],lf:[20,8],fan:40,an:[-18,-8],anT:a.Wf});
+   return bh.shadow+a.shadow+bh.far+bh.main+a.far+a.main+bh.near+a.near};
+ D.forehead=()=>{const a0=Per({x:90,f:1,st:'w',t:7,hd:16,ln:[8,0],lf:[-4,-6]}),b0=Per({x:112,f:-1,st:'m',s:1.06,t:9,hd:24,ln:[6,0],lf:[-6,-4]});
+   const a=Per({x:90,f:1,st:'w',t:7,hd:16,ln:[8,0],lf:[-4,-6],anT:b0.wf,afT:add(b0.wb,[-2,-4])}),b=Per({x:112,f:-1,st:'m',s:1.06,t:9,hd:24,ln:[6,0],lf:[-6,-4],anT:a0.wb,afT:add(a0.back,[0,4])});
+   return a.shadow+b.shadow+b.far+a.far+a.main+b.main+a.near+b.near};
+ D.backhug=()=>{const a=Per({x:104,f:1,st:'w',t:-2,hd:-4,ln:[8,0],lf:[-5,-3],an:[8,40]});
+   const b=Per({x:92,f:1,st:'m',s:1.06,t:12,hd:22,ln:[6,0],lf:[-6,-2],anT:add(a.wf,[3,2]),afT:add(a.wf,[1,-3])});
+   const a2=Per({x:104,f:1,st:'w',t:-2,hd:-4,ln:[8,0],lf:[-5,-3],anT:add(b.Wn,[-6,-1]),afT:add(b.Wf,[-6,0])});
+   return b.shadow+a2.shadow+b.far+a2.far+a2.main+b.main+b.near+a2.near};
+ D.foreheadkiss=()=>{const a0=Per({x:90,f:1,st:'w',t:-4,hd:-14}),b0=Per({x:111,f:-1,st:'m',s:1.06,t:8,hd:36});
+   const a=Per({x:90,f:1,st:'w',t:-4,hd:-14,ln:[6,0],lf:[-4,-4],anT:add(b0.chest,[2,2]),afT:add(b0.chest,[3,-4])});
+   const b=Per({x:111,f:-1,st:'m',s:1.06,t:8,hd:36,ln:[6,0],lf:[-6,-4],anT:a0.wb,afT:add(a0.back,[2,0])});
+   return a.shadow+b.shadow+b.far+a.far+a.main+b.main+a.near+b.near};
+ D.twirl=()=>{const a0=Per({x:86,f:1,st:'w'});const top=[a0.Hd[0]+10,a0.Hd[1]-20];
+   const b=Per({x:118,f:-1,st:'m',s:1.06,t:-4,ln:[8,0],lf:[-6,-4],anT:top,bn:1,af:[-6,8]});
+   const a=Per({x:86,f:1,st:'w',t:-6,hd:-12,ln:[-4,-30],lf:[14,-2],fan:50,anT:add(top,[-1,3]),bn:-1,af:[-50,-70],skirt:.08});
+   return a.shadow+b.shadow+b.far+b.main+a.far+a.main+arc([60,112],[[68,128],[104,128]])+arc([64,96],[[60,80],[70,66]])+a.near+b.near};
+ D.sit=()=>{const b=Per({x:116,f:1,st:'m',s:1.06,t:-6,ln:[132,-22],lf:[124,-16],an:[-20,40],af:[-40,-20]});
+   const a0=Per({x:90,f:1,st:'w',t:-8,hd:6,ln:[136,-26],lf:[128,-20]});
+   const a=Per({x:90,f:1,st:'w',t:-8,hd:6,ln:[136,-26],lf:[128,-20],anT:add(a0.Kn,[2,-2]),afT:add(a0.Kn,[-2,2])});
+   const b2=Per({x:116,f:1,st:'m',s:1.06,t:-6,hd:6,ln:[132,-22],lf:[124,-16],anT:add(a.shoulder,[4,2]),bn:1,af:[-40,-20]});
+   return b2.shadow+b2.far+b2.main+a.far+a.main+a.near+b2.near};
+ D.lookback=()=>{const b=Per({x:76,f:1,st:'m',s:1.06,t:4,ln:[18,6],lf:[-16,-30],faf:40,af:[-14,-4]});
+   const a=Per({x:126,f:1,st:'w',t:6,hf:-1,hd:-4,ln:[16,4],lf:[-20,-36],faf:45,an:[16,6],afT:[100,96],skirt:-.02});
+   const b2=Per({x:76,f:1,st:'m',s:1.06,t:4,ln:[18,6],lf:[-16,-30],faf:40,anT:a.Wf,af:[-14,-4]});
+   return b2.shadow+a.shadow+a.far+b2.far+b2.main+a.main+b2.near+a.near};
+ D.whisper=()=>{const a0=Per({x:96,f:1,st:'w',t:-6,hd:-18});const a=Per({x:96,f:1,st:'w',t:-6,hd:-18,ln:[10,0],lf:[-5,-4],anT:add(a0.Hd,[7,9]),af:[4,30]});
+   const b=Per({x:111,f:-1,st:'m',s:1.06,t:14,hd:30,ln:[6,0],lf:[-6,-4],anT:a.wb,af:[-6,10]});
+   return a.shadow+b.shadow+b.far+a.far+a.main+b.main+a.near+b.near};
+ D.veil=()=>D.forehead2()+`<path d="M46 150C56 76 80 40 101 38C122 40 146 78 156 150Z" fill="rgba(255,255,255,.3)" stroke="#cfc8bd" stroke-width="1.2"/>`;
+ D.forehead2=()=>{const a0=Per({x:90,f:1,st:'bride',t:7,hd:16}),b0=Per({x:112,f:-1,st:'groom',s:1.06,t:9,hd:24});
+   const a=Per({x:90,f:1,st:'bride',t:7,hd:16,ln:[6,0],lf:[-4,-4],anT:b0.chest,afT:add(b0.chest,[0,-6])}),b=Per({x:112,f:-1,st:'groom',s:1.06,t:9,hd:24,ln:[6,0],lf:[-6,-4],anT:a0.wb,afT:add(a0.back,[0,4])});
+   return a.shadow+b.shadow+b.far+a.far+a.main+b.main+a.near+b.near};
+ D.firstlook=()=>{const b=Per({x:124,f:1,st:'groom',s:1.06,t:0,hd:4,ln:[6,0],lf:[-5,-3],an:[14,50],af:[14,50]});
+   const a=Per({x:84,f:1,st:'bride',t:6,hd:4,ln:[14,2],lf:[-10,-14],anT:add(b.back,[-2,-8]),af:[-6,20]});
+   return a.shadow+b.shadow+a.far+b.far+b.main+a.main+a.near+b.near};
+ D.rings=()=>{const C='#1b1d21',G='#56606d';return capsule([10,175],[78,112],17,12,G)+capsule([78,112],[100,98],11,9,G)+`<ellipse cx="104" cy="96" rx="13" ry="8" fill="${G}" transform="rotate(-25 104 96)"/>`
+   +capsule([190,170],[124,108],16,11,C)+capsule([124,108],[102,96],10,8,C)+`<ellipse cx="99" cy="92" rx="12" ry="7" fill="${C}" transform="rotate(20 99 92)"/><circle cx="96" cy="86" r="5" fill="none" stroke="#d9a441" stroke-width="2.6"/><circle cx="108" cy="99" r="4.5" fill="none" stroke="#d9a441" stroke-width="2.6"/>`};
+ D.bouquet=()=>{const a0=Per({x:98,f:1,st:'bride'});const bq=add(a0.waist,[12,6]);
+   const a=Per({x:98,f:1,st:'bride',t:2,hd:16,ln:[6,0],lf:[-4,-2],anT:bq,afT:add(bq,[-2,2])});
+   return W(a)+[[0,0,7,'#e9a23b'],[-6,3,5.5,'#7aa83f'],[6,3,5.5,'#e2553a'],[0,-5,5,'#f0c36a'],[-4,-3,4,'#e2553a']].map(([x,y,r,c])=>`<circle cx="${(bq[0]+x).toFixed(1)}" cy="${(bq[1]+y).toFixed(1)}" r="${r}" fill="${c}"/>`).join('')+line([bq[0],bq[1]+6],[bq[0]-2,bq[1]+18],'#4f6b3a',2.5)};
+ D.dip=()=>{const ab={x:96,f:1,st:'bride',t:-48,hd:-28,ln:[34,6],lf:[22,-2]};const a0=Per(ab);
+   const b0=Per({x:118,f:-1,st:'groom',s:1.06,t:30,hd:34,ln:[34,-4],lf:[-24,-30]});
+   const a=Per({...ab,anT:add(b0.N,[2,6]),af:[-70,-100]});
+   const b=Per({x:118,f:-1,st:'groom',s:1.06,t:30,hd:34,ln:[34,-4],lf:[-24,-30],anT:add(a0.back,[-2,2]),afT:add(a0.back,[6,-8])});
+   return a.shadow+b.shadow+b.far+a.far+a.main+b.main+b.near+a.near};
+ D.wall=()=>{const a=Per({x:102,f:1,st:'w',t:-6,hd:-6,ln:[6,0],lf:[34,-50],faf:-30});const a2=Per({x:102,f:1,st:'w',t:-6,hd:-6,ln:[6,0],lf:[34,-50],faf:-30,anT:add(a.chest,[2,4]),afT:add(a.chest,[0,8])});
+   return `<rect x="40" y="12" width="${(a.P[0]-8-40).toFixed(1)}" height="138" fill="#ddd6cb"/>`+W(a2)};
+ D.hip=()=>{const a0=Per({x:98,f:1,st:'w'});const a=Per({x:98,f:1,st:'w',t:-3,hd:-6,ln:[18,-4],lf:[-6,-3],anT:add(a0.wb,[0,4]),bn:-1,af:[-4,10]});return W(a)};
+ D.stroll=()=>W(Per({x:98,f:1,st:'w',t:6,hd:-2,ln:[24,12],lf:[-20,-38],faf:50,an:[22,40],af:[-26,-12],skirt:-.03}));
+ D.step=()=>{const a0=Per({x:92,f:1,st:'w',t:22,ln:[88,4],lf:[82,0],y:0});const dy=118-a0.P[1];
+   const a1=Per({x:92,f:1,st:'w',t:22,hd:-10,ln:[88,4],lf:[82,0],y:dy});const a=Per({x:92,f:1,st:'w',t:22,hd:-10,ln:[88,4],lf:[82,0],y:dy,anT:add(a1.Kn,[2,-2]),afT:add(a1.Kf,[4,0])});
+   return `<rect x="62" y="122" width="42" height="28" rx="2" fill="#ddd6cb"/>`+W(a)};
+ D.hair=()=>{const a0=Per({x:98,f:1,st:'w',t:-6,hd:-14});const a=Per({x:98,f:1,st:'w',t:-6,hd:-14,ln:[10,0],lf:[-6,-4],anT:add(a0.Hd,[-6,-8]),bn:-1,afT:add(a0.Hd,[-8,-2]),bf:-1});return W(a)};
+ D.shoulder=()=>W(Per({x:100,f:-1,hf:1,st:'w',t:2,hd:-4,ln:[6,0],lf:[-6,-4],an:[4,10],af:[6,20]}));
+ // Familie
+ D.famline=()=>{const m=Per({x:150,f:1,st:'m',s:1.06,t:4,ln:[18,6],lf:[-16,-28],faf:40,an:[18,0]}),k1=Per({x:116,f:1,st:'k',t:6,ln:[24,8],lf:[-20,-34],faf:45,an:[30,20]}),
+   k2=Per({x:84,f:1,st:'kg',t:6,ln:[-18,-30],lf:[22,8],fan:45}),w=Per({x:48,f:1,st:'w',t:4,ln:[-16,-28],lf:[18,6],fan:40,an:[30,30]});
+   const m2=Per({x:150,f:1,st:'m',s:1.06,t:4,ln:[18,6],lf:[-16,-28],faf:40,afT:[132,104],an:[18,0]}),k12=Per({x:116,f:1,st:'k',t:6,ln:[24,8],lf:[-20,-34],faf:45,anT:[132,104],afT:[100,118]}),
+   k22=Per({x:84,f:1,st:'kg',t:6,ln:[-18,-30],lf:[22,8],fan:45,anT:[100,118],afT:[66,110]}),w2=Per({x:48,f:1,st:'w',t:4,ln:[-16,-28],lf:[18,6],fan:40,anT:[66,110],af:[-14,-4]});
+   return [w2,k22,k12,m2].map(W).join('')};
+ D.swing=()=>{const kb={x:100,f:1,st:'k',t:-6,hd:-14,ln:[80,-40],lf:[70,-56],y:92,noshadow:true};const k0=Per(kb);
+   const hl=[k0.S[0]-12,k0.S[1]-16],hr=[k0.S[0]+10,k0.S[1]-16];
+   const k=Per({...kb,anT:hr,bn:1,afT:hl,bf:1});
+   const a=Per({x:62,f:1,st:'w',t:-10,hd:-8,ln:[12,0],lf:[-10,-8],anT:hl,bn:-1,af:[-6,10]}),b=Per({x:140,f:-1,st:'m',s:1.06,t:-10,hd:-8,ln:[12,0],lf:[-10,-8],anT:hr,bn:1,af:[-6,10]});
+   return a.shadow+b.shadow+`<ellipse cx="100" cy="151" rx="12" ry="2" fill="rgba(0,0,0,.08)"/>`+a.far+b.far+a.main+b.main+k.far+k.main+k.near+a.near+b.near+arc([86,124],[[100,134],[114,124]])};
+ D.huddle=()=>{const a0=Per({x:80,f:1,st:'w',t:14,hd:14}),b0=Per({x:124,f:-1,st:'m',s:1.06,t:16,hd:16}),k=Per({x:102,f:1,st:'kg',t:-4,hd:-16,an:[20,60],af:[-20,-40]});
+   const a=Per({x:80,f:1,st:'w',t:14,hd:14,ln:[6,0],lf:[-8,-4],anT:add(k.back,[2,-6]),afT:add(b0.back,[0,4])}),b=Per({x:124,f:-1,st:'m',s:1.06,t:16,hd:16,ln:[6,0],lf:[-8,-4],anT:add(k.chest,[-2,-4]),afT:add(a0.back,[0,2])});
+   return a.shadow+b.shadow+a.far+b.far+a.main+b.main+W(k)+a.near+b.near};
+ D.shoulders=()=>{const b0=Per({x:100,f:1,st:'m',s:1.06,t:0});const seat=add(b0.N,[-2,-2]);
+   const k0=Per({x:seat[0],f:1,st:'k',t:-2,ln:[70,0],lf:[64,-6],y:0});const dy=seat[1]-k0.P[1];
+   const k=Per({x:seat[0],f:1,st:'k',t:-2,hd:-10,ln:[70,0],lf:[64,-6],y:dy,noshadow:true,an:[-150,-170],af:[-130,-150]});
+   const b=Per({x:100,f:1,st:'m',s:1.06,t:0,hd:-12,ln:[8,0],lf:[-6,-4],anT:add(k.An,[-1,-4]),afT:add(k.Af,[-1,-4])});
+   return b.shadow+b.far+k.far+b.main+k.main+b.near+k.near};
+ D.blanket=()=>{const a=Per({x:56,f:1,st:'w',t:-10,hd:-6,ln:[134,-24],lf:[126,-18],an:[30,60],af:[-40,-20]}),b=Per({x:146,f:-1,st:'m',s:1.06,t:-10,ln:[132,-22],lf:[124,-16],an:[30,60],af:[-40,-20]});
+   const k=Per({x:100,f:1,st:'k',t:-6,hd:-18,ln:[96,4],lf:[90,0],an:[-150,-170],af:[-140,-160]});
+   return `<rect x="22" y="145" width="156" height="7" rx="3" fill="#cfc6b8"/>`+[a,b,k].map(W).join('')};
+ D.baby=()=>{const a0=Per({x:96,f:1,st:'w',t:4,hd:26});const bb=add(a0.chest,[7,6]);
+   const a=Per({x:96,f:1,st:'w',t:4,hd:26,ln:[6,0],lf:[-4,-2],anT:add(bb,[8,2]),afT:add(bb,[-2,6])});
+   const b0=Per({x:84,f:1,st:'m',s:1.06,t:10,hd:28});const b=Per({x:84,f:1,st:'m',s:1.06,t:10,hd:28,ln:[6,0],lf:[-6,-3],anT:add(a.shoulder,[2,2]),af:[-4,8]});
+   return b.shadow+b.far+a.shadow+a.far+b.main+a.main+`<ellipse cx="${bb[0].toFixed(1)}" cy="${bb[1].toFixed(1)}" rx="13" ry="7" fill="#7d8592" transform="rotate(-12 ${bb[0].toFixed(1)} ${bb[1].toFixed(1)})"/><circle cx="${(bb[0]+11).toFixed(1)}" cy="${(bb[1]-5).toFixed(1)}" r="5" fill="#7d8592"/>`+a.near+b.near};
+ D.piggy=()=>{const b=Per({x:104,f:1,st:'m',s:1.06,t:22,hd:-12,ln:[24,-6],lf:[-8,-20],an:[30,60],af:[20,50]});
+   const seat=add(b.back,[-8,10]);const a0=Per({x:seat[0],f:1,st:'w',t:14,y:0,ln:[84,30],lf:[78,20]});const dy=seat[1]-a0.P[1];
+   const a=Per({x:seat[0],f:1,st:'w',t:20,hd:-6,ln:[84,30],lf:[78,20],y:dy,noshadow:true,anT:add(b.chest,[2,0]),afT:add(b.chest,[0,-6])});
+   const b2=Per({x:104,f:1,st:'m',s:1.06,t:22,hd:-12,ln:[24,-6],lf:[-8,-20],anT:add(a.Kn,[2,4]),afT:add(a.Kf,[2,4])});
+   return b2.shadow+b2.far+a.far+b2.main+a.main+b2.near+a.near};
+ // Hund
+ D.dogsit=()=>{const a0=Per({x:66,f:1,st:'w',t:-2}),b0=Per({x:136,f:-1,st:'m',s:1.06,t:-2});const hand=[101,100];
+   const a=Per({x:66,f:1,st:'w',t:-2,hd:-4,ln:[8,0],lf:[-6,-4],anT:hand,af:[-6,10]}),b=Per({x:136,f:-1,st:'m',s:1.06,t:-2,hd:-4,ln:[8,0],lf:[-6,-4],anT:hand,af:[-6,10]});
+   return [a,b].map(W).join('')+Dog(100,150,1.05,1,'sit').svg};
+ D.dogwalk=()=>{const d=Dog(148,150,1.15,1,'stand');const a0=Per({x:84,f:1,st:'w',t:4,ln:[22,8],lf:[-18,-34],faf:45});
+   const lh=add(a0.waist,[16,4]);const a=Per({x:84,f:1,st:'w',t:4,hd:6,ln:[22,8],lf:[-18,-34],faf:45,anT:lh,af:[-24,-10],skirt:-.02});
+   return d.svg+W(a)+`<path d="M${a.Wn[0].toFixed(1)} ${a.Wn[1].toFixed(1)}Q125 132 ${d.collar[0].toFixed(1)} ${d.collar[1].toFixed(1)}" stroke="#444" stroke-width="1.6" fill="none"/>`};
+ D.dogkneel=()=>{const d=Dog(130,150,1.15,-1,'sit');const a0=Per({x:86,f:1,st:'w',t:2,ln:[88,-2],lf:[-10,-88],faf:60,y:0});
+   const kneeY=150-(a0.Kf[1]-a0.P[1])-2;const a=Per({x:86,f:1,st:'w',t:4,hd:10,ln:[88,-2],lf:[-10,-88],faf:60,y:kneeY-a0.P[1]+a0.P[1]-0,anT:add(d.head,[4,-4]),af:[0,30]});
+   const fix=150-Math.max(a.Kf[1]+3.5,a.An[1]+2);const a2=Per({x:86,f:1,st:'w',t:4,hd:10,ln:[88,-2],lf:[-10,-88],faf:60,y:kneeY+fix,anT:add(d.head,[4,-4]),af:[0,30]});
+   return d.svg+W(a2)};
+ D.dogkiss=()=>{const d=Dog(126,150,1.15,-1,'sit',true);const base={x:92,f:1,st:'w',t:30,hd:30,ln:[88,-2],lf:[-10,-88],faf:60};const a0=Per({...base,y:0});
+   const fix=150-Math.max(a0.Kf[1]+3.5,a0.An[1]+2);const a=Per({...base,y:fix,anT:add(d.collar,[6,6]),afT:add(d.head,[-2,-6])});return d.svg+W(a)};
+ D.dogtreat=()=>{const d=Dog(108,150,1.6,1,'sit',true);return d.svg+`<circle cx="128" cy="40" r="4.5" fill="#d9922c"/>`+arc(d.nose,[[126,58],[127,46]])};
+ // Pferd
+ D.horsestand=()=>{const h=Horse(136,150,1,-1,true);const a=Per({x:62,f:1,st:'w',t:2,hd:2,ln:[8,0],lf:[-6,-4],anT:add(h.neck,[0,4]),af:[-4,14]});return h.svg+W(a)};
+ D.horselead=()=>{const h=Horse(70,150,.95,1);const a0=Per({x:156,f:1,st:'w',t:4,ln:[22,8],lf:[-18,-34],faf:45});
+   const a=Per({x:156,f:1,st:'w',t:4,hd:-2,ln:[22,8],lf:[-18,-34],faf:45,afT:add(a0.wb,[-12,10]),an:[24,10]});
+   return h.svg+W(a)+`<path d="M${a.Wf[0].toFixed(1)} ${a.Wf[1].toFixed(1)}Q${((a.Wf[0]+h.nose[0])/2).toFixed(1)} ${(Math.max(a.Wf[1],h.nose[1])+16).toFixed(1)} ${h.nose[0].toFixed(1)} ${h.nose[1].toFixed(1)}" stroke="#444" stroke-width="1.6" fill="none"/>`};
+ D.horsehead=()=>{const h=Horse(148,150,1,-1,true);const a=Per({x:76,f:1,st:'w',t:12,hd:18,ln:[8,0],lf:[-6,-4],anT:add(h.head,[4,6]),afT:add(h.neck,[0,-2])});return h.svg+W(a)};
+ D.horseride=()=>{const h=Horse(92,150,1,1);const seat=add(h.back,[0,2]);const base={x:seat[0],f:1,st:'w',t:-2,hd:-2,ln:[40,-6],lf:[34,-10],noshadow:true};
+   const a0=Per({...base,y:0});const dy=seat[1]-a0.P[1];const a=Per({...base,y:dy,anT:add(h.withers,[10,-6]),afT:add(h.withers,[8,-4])});
+   return h.svg+a.far+a.main+line(a.Wn,h.nose,'#444',1.3)+a.near};
+ D.custom=()=>Per({x:100,f:1,st:'w',op:.3}).all+`<circle cx="150" cy="40" r="16" fill="none" stroke="${CX}" stroke-width="3"/><path d="M144 40h12M150 34v12" stroke="${CX}" stroke-width="3" stroke-linecap="round"/>`;
+}
 
 /* ---------- Shootings & Posen ---------- */
 const STYPES=[['paar','Paarshooting'],['hochzeit','Hochzeit'],['portrait','Portrait'],['familie','Familie'],['hund','Mit Hund'],['pferd','Mit Pferd'],['sonst','Sonstiges']];
@@ -1238,13 +1327,15 @@ const PB=[
  ['p_backhug','backhug',['paar','hochzeit'],'Umarmung von hinten','Einer umarmt den anderen von hinten, Kinn auf die Schulter. Beide schauen in dieselbe Richtung.','Auf Augenhöhe, Hintergrund weit.'],
  ['p_kiss','foreheadkiss',['paar','hochzeit'],'Kuss auf die Stirn','Kuss auf die Stirn, der andere schließt die Augen und lächelt.','Nah ran, auf die Augen fokussieren.'],
  ['p_twirl','twirl',['paar','hochzeit'],'Drehung','Hand hoch und langsam drunter durchdrehen – gern mehrmals hintereinander.','Serienbild, 1/500 s oder schneller.'],
- ['p_sit','sit',['paar','hochzeit'],'Nebeneinander sitzen','Setzt euch eng nebeneinander, Kopf an die Schulter, erzählt euch etwas Lustiges.','Von leicht oben oder auf Bodenhöhe.'],
+ ['p_sit','sit',['paar','hochzeit'],'Nebeneinander sitzen','Setzt euch eng nebeneinander, Knie angezogen, Arm um sie, Kopf an die Schulter – erzählt euch etwas Lustiges.','Von leicht oben oder auf Bodenhöhe.'],
  ['p_lookback','lookback',['paar','hochzeit'],'Weggehen & zurückschauen','Geht Hand in Hand von mir weg, auf mein Zeichen schaut einer über die Schulter zurück.','Von hinten, Weg als Führungslinie.'],
  ['p_whisper','whisper',['paar','hochzeit'],'Ins Ohr flüstern','Flüstere ihm/ihr etwas Albernes ins Ohr – echtes Lachen gewinnt.','Auf das lachende Gesicht fokussieren.'],
+ ['p_piggy','piggy',['paar'],'Huckepack','Spring auf den Rücken, Arme locker um den Hals, Wange an Wange – und lacht dabei.','Leicht von unten, Serienbild, auf beide Gesichter achten.'],
  ['h_veil','veil',['hochzeit'],'Unter dem Schleier','Schleier über euch beide legen, Stirn an Stirn, ganz ruhig.','Gegenlicht, Schleier leuchten lassen.'],
  ['h_firstlook','firstlook',['hochzeit'],'First Look','Bräutigam schaut weg, Braut tippt auf die Schulter – erst dann umdrehen.','Auf das Gesicht des Umdrehenden fokussieren, Serienbild.'],
  ['h_rings','rings',['hochzeit'],'Ringe – Hände','Hände übereinander legen, Ringe nach oben, ganz entspannt.','Makro oder 85 mm nah, Hintergrund weich.'],
  ['h_bouquet','bouquet',['hochzeit'],'Brautstrauß','Strauß locker auf Bauchnabelhöhe, Ellbogen leicht vom Körper.','Ganzkörper und Halbtotale.'],
+ ['h_dip','dip',['hochzeit','paar'],'Dip','Er stützt ihren Rücken, sie lehnt sich langsam nach hinten, er beugt sich zum Kuss.','Vorher einmal üben lassen, Serienbild, seitlich fotografieren.'],
  ['po_wall','wall',['portrait'],'An die Wand lehnen','Mit der Schulter an die Wand lehnen, Arme locker verschränken, ein Bein überkreuzen.','Seitlich fotografieren, Wand als Linie.'],
  ['po_hip','hip',['portrait'],'Hand an die Hüfte','Gewicht aufs hintere Bein, eine Hand an die Hüfte, Kinn leicht nach vorn.','Leicht von oben, 85 mm.'],
  ['po_walk','stroll',['portrait'],'Lockeres Gehen','Geh langsam an mir vorbei und schau einfach geradeaus.','Mitziehen, Serienbild.'],
