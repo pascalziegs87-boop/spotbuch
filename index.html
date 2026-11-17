@@ -988,7 +988,7 @@ async function renderSettings(){S.view='settings';let est='';try{const e=await n
    <p class="note">${S.spots.length} Spots · ${n} Referenzfotos${est?' · '+est:''}.<br>Alles liegt nur auf diesem Gerät. Mach regelmäßig ein Backup, z. B. in die Dateien-App oder aufs NAS.${pers?'':'<br><b>Speicher ist noch nicht als dauerhaft markiert.</b>'}</p>
    <div class="acts"><button class="btn pri" data-act="backup">Backup speichern (.json)</button><button class="btn" data-act="restore">Backup einlesen</button>
     <button class="btn" data-act="gpx">Spots als GPX</button><button class="btn" data-act="kml">Spots als KML</button>
-    ${pers?'':'<button class="btn" data-act="persist">Speicher dauerhaft machen</button>'}</div>
+    ${pers?'':'<button class="btn" data-act="persist">Speicher dauerhaft machen</button>'}<button class="btn" data-act="diag">Bildschirm-Diagnose</button></div>
    <h3>Tipps</h3><p class="note">Auf dem iPhone: in Safari öffnen → Teilen → „Zum Home-Bildschirm“. Als App gestartet bleiben die Daten dauerhaft und Standort/Kamera funktionieren.<br><br>KML lässt sich in Google My Maps oder Google Earth importieren, GPX in Navi- und Wander-Apps. Ein Backup kannst du auf einem zweiten Gerät einlesen; vorhandene Spots werden zusammengeführt.</p>`,true)}
 const blobToData=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
 async function deliver(blob,name){const file=new File([blob],name,{type:blob.type});
@@ -1079,6 +1079,7 @@ body.addEventListener('click',async e=>{
   if(a==='close')closeSheet();
   if(a==='edit'&&s)renderEdit(s);
   if(a==='addph')$('#fAddPh').click();
+  if(a==='diag'){closeSheet();return diag()}
   if(a==='plan')return openPlanner();
   if(a==='wback')return wizGo(-1);if(a==='wskip')return wizGo(1);
   if(a==='cancel'){if(S.draft)discardDraft();else if(s)openSpot(s.id)}
@@ -1631,6 +1632,23 @@ $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const
   if(t==='poses'){if(S.plan)closePlanner();S.libTypes=[];renderPoseLib()}
   syncTabs()};
 
+/* ---------- Bildschirm-Diagnose ---------- */
+const APPV='v12';
+function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
+  const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
+  const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
+  const vv=window.visualViewport,sm=(()=>{try{return matchMedia('(display-mode: standalone)').matches}catch(e){return '?'}})();
+  const d=document.createElement('div');d.id='dg';
+  d.innerHTML=`<div style="position:fixed;inset:0;border:4px solid red;z-index:9990;pointer-events:none"></div>
+   <div style="position:fixed;top:0;left:12px;width:14px;height:100lvh;background:rgba(0,120,255,.55);z-index:9991;pointer-events:none"></div>
+   <div style="position:fixed;top:0;left:30px;width:14px;height:${screen.height}px;background:rgba(0,180,80,.6);z-index:9991;pointer-events:none"></div>
+   <div style="position:fixed;top:0;left:48px;width:14px;height:100dvh;background:rgba(255,160,0,.7);z-index:9991;pointer-events:none"></div>
+   <div style="position:fixed;left:70px;right:12px;top:40%;z-index:9992;background:#fff;color:#000;font:13px/1.45 -apple-system,sans-serif;padding:10px 12px;border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,.4)">
+    <b>Diagnose ${APPV}</b><br>innerHeight: ${innerHeight} · innerWidth: ${innerWidth}<br>screen: ${screen.width}×${screen.height} · dpr ${devicePixelRatio}<br>
+    visualViewport: ${vv?Math.round(vv.height)+' (offset '+Math.round(vv.offsetTop)+')':'–'}<br>clientHeight: ${document.documentElement.clientHeight}<br>
+    safe-area oben/unten: ${sa[0]} / ${sa[1]}<br>standalone: ${sm} / ${navigator.standalone}<br>
+    Rot = Fenster · Blau = 100lvh · Grün = screen.height · Orange = 100dvh<br><button onclick="this.closest('#dg').remove()" style="margin-top:6px;font:inherit;padding:6px 12px">Schließen</button></div>`;
+  document.body.appendChild(d)}
 /* ---------- iOS Home-Bildschirm-App erkennen ---------- */
 try{if(matchMedia('(display-mode: standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa')}catch(e){}
 /* ---------- Start ---------- */
