@@ -392,10 +392,12 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
 #run.client .rimg svg{border-radius:0}
 #run.client .rx{display:block;position:absolute;top:calc(var(--st) + 8px);right:8px;width:44px;height:44px;border:0;background:none;color:rgba(255,255,255,.35);font-size:26px}
 /* ---- Menüleiste ---- */
-:root{--gap:0px;--tbr:calc(54px + var(--sb) * .6);--tbh:calc(var(--tbr) - var(--gap))}
-#map,#run,#lb{bottom:calc(-1 * var(--gap))}
+:root{--tbr:calc(54px + var(--sb) * .6);--tbh:var(--tbr)}
+html{background:var(--panel)}
+html.pwa{--sb:0px;--tbr:56px}
+html.pwa #tabs{padding-bottom:0;background:var(--panel);-webkit-backdrop-filter:none;backdrop-filter:none}
 #btnList{display:none}
-#tabs{position:fixed;left:0;right:0;bottom:calc(-1 * var(--gap));height:var(--tbr);padding-bottom:calc(var(--sb) * .6);z-index:720;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-top:1px solid var(--line)}
+#tabs{position:fixed;left:0;right:0;bottom:0;height:var(--tbr);padding-bottom:calc(var(--sb) * .6);z-index:720;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-top:1px solid var(--line)}
 #tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;color:var(--mute);padding:4px 0 2px}
 .tico{display:grid;place-items:center;width:56px;height:30px;border-radius:15px;transition:background .2s,color .2s}
 #tabs button[aria-current=page]{color:var(--pin)}
@@ -410,7 +412,7 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
 #planner{bottom:calc(var(--tbh) + 8px)}
 #cross .bar{bottom:calc(var(--tbh) + 12px)}
 .sticky{padding-bottom:10px}
-@media (min-width:900px){#sheet{bottom:calc(var(--tbh) + 12px)}#tabs{left:50%;right:auto;transform:translateX(-50%);width:440px;bottom:calc(12px - var(--gap));border:1px solid var(--line);border-radius:18px;height:64px;padding:0;box-shadow:var(--shadow)}#planner{bottom:calc(var(--tbh) + 24px)}}
+@media (min-width:900px){#sheet{bottom:calc(var(--tbh) + 12px)}#tabs{left:50%;right:auto;transform:translateX(-50%);width:440px;bottom:12px;border:1px solid var(--line);border-radius:18px;height:64px;padding:0;box-shadow:var(--shadow)}#planner{bottom:calc(var(--tbh) + 24px)}}
 .shot{grid-template-columns:52px minmax(0,1fr);row-gap:4px}
 .shot .sta{grid-column:2;flex-direction:row;justify-content:space-between;border-top:1px solid var(--line);padding-top:4px}
 .shot.blk .sta{border-top:0;padding-top:0}
@@ -1631,11 +1633,8 @@ $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const
   if(t==='poses'){if(S.plan)closePlanner();S.libTypes=[];renderPoseLib()}
   syncTabs()};
 
-/* ---------- iOS: Lücke unter der Menüleiste ausgleichen ---------- */
-function fixGap(){let g=0;try{const sa=matchMedia('(display-mode: standalone)').matches||navigator.standalone;
-  if(sa){const sh=innerWidth>innerHeight?Math.min(screen.width,screen.height):Math.max(screen.width,screen.height);g=Math.round(sh-innerHeight);if(g<0||g>140)g=0}}catch(e){}
-  document.documentElement.style.setProperty('--gap',g+'px')}
-fixGap();addEventListener('resize',fixGap);addEventListener('orientationchange',()=>setTimeout(fixGap,350));
+/* ---------- iOS Home-Bildschirm-App erkennen ---------- */
+try{if(matchMedia('(display-mode: standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa')}catch(e){}
 /* ---------- Start ---------- */
 (async()=>{
   mergePoses([]);
