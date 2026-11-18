@@ -1,0 +1,1346 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Zeitbuch">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Pascals Zeitbuch</title>
+<meta name="theme-color" content="#f3f5f6">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: einspaltige Handy-App, Karten nur für Stempeluhr und Kennzahlen, feste Tab-Leiste unten */
+:root{
+  --bg:#f2f4f5; --surface:#ffffff; --surface-2:#e8ecee; --fg:#15201f; --muted:#5d6b6c; --line:#d6dddf;
+  --meise:#0e6f7c; --meise-soft:#dcefF1; --zweistil:#8b3a6b; --zweistil-soft:#f4e3ed;
+  --urlaub:#2f7d4f; --krank:#b4532a; --kindkrank:#8a6a12; --ferien:#3a6fb0; --feiertag:#c0392b;
+  --urlaub-soft:#d8efe0; --krank-soft:#f7e0d4; --kindkrank-soft:#f3e9c6; --ferien-soft:#e1eaf6;
+  --danger:#b3261e; --ok:#2f7d4f; --focus:#1b5fd1;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --r:14px; --nav-h:64px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0f1516; --surface:#182122; --surface-2:#222d2f; --fg:#e7eeee; --muted:#93a3a4; --line:#2c393b;
+  --meise:#4fb8c6; --meise-soft:#143238; --zweistil:#d78bb8; --zweistil-soft:#3a1f30;
+  --urlaub:#6cc28f; --krank:#e58f66; --kindkrank:#d9b552; --danger:#ff8a80; --ok:#6cc28f; --focus:#8ab4ff; --ferien:#7fa8e0; --feiertag:#ff8a7a; --urlaub-soft:#1d3a29; --krank-soft:#43261a; --kindkrank-soft:#3b3115; --ferien-soft:#1c2a3d; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1516; --surface:#182122; --surface-2:#222d2f; --fg:#e7eeee; --muted:#93a3a4; --line:#2c393b;
+  --meise:#4fb8c6; --meise-soft:#143238; --zweistil:#d78bb8; --zweistil-soft:#3a1f30;
+  --urlaub:#6cc28f; --krank:#e58f66; --kindkrank:#d9b552; --danger:#ff8a80; --ok:#6cc28f; --focus:#8ab4ff; --ferien:#7fa8e0; --feiertag:#ff8a7a; --urlaub-soft:#1d3a29; --krank-soft:#43261a; --kindkrank-soft:#3b3115; --ferien-soft:#1c2a3d; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{color:var(--fg);font:15px/1.45 var(--f-body);-webkit-tap-highlight-color:transparent}
+.app{max-width:560px;margin:0 auto;padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:14px calc(var(--nav-h) + 28px + env(safe-area-inset-bottom, 0px));display:flex;flex-direction:column;gap:18px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:1.55rem}
+h2{font-size:1.15rem}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.top small{color:var(--muted);display:block;font-size:.85rem}
+.sync{font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--muted);display:inline-block}
+.sync.on i{background:var(--ok)} .sync.local i{background:var(--kindkrank)}
+.mono,.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+.label{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.muted{color:var(--muted)}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.card{background:var(--surface);border-radius:var(--r);padding:16px;border:1px solid var(--line)}
+
+/* Stempeluhr */
+.punch{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.pbtn{border-radius:var(--r);padding:62px 16px 18px;color:#fff;text-align:left;display:flex;flex-direction:column;gap:6px;min-height:132px;justify-content:flex-end;position:relative;overflow:hidden;transition:transform .12s}
+.pbtn:active{transform:scale(.97)}
+.pbtn.meise{background:var(--meise)} .pbtn.zweistil{background:var(--zweistil)}
+:root[data-theme="dark"] .pbtn,.dark-fix .pbtn{color:#0f1516}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .pbtn{color:#0f1516}}
+.pbtn .play{position:absolute;top:16px;left:16px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.22);display:grid;place-items:center}
+.pbtn .play svg{width:14px;height:14px;fill:currentColor;margin-left:2px}
+.pbtn b{font-family:var(--f-display);font-size:1.35rem;line-height:1.1}
+.pbtn span{font-size:.82rem;opacity:.85}
+.quick{display:flex;gap:8px;flex-wrap:wrap}
+.chipbtn{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:9px 14px;font-weight:500;font-size:.9rem;display:inline-flex;align-items:center;gap:6px}
+.chipbtn:active{background:var(--surface-2)}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.dot.meise{background:var(--meise)} .dot.zweistil{background:var(--zweistil)} .dot.urlaub{background:var(--urlaub)} .dot.krank{background:var(--krank)} .dot.kindkrank{background:var(--kindkrank)}
+
+.run{border-radius:var(--r);padding:18px 16px 16px;display:flex;flex-direction:column;gap:14px;border:1px solid var(--line);background:var(--surface);position:relative;overflow:hidden}
+.run::before{content:"";position:absolute;inset:0 0 auto 0;height:5px;background:var(--c)}
+.run.meise{--c:var(--meise);--cs:var(--meise-soft)} .run.zweistil{--c:var(--zweistil);--cs:var(--zweistil-soft)}
+.run .head{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--cs);color:var(--c);font-weight:600;font-size:.85rem}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--c);animation:pulse 1.6s infinite}
+.paused .pulse{animation:none;opacity:.4}
+@keyframes pulse{50%{opacity:.25}}
+@media (prefers-reduced-motion: reduce){.pulse{animation:none}.pbtn{transition:none}}
+.clock{font-family:var(--f-mono);font-size:clamp(2.6rem,13vw,3.6rem);font-weight:600;letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums}
+.clock small{font-size:.45em;color:var(--muted);font-weight:500}
+.since{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:.9rem;align-items:center}
+.since input[type=time]{font:500 .95rem var(--f-mono);border:1px solid var(--line);background:var(--surface-2);color:var(--fg);border-radius:8px;padding:4px 6px}
+.runbtns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{border-radius:12px;padding:13px 14px;font-weight:600;text-align:center;background:var(--surface-2);display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px}
+.btn.primary{background:var(--fg);color:var(--bg)}
+.btn.stop{background:var(--c);color:#fff;grid-column:1 / -1;font-size:1.05rem;min-height:56px}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .btn.stop{color:#0f1516}}
+:root[data-theme="dark"] .btn.stop{color:#0f1516}
+.btn.danger{background:transparent;color:var(--danger);border:1px solid var(--danger)}
+.btn.ghost{background:transparent;border:1px solid var(--line)}
+.btn:active{filter:brightness(.95)}
+.field{display:flex;flex-direction:column;gap:5px;min-width:0}
+.field>span{font-size:.8rem;color:var(--muted);font-weight:500}
+input,select,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:11px 12px;width:100%;min-width:0;min-height:46px}
+input[type=date],input[type=time]{font-family:var(--f-mono)}
+textarea{min-height:70px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+/* Kennzahlen */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.stat .v{font-family:var(--f-mono);font-size:1.4rem;font-weight:600;font-variant-numeric:tabular-nums;line-height:1.15}
+.stat .s{font-size:.8rem;color:var(--muted)}
+.bar{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--c,var(--meise));border-radius:3px}
+.pos{color:var(--ok)} .neg{color:var(--danger)}
+
+/* Listen */
+.sec{display:flex;flex-direction:column;gap:10px}
+.sechead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.list{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.item{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:12px 14px;border-top:1px solid var(--line);text-align:left;width:100%}
+.item:first-child{border-top:0}
+.item:active{background:var(--surface-2)}
+.item .t{font-weight:500;min-width:0;overflow-wrap:anywhere}
+.item .sub{font-size:.82rem;color:var(--muted);overflow-wrap:anywhere}
+.item .d{font-family:var(--f-mono);font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.item .d small{display:block;font-weight:500;color:var(--muted);font-size:.75rem}
+.dayhead{display:flex;justify-content:space-between;padding:10px 14px 6px;background:var(--surface-2);font-size:.8rem;font-weight:600;color:var(--muted);border-top:1px solid var(--line)}
+.list .dayhead:first-child{border-top:0}
+.empty{padding:22px 16px;text-align:center;color:var(--muted);display:flex;flex-direction:column;gap:6px;align-items:center}
+.empty b{color:var(--fg);font-weight:600}
+.warn{display:inline-block;font-size:.7rem;font-weight:600;color:var(--krank);border:1px solid currentColor;border-radius:6px;padding:0 5px;margin-left:6px;vertical-align:1px}
+
+.seg{display:flex;background:var(--surface-2);border-radius:12px;padding:3px;gap:3px}
+.seg button{flex:1;padding:9px 6px;border-radius:9px;font-weight:500;font-size:.9rem;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.monthnav{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.monthnav b{font-family:var(--f-display);font-size:1.2rem}
+.iconbtn{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;color:var(--fg);text-decoration:none;background:var(--surface);border:1px solid var(--line)}
+.iconbtn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* Navigation */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom, 0px);padding-left:env(safe-area-inset-left, 0px);padding-right:env(safe-area-inset-right, 0px)}
+nav.tabs .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);height:var(--nav-h)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--muted);text-decoration:none;font-size:.74rem;font-weight:500}
+nav.tabs a svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+nav.tabs a[aria-current=page]{color:var(--fg)}
+nav.tabs a[aria-current=page] svg{stroke-width:2.3}
+nav.tabs a .live{width:6px;height:6px;border-radius:50%;background:var(--ok);position:absolute;margin:-18px 0 0 22px}
+
+/* Sheet */
+.scrim{position:fixed;inset:0;background:rgba(10,15,16,.45);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:92%;overflow:auto;border-radius:18px 18px 0 0;padding:18px max(16px, env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));display:flex;flex-direction:column;gap:14px;animation:up .18s ease-out}
+@keyframes up{from{transform:translateY(30px);opacity:.6}}
+@media (prefers-reduced-motion: reduce){.sheet{animation:none}}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);align-self:center;margin-top:-6px}
+.sheet .acts{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-top:4px}
+.hint{font-size:.85rem;color:var(--muted)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--nav-h) + 14px + env(safe-area-inset-bottom, 0px));z-index:50;background:var(--fg);color:var(--bg);border-radius:12px;padding:11px 14px;display:flex;gap:14px;align-items:center;font-size:.92rem;max-width:calc(100% - 32px);width:max-content;box-shadow:0 6px 20px rgba(0,0,0,.2)}
+.toast button{color:var(--bg);font-weight:700;text-decoration:underline}
+.setgrid{display:flex;flex-direction:column;gap:12px}
+.note{font-size:.85rem;color:var(--muted);line-height:1.5}
+/* Reisekosten */
+.scanbtn{width:100%;border-radius:var(--r);padding:18px 16px;background:var(--fg);color:var(--bg);display:flex;align-items:center;gap:14px;text-align:left}
+.scanbtn svg{width:30px;height:30px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.scanbtn b{font-family:var(--f-display);font-size:1.2rem;display:block}
+.scanbtn span{font-size:.85rem;opacity:.75}
+.pill{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:2px 9px;font-size:.74rem;font-weight:600;white-space:nowrap;font-family:var(--f-body)}
+.pill.offen{background:var(--surface-2);color:var(--muted)}
+.pill.eingereicht{background:var(--kindkrank-soft);color:var(--kindkrank)}
+.pill.bezahlt{background:var(--urlaub-soft);color:var(--urlaub)}
+.thumb{width:44px;height:44px;border-radius:8px;object-fit:cover;background:var(--surface-2);border:1px solid var(--line);flex:none;display:block}
+.ownthumb{display:grid;place-items:center;font:600 .78rem var(--f-mono);color:var(--kindkrank);background:var(--kindkrank-soft);border-color:var(--kindkrank)}
+.preview{width:100%;max-height:46vh;object-fit:contain;border-radius:12px;background:var(--surface-2);border:1px solid var(--line)}
+.ai{display:flex;align-items:center;gap:10px;font-size:.9rem;color:var(--muted);background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:10px 12px}
+.spin{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--fg);animation:sp .8s linear infinite;flex:none}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion: reduce){.spin{animation-duration:2.4s}}
+.sumrow{display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:.92rem}
+.sumrow:first-child{border-top:0}
+.sumrow b{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.sumrow.total{font-weight:600;font-size:1rem}
+.hdr-actions{display:flex;align-items:center;gap:10px}
+/* Einsätze */
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:12px}
+.pbtn.dark{background:var(--fg);color:var(--bg)}
+.pbtn .play svg.ic{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;margin:0}
+.xrow{display:grid;grid-template-columns:auto 1fr;align-items:stretch;border-top:1px solid var(--line)}
+.list>.xrow:first-child{border-top:0}
+.xrow .item{border-top:0;padding-left:4px}
+.xchk{width:52px;display:grid;place-items:center}
+.xchk i{width:26px;height:26px;border-radius:50%;border:2px solid var(--meise);display:grid;place-items:center;color:transparent}
+.xchk[aria-pressed=true] i{background:var(--meise);color:var(--surface)}
+.xchk svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.datebox{width:44px;text-align:center;line-height:1.05;flex:none}
+.datebox b{display:block;font-family:var(--f-mono);font-size:1.15rem}
+.datebox span{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600}
+.dot.einsatz{background:var(--meise)}
+.cal-src{font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:0 5px;margin-left:6px;font-weight:500;vertical-align:1px}
+/* Kalender */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.cal .wd{font-size:.7rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);text-align:center;padding:2px 0}
+.cday{position:relative;min-height:56px;border-radius:10px;background:var(--surface);border:1px solid var(--line);padding:5px 4px 4px;display:flex;flex-direction:column;align-items:center;gap:2px;font-family:var(--f-mono);font-variant-numeric:tabular-nums;font-weight:600;font-size:.92rem;overflow:hidden}
+.cday.out{visibility:hidden}
+.cday.we{background:var(--surface-2)}
+.cday.today{outline:2px solid var(--fg);outline-offset:-2px}
+.cday.urlaub{background:var(--urlaub-soft);border-color:var(--urlaub)}
+.cday.krank{background:var(--krank-soft);border-color:var(--krank)}
+.cday.kindkrank{background:var(--kindkrank-soft);border-color:var(--kindkrank)}
+.cday.half{background-image:linear-gradient(135deg, transparent 50%, var(--surface) 50%)}
+.cday.hol .n{color:var(--feiertag)}
+.cday .fer{position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--ferien)}
+.cday .tag{font-family:var(--f-body);font-size:.58rem;font-weight:600;line-height:1.1;text-align:center;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cday.urlaub .tag{color:var(--urlaub)} .cday.krank .tag{color:var(--krank)} .cday.kindkrank .tag{color:var(--kindkrank)} .cday.hol .tag{color:var(--feiertag)}
+.cday .ws{display:flex;gap:3px;margin-top:auto;padding-bottom:3px}
+.cday .ws i{width:6px;height:6px;border-radius:50%}
+.legend{display:flex;flex-wrap:wrap;gap:8px 14px;font-size:.8rem;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:14px;border-radius:4px;border:1px solid var(--line);display:inline-block}
+.sw.urlaub{background:var(--urlaub-soft);border-color:var(--urlaub)} .sw.krank{background:var(--krank-soft);border-color:var(--krank)} .sw.kindkrank{background:var(--kindkrank-soft);border-color:var(--kindkrank)}
+.sw.fer{background:linear-gradient(to top, var(--ferien) 30%, var(--surface) 30%)} .sw.hol{background:var(--surface);border-color:var(--feiertag)}
+.dot.ferien{background:var(--ferien)} .dot.feiertag{background:var(--feiertag)}
+@media (max-width:380px){.cday{min-height:48px}.cday .tag{display:none}}
+@media (max-width:360px){.row3{grid-template-columns:1fr 1fr}.punch{gap:8px}}
+</style>
+
+</head>
+<body>
+<div class="app" id="app"></div>
+<nav class="tabs" aria-label="Bereiche"><div class="in" id="nav"></div></nav>
+<div id="overlay"></div>
+<div id="toastbox"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+"use strict";
+/* ---------- Grundlagen ---------- */
+const CO = {meise:{name:"Meise",full:"Heinz Meise"}, zweistil:{name:"Zweistil",full:"Zweistil Fotografie"}};
+const ABS = {urlaub:"Urlaub", krank:"Krank", kindkrank:"Kind krank"};
+const DEF_SETTINGS = {weekHours:40, workdays:[1,2,3,4,5], vacationDays:30, carry:{}, vacStartDate:"", vacStartDays:null, kidDays:15, arbzg:true, kmRate:0.30, vma8:14, vma24:28, name:"", firm:"Heinz Meise GmbH", apiKey:"", importedKeys:[], lastBackup:""};
+const LS = "zeitbuch.v1";
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad = n => String(n).padStart(2,"0");
+const dkey = d => { d = new Date(d); return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); };
+const parseD = k => { const [y,m,d] = k.split("-").map(Number); return new Date(y,m-1,d); };
+const hm = ms => { const d = new Date(ms); return pad(d.getHours())+":"+pad(d.getMinutes()); };
+const fmtH = min => { const neg = min < 0; min = Math.round(Math.abs(min)); return (neg?"−":"")+Math.floor(min/60)+":"+pad(min%60); };
+const fmtSigned = min => (min>0?"+":"")+fmtH(min);
+const fmtDays = n => (Math.round(n*10)/10).toLocaleString("de-DE");
+const WD = ["So","Mo","Di","Mi","Do","Fr","Sa"];
+const MON = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+const fmtDate = k => { const d = parseD(k); return WD[d.getDay()]+", "+d.getDate()+". "+MON[d.getMonth()].slice(0,3)+"."; };
+const fmtDateShort = k => { const d = parseD(k); return pad(d.getDate())+"."+pad(d.getMonth()+1)+"."; };
+const uid = () => "e_" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+
+/* Feiertage NRW */
+const holCache = {};
+function easter(y){ const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1; return new Date(y,mo-1,da); }
+function holidays(y){
+  if (holCache[y]) return holCache[y];
+  const E = easter(y), off = (n) => { const d = new Date(E); d.setDate(d.getDate()+n); return dkey(d); };
+  const h = {};
+  h[y+"-01-01"]="Neujahr"; h[off(-2)]="Karfreitag"; h[off(1)]="Ostermontag"; h[y+"-05-01"]="Tag der Arbeit";
+  h[off(39)]="Christi Himmelfahrt"; h[off(50)]="Pfingstmontag"; h[off(60)]="Fronleichnam"; h[y+"-10-03"]="Tag der Deutschen Einheit";
+  h[y+"-11-01"]="Allerheiligen"; h[y+"-12-25"]="1. Weihnachtstag"; h[y+"-12-26"]="2. Weihnachtstag";
+  return holCache[y] = h;
+}
+/* Schulferien NRW (Quelle: Ferienordnung NRW, Schulministerium) */
+const FERIEN = [
+  ["Herbstferien","2025-10-13","2025-10-25"],["Weihnachtsferien","2025-12-22","2026-01-06"],["Osterferien","2026-03-30","2026-04-11"],["Pfingstferien","2026-05-26","2026-05-26"],
+  ["Sommerferien","2026-07-20","2026-09-01"],["Herbstferien","2026-10-17","2026-10-31"],["Weihnachtsferien","2026-12-23","2027-01-06"],["Osterferien","2027-03-22","2027-04-03"],["Pfingstferien","2027-05-18","2027-05-18"],
+  ["Sommerferien","2027-07-19","2027-08-31"],["Herbstferien","2027-10-23","2027-11-06"],["Weihnachtsferien","2027-12-24","2028-01-08"],["Osterferien","2028-04-10","2028-04-22"],
+  ["Sommerferien","2028-07-10","2028-08-22"],["Herbstferien","2028-10-23","2028-11-04"],["Weihnachtsferien","2028-12-21","2029-01-05"],["Osterferien","2029-03-26","2029-04-07"],["Pfingstferien","2029-05-22","2029-05-22"]
+];
+const ferienOn = k => { const f = FERIEN.find(f => f[1] <= k && f[2] >= k); return f ? f[0] : null; };
+const holidayName = k => holidays(+k.slice(0,4))[k];
+const isWorkday = k => S.settings.workdays.includes(parseD(k).getDay()) && !holidayName(k);
+function eachDay(fromK, toK, fn){ const d = parseD(fromK), end = parseD(toK); while (d <= end){ fn(dkey(d)); d.setDate(d.getDate()+1); } }
+
+/* ---------- Zustand & Speicher ---------- */
+const S = { entries:new Map(), settings:{...DEF_SETTINGS}, timer:null, pending:new Set() };
+
+let col = null, mode = "wait", ready, resolveReady, slowNote = false;
+ready = new Promise(r => resolveReady = r);
+
+const IDB = {
+  db:null,
+  open(){ return this.db ? Promise.resolve(this.db) : new Promise((res, rej) => { const r = indexedDB.open("zeitbuch", 1); r.onupgradeneeded = () => { r.result.createObjectStore("kv"); r.result.createObjectStore("img"); }; r.onsuccess = () => { this.db = r.result; res(r.result); }; r.onerror = () => rej(r.error); }); },
+  async get(store, k){ const db = await this.open(); return new Promise((res, rej) => { const q = db.transaction(store).objectStore(store).get(k); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); },
+  async put(store, k, v){ const db = await this.open(); return new Promise((res, rej) => { const t = db.transaction(store, "readwrite"); t.objectStore(store).put(v, k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); },
+  async del(store, k){ const db = await this.open(); return new Promise((res, rej) => { const t = db.transaction(store, "readwrite"); t.objectStore(store).delete(k); t.oncomplete = () => res(); t.onerror = () => rej(t.error); }); },
+  async all(store){ const db = await this.open(); return new Promise((res, rej) => { const out = {}; const q = db.transaction(store).objectStore(store).openCursor(); q.onsuccess = () => { const c = q.result; if (c){ out[c.key] = c.value; c.continue(); } else res(out); }; q.onerror = () => rej(q.error); }); }
+};
+function applyState(j){
+  S.entries = new Map(); (j.entries||[]).forEach(e => S.entries.set(e.id, e));
+  S.settings = {...DEF_SETTINGS, ...(j.settings||{})}; S.timer = j.timer || null;
+}
+async function loadCache(){
+  let j = null;
+  try{ j = await IDB.get("kv", "state"); }catch(e){}
+  if (!j){ try{ j = JSON.parse(localStorage.getItem(LS) || "null"); }catch(e){} }
+  if (j) applyState(j);
+}
+let saveT = null;
+function saveCache(){
+  clearTimeout(saveT);
+  saveT = setTimeout(() => {
+    const st = {entries:[...S.entries.values()], settings:S.settings, timer:S.timer};
+    IDB.put("kv", "state", st).catch(() => { try{ localStorage.setItem(LS, JSON.stringify(st)); }catch(e){ toast("Speichern auf dem Gerät fehlgeschlagen."); } });
+  }, 120);
+}
+window.addEventListener("pagehide", () => { if (saveT){ clearTimeout(saveT); saveT = null; IDB.put("kv", "state", {entries:[...S.entries.values()], settings:S.settings, timer:S.timer}).catch(()=>{}); } });
+function docBody(id){
+  if (id === "settings") return {kind:"settings", ...S.settings};
+  if (id === "timer") return S.timer ? {kind:"timer", ...S.timer} : null;
+  const e = S.entries.get(id); return e ? {...e} : null;
+}
+function persist(id){ saveCache(); return Promise.resolve(); }
+function putEntry(e){ S.entries.set(e.id, e); render(); return persist(e.id); }
+function delEntry(id){ S.entries.delete(id); render(); return persist(id); }
+function setTimer(t){ S.timer = t; render(); return persist("timer"); }
+function setSettings(patch){ S.settings = {...S.settings, ...patch}; render(); return persist("settings"); }
+
+function applySnapshot(snap){
+  const ent = new Map(); let settings = null, timer = null;
+  snap.docs.forEach(d => {
+    const b = d.data(); if (!b) return;
+    if (d.id === "settings") settings = b;
+    else if (d.id === "timer") timer = b;
+    else if (b.type) ent.set(d.id, {...b, id:d.id});
+  });
+  // lokale, noch nicht synchronisierte Änderungen behalten
+  S.pending.forEach(id => {
+    if (id === "settings" || id === "timer") return;
+    if (S.entries.has(id)) ent.set(id, S.entries.get(id)); else ent.delete(id);
+  });
+  S.entries = ent;
+  if (!S.pending.has("settings") && settings){ const {kind, ...rest} = settings; S.settings = {...DEF_SETTINGS, ...rest}; }
+  if (!S.pending.has("timer")){ if (timer && timer.start){ const {kind, ...rest} = timer; S.timer = rest; } else S.timer = null; }
+  saveCache(); render();
+}
+
+async function boot(){
+  await loadCache();
+  mode = "local"; resolveReady();
+  importFromHash();
+  render();
+  try{ if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+  if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(() => {});
+}
+function b64urlDecode(str){
+  str = str.replace(/-/g, "+").replace(/_/g, "/"); while (str.length % 4) str += "=";
+  const bin = atob(str), bytes = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+function importItems(list){
+  const known = new Set(S.settings.importedKeys || []);
+  let n = 0, dup = 0;
+  (Array.isArray(list) ? list : []).forEach(b => {
+    if (!b || !b.from || !/^\d{4}-\d{2}-\d{2}$/.test(b.from)) return;
+    const key = String(b.k || (b.from + "_" + (b.dep||"") + "_" + (b.title||""))).slice(0,120);
+    if (known.has(key) || trips().some(t => t.calKey === key)){ dup++; return; }
+    known.add(key);
+    const id = uid();
+    S.entries.set(id, {id, type:"trip", title:String(b.title||"Einsatz").slice(0,120), purpose:String(b.purpose||"").slice(0,200), from:b.from, to:/^\d{4}-\d{2}-\d{2}$/.test(b.to||"") ? b.to : b.from, dep:/^\d\d:\d\d$/.test(b.dep||"") ? b.dep : "", ret:/^\d\d:\d\d$/.test(b.ret||"") ? b.ret : "", km:num(b.km), vmaOverride:null, status:"offen", note:String(b.note||"").slice(0,300), calKey:key, transferred:false, claim:false});
+    n++;
+  });
+  S.settings = {...S.settings, importedKeys:[...known].slice(-500), lastImport:new Date().toISOString(), lastImportCount:n};
+  saveCache(); render();
+  toast(n ? `${n} ${n===1?"Einsatz":"Einsätze"} aus dem Meise-Kalender übernommen${dup?` · ${dup} schon vorhanden`:""}` : dup ? "Alle Termine waren schon im Zeitbuch." : "Im Link waren keine Termine.");
+}
+function importFromHash(){
+  const h = location.hash;
+  if (!h.startsWith("#import=")) return;
+  try{ importItems(JSON.parse(b64urlDecode(h.slice(8)))); }catch(e){ toast("Der Import-Link ist unvollständig. Bitte den ganzen Link öffnen."); }
+  history.replaceState(null, "", location.pathname + "#einsaetze");
+}
+window.addEventListener("hashchange", () => { if (location.hash.startsWith("#import=")) importFromHash(); });
+
+/* ---------- Berechnungen ---------- */
+const works = () => [...S.entries.values()].filter(e => e.type === "work");
+const absences = () => [...S.entries.values()].filter(e => e.type === "absence");
+const durMin = e => Math.max(0, (e.end - e.start)/60000 - (e.pause||0));
+function timerMin(now = Date.now()){
+  const t = S.timer; if (!t) return 0;
+  const pauseNow = t.pauseStart ? (now - t.pauseStart) : 0;
+  return Math.max(0, (now - t.start - (t.pauseMs||0) - pauseNow)/60000);
+}
+function timerPauseMin(now = Date.now()){ const t = S.timer; if (!t) return 0; return ((t.pauseMs||0) + (t.pauseStart ? now - t.pauseStart : 0))/60000; }
+function requiredPause(min){ return min > 9*60 ? 45 : min > 6*60 ? 30 : 0; }
+function absDays(a, year){
+  if (a.half) return (!year || +a.from.slice(0,4) === year) && isWorkday(a.from) ? 0.5 : 0;
+  let n = 0; eachDay(a.from, a.to, k => { if ((!year || +k.slice(0,4) === year) && isWorkday(k)) n++; }); return n;
+}
+function absenceOn(k){ return absences().find(a => a.from <= k && a.to >= k && (a.company||"meise") === "meise"); }
+const dailySoll = () => S.settings.weekHours*60 / Math.max(1, S.settings.workdays.length);
+function sollMeise(fromK, toK){
+  let m = 0;
+  eachDay(fromK, toK, k => { if (!isWorkday(k)) return; const a = absenceOn(k); m += dailySoll() * (a ? (a.half ? 0.5 : 0) : 1); });
+  return m;
+}
+function istFor(company, fromK, toK, includeTimer = true){
+  let m = works().filter(e => e.company === company && dkey(e.start) >= fromK && dkey(e.start) <= toK).reduce((s,e) => s + durMin(e), 0);
+  if (includeTimer && S.timer && S.timer.company === company){ const k = dkey(S.timer.start); if (k >= fromK && k <= toK) m += timerMin(); }
+  return m;
+}
+function weekRange(d = new Date()){ const x = new Date(d); const wd = (x.getDay()+6)%7; x.setDate(x.getDate()-wd); const e = new Date(x); e.setDate(e.getDate()+6); return [dkey(x), dkey(e)]; }
+function kw(d){ const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const day = t.getUTCDay()||7; t.setUTCDate(t.getUTCDate()+4-day); const y0 = new Date(Date.UTC(t.getUTCFullYear(),0,1)); return Math.ceil(((t-y0)/86400000+1)/7); }
+
+/* ---------- UI-Status ---------- */
+const UI = { tab:"einsaetze", month:dkey(new Date()).slice(0,7), calMonth:dkey(new Date()).slice(0,7), filter:"alle", year:new Date().getFullYear(), editStart:false, confirmDel:null };
+const TABS = [
+  {id:"einsaetze", label:"Einsätze", icon:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 12h18M10 12v2h4v-2"/>'},
+  {id:"zweistil", label:"Zweistil", icon:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/>'},
+  {id:"kalender", label:"Kalender", icon:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4M7.5 14h2M11 14h2M14.5 14h2M7.5 17.5h2M11 17.5h2"/>'},
+  {id:"abwesend", label:"Abwesend", icon:'<path d="M4 20c1.5-4 4-6 8-6s6.5 2 8 6"/><circle cx="12" cy="8" r="4"/><path d="M17 4l3 3M20 4l-3 3"/>'}
+];
+const GEAR = '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>';
+function readHash(){ const h = location.hash.slice(1).split("=")[0]; UI.tab = TABS.some(t => t.id === h) || h === "mehr" ? h : "einsaetze"; }
+window.addEventListener("hashchange", () => { readHash(); render(); window.scrollTo(0,0); });
+
+/* ---------- Rendern ---------- */
+function render(){
+  $("#nav").innerHTML = TABS.map(t => `<a href="#${t.id}" ${UI.tab===t.id?'aria-current="page"':''}><svg viewBox="0 0 24 24">${t.icon}</svg>${t.id==="zweistil"&&S.timer&&UI.tab!=="zweistil"?'<i class="live"></i>':''}${t.label}</a>`).join("");
+  const bk = S.settings.lastBackup, bkOld = !bk || daysBetween(bk.slice(0,10), dkey(new Date())) > 14; const syncTxt = bkOld && S.entries.size ? "Backup fällig" : "Auf dem Gerät";
+  const head = `<div class="top"><div><h1>${{einsaetze:"Einsätze",zweistil:"Zweistil",kalender:"Kalender",abwesend:"Abwesenheiten",mehr:"Einstellungen"}[UI.tab]}</h1><small>${fmtDate(dkey(new Date()))} · KW ${kw(new Date())}</small></div><div class="hdr-actions"><a class="sync ${bkOld && S.entries.size ? "local" : "on"}" href="#mehr" style="text-decoration:none"><i></i>${syncTxt}</a><a class="iconbtn" href="#mehr" aria-label="Einstellungen"><svg viewBox="0 0 24 24">${GEAR}</svg></a></div></div>`;
+  const body = {einsaetze:viewEinsaetze, zweistil:viewZweistil, kalender:viewKalender, abwesend:viewAbwesend, mehr:viewMehr}[UI.tab]();
+  // Eingabefokus bei Re-Render erhalten
+  const act = document.activeElement, actId = act && act.id, selStart = act && act.selectionStart;
+  $("#app").innerHTML = head + body;
+  if (actId && actId !== "" && document.getElementById(actId) && !document.getElementById(actId).closest("#overlay")){
+    const el = document.getElementById(actId); el.focus(); try{ if (selStart != null) el.setSelectionRange(selStart, selStart); }catch(e){}
+  }
+  hydrateImgs(document);
+  tick();
+}
+
+function viewZweistil(){
+  let h = "";
+  const t = S.timer, c = t ? t.company : "zweistil";
+  if (t){
+    h += `<section class="run ${c} ${t.pauseStart?"paused":""}" aria-live="polite">
+      <div class="head"><span class="badge"><i class="pulse"></i>${CO[c].full}</span><span class="label">${t.pauseStart?"Pause":"läuft"}</span></div>
+      <div class="clock" id="clock">0:00<small>:00</small></div>
+      <div class="since">${UI.editStart
+        ? `<label>Beginn <input type="time" id="startEdit" value="${hm(t.start)}"></label><button class="chipbtn" data-act="saveStart">Übernehmen</button>`
+        : `<button class="chipbtn" data-act="editStart" aria-label="Beginn korrigieren">seit ${hm(t.start)} ✎</button>`}
+        <span>Pause <b class="mono" id="pauseInfo">0:00</b></span></div>
+      <input id="timerNote" placeholder="Projekt / Paar / Tätigkeit" value="${esc(t.note||"")}" list="notes-${c}" autocomplete="off">
+      ${datalist(c)}
+      <div class="runbtns">
+        <button class="btn" data-act="pause" style="grid-column:1/-1">${t.pauseStart?"▶ Weiter":"❚❚ Pause"}</button>
+        <button class="btn stop" data-act="stop">■ Arbeitsende</button>
+      </div></section>`;
+  } else {
+    h += `<section class="hero"><button class="pbtn zweistil" data-act="start" data-co="zweistil"><span class="play"><svg viewBox="0 0 10 12"><path d="M0 0l10 6-10 6z"/></svg></span><b>Zweistil starten</b><span>Zeit für Fotografie, Schnitt, Kunden</span></button>
+      <button class="pbtn dark" data-act="newWork"><span class="play"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><b>Nachtragen</b><span>Zeit von Hand eintragen</span></button></section>`;
+  }
+  const [y, m] = UI.month.split("-").map(Number);
+  const first = UI.month+"-01", last = dkey(new Date(y, m, 0));
+  const [ws, we] = weekRange();
+  const list = works().filter(e => e.company === "zweistil" && dkey(e.start).startsWith(UI.month)).sort((a,b) => b.start - a.start);
+  const byNote = {}; list.forEach(e => { const k = e.note || "Ohne Projekt"; byNote[k] = (byNote[k]||0) + durMin(e); });
+  const top = Object.entries(byNote).sort((a,b) => b[1]-a[1]).slice(0,4);
+  h += `<div class="stats">
+      <div class="stat" style="--c:var(--zweistil)"><span class="label">Diese Woche</span><span class="v" id="wZweistil">${fmtH(istFor("zweistil", ws, we))}</span><span class="s">KW ${kw(new Date())}</span></div>
+      <div class="stat" style="--c:var(--zweistil)"><span class="label">${MON[m-1]}</span><span class="v">${fmtH(istFor("zweistil", first, last))}</span><span class="s">${list.length} ${list.length===1?"Eintrag":"Einträge"}</span></div>
+    </div>`;
+  if (top.length > 1) h += `<div class="card" style="padding:10px 14px">${top.map(([k,v]) => `<div class="sumrow"><span>${esc(k)}</span><b>${fmtH(v)} h</b></div>`).join("")}</div>`;
+  h += `<div class="monthnav"><button class="iconbtn" data-act="month" data-d="-1" aria-label="Vormonat"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><b>${MON[m-1]} ${y}</b><button class="iconbtn" data-act="month" data-d="1" aria-label="Nächster Monat"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button></div>`;
+  const days = {}; list.forEach(e => (days[dkey(e.start)] = days[dkey(e.start)] || []).push(e));
+  const keys = Object.keys(days).sort().reverse();
+  h += `<div class="list">`;
+  if (!keys.length) h += `<div class="empty"><b>Keine Zweistil-Zeiten im ${MON[m-1]}</b><span>Starte die Uhr, wenn du an einem Projekt sitzt, oder trag die Zeit nach.</span></div>`;
+  keys.forEach(k => {
+    const tot = days[k].reduce((s,e)=>s+durMin(e),0);
+    h += `<div class="dayhead"><span>${fmtDate(k)}</span><span class="mono">${fmtH(tot)}</span></div>`;
+    days[k].forEach(e => h += workItem(e));
+  });
+  h += `</div><div class="quick"><button class="chipbtn" data-act="export" data-scope="month">CSV für ${MON[m-1]}</button></div>`;
+  return h;
+}
+function datalist(c){
+  const notes = [...new Set(works().filter(e => e.company === c && e.note).sort((a,b)=>b.start-a.start).map(e => e.note))].slice(0,12);
+  return `<datalist id="notes-${c}">${notes.map(n => `<option value="${esc(n)}"></option>`).join("")}</datalist>`;
+}
+function workItem(e, showDate){
+  const d = durMin(e), req = S.settings.arbzg && e.company === "meise" ? requiredPause(d + (e.pause||0)) : 0;
+  return `<button class="item" data-act="editWork" data-id="${e.id}"><i class="dot ${e.company}"></i>
+    <span style="min-width:0"><span class="t">${CO[e.company].name}${e.note?` · <span class="muted">${esc(e.note)}</span>`:""}</span>
+    <span class="sub mono" style="display:block">${showDate?fmtDateShort(dkey(e.start))+" · ":""}${hm(e.start)}–${hm(e.end)}${e.pause?` · ${e.pause} min Pause`:""}${req && (e.pause||0) < req ? `<span class="warn" title="Nach ArbZG mindestens ${req} min Pause">Pause &lt; ${req}</span>`:""}</span></span>
+    <span class="d">${fmtH(d)}<small>Std.</small></span></button>`;
+}
+function absItem(a, year){
+  const n = absDays(a, year);
+  const range = a.from === a.to ? fmtDate(a.from) + (a.half?" · halber Tag":"") : fmtDateShort(a.from)+" – "+fmtDateShort(a.to)+a.to.slice(0,4);
+  const extra = [a.kind==="kindkrank"&&a.child?esc(a.child):"", a.kind==="krank"?(a.au?"AU liegt vor":"ohne AU"):"", a.note?esc(a.note):""].filter(Boolean).join(" · ");
+  const future = a.from > dkey(new Date());
+  return `<button class="item" data-act="editAbs" data-id="${a.id}"><i class="dot ${a.kind}"></i>
+    <span style="min-width:0"><span class="t">${ABS[a.kind]}${future?' <span class="muted">· geplant</span>':""}</span><span class="sub" style="display:block">${range}${extra?" · "+extra:""}</span></span>
+    <span class="d">${fmtDays(n)}<small>${n===1?"Tag":"Tage"}</small></span></button>`;
+}
+
+const toMin = t => { const [a,b] = (t||"").split(":").map(Number); return a*60 + b; };
+function tripTime(t){
+  const multi = t.to && t.to !== t.from;
+  if (multi){
+    const d = daysBetween(t.from, t.to) + 1, w1 = WD[parseD(t.from).getDay()], w2 = WD[parseD(t.to).getDay()];
+    return {txt:`${w1} ${t.dep||"?"} → ${w2} ${t.ret||"?"}`, dur:`${d} Tage`, ok:!!(t.dep && t.ret)};
+  }
+  if (t.dep && t.ret){ const m = toMin(t.ret) - toMin(t.dep); return {txt:`${t.dep}–${t.ret}`, dur: m > 0 ? fmtH(m)+" h" : "–", ok: m > 0}; }
+  return {txt: t.dep ? `ab ${t.dep}` : t.ret ? `bis ${t.ret}` : "Zeiten fehlen", dur:"–", ok:false};
+}
+function costRelevant(t){ return t.claim === true || tripReceipts(t.id).length > 0 || num(t.km) > 0; }
+const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+function einsatzBody(t){
+  const d = parseD(t.from), tt = tripTime(t);
+  const sub = [tt.txt, t.purpose ? esc(t.purpose) : "", num(t.km) ? num(t.km).toLocaleString("de-DE")+" km" : ""].filter(Boolean).join(" · ");
+  return `<button class="item" data-act="openTrip" data-id="${t.id}"><span class="datebox"><b>${d.getDate()}</b><span>${MON[d.getMonth()].slice(0,3)}</span></span>
+    <span style="min-width:0"><span class="t">${esc(t.title || "Einsatz")}${t.calKey?'<span class="cal-src">Kalender</span>':""}</span><span class="sub mono" style="display:block">${sub}</span></span>
+    <span class="d">${tt.dur}<small>${tt.ok?"Dauer":"<span class='neg'>Zeiten fehlen</span>"}</small></span></button>`;
+}
+function xferRow(t){
+  return `<div class="xrow"><button class="xchk" data-act="xfer" data-id="${t.id}" aria-pressed="${!!t.transferred}" aria-label="${t.transferred?"Übertragung zurücknehmen":"Als in Meise-Zeiterfassung übertragen markieren"}"><i>${CHECK}</i></button>${einsatzBody(t)}</div>`;
+}
+function viewEinsaetze(){
+  const today = dkey(new Date()), ts = trips();
+  const todo = ts.filter(t => t.from <= today && !t.transferred).sort((a,b) => a.from.localeCompare(b.from) || (a.dep||"").localeCompare(b.dep||""));
+  const next = ts.filter(t => t.from > today).sort((a,b) => a.from.localeCompare(b.from));
+  const done = ts.filter(t => t.from <= today && t.transferred).sort((a,b) => b.from.localeCompare(a.from)).slice(0,8);
+  let h = `<section class="hero">
+    <button class="pbtn meise" data-act="newTrip"><span class="play"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></span><b>Neuer Einsatz</b><span>Termin extern, Messe, Audit</span></button>
+    <button class="pbtn dark" data-act="scan"><span class="play"><svg class="ic" viewBox="0 0 24 24"><path d="M3 8V5a2 2 0 0 1 2-2h3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg></span><b>Beleg</b><span>scannen</span></button>
+  </section>
+  <section class="sec"><div class="sechead"><h2>Noch in die Zeiterfassung</h2><span class="label">${todo.length ? todo.length+" offen" : ""}</span></div>
+  <div class="list">${todo.length ? todo.map(xferRow).join("") : `<div class="empty"><b>Alles übertragen</b><span>Vergangene Einsätze erscheinen hier, bis du sie in der Meise-Zeiterfassung eingetragen und abgehakt hast.</span></div>`}</div></section>`;
+  if (next.length) h += `<section class="sec"><div class="sechead"><h2>Demnächst</h2><span class="label">${next.length}</span></div><div class="list">${next.slice(0,10).map(xferRow).join("")}</div></section>`;
+  h += `<section class="sec"><div class="sechead"><h2>Reisekosten</h2><button class="chipbtn" data-act="newOwn">＋ Eigenbeleg</button></div>${viewReisen()}</section>`;
+  if (done.length) h += `<section class="sec"><div class="sechead"><h2>Zuletzt übertragen</h2></div><div class="list">${done.map(xferRow).join("")}</div></section>`;
+  if (S.settings.lastImport) h += `<p class="note">Letzte Übernahme aus dem Meise-Kalender: ${fmtDate(S.settings.lastImport.slice(0,10))} ${S.settings.lastImport.slice(0,4)}.</p>`;
+  return h;
+}
+
+function viewKalender(){
+  const [y, m] = UI.calMonth.split("-").map(Number);
+  const first = new Date(y, m-1, 1), days = new Date(y, m, 0).getDate(), lead = (first.getDay()+6)%7, today = dkey(new Date());
+  const mk = UI.calMonth;
+  let h = `<div class="monthnav"><button class="iconbtn" data-act="cmonth" data-d="-1" aria-label="Vormonat"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><b>${MON[m-1]} ${y}</b><button class="iconbtn" data-act="cmonth" data-d="1" aria-label="Nächster Monat"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button></div>
+  <div class="cal" role="grid" aria-label="${MON[m-1]} ${y}">${["Mo","Di","Mi","Do","Fr","Sa","So"].map(d=>`<div class="wd">${d}</div>`).join("")}`;
+  for (let i = 0; i < lead; i++) h += `<div class="cday out" aria-hidden="true"></div>`;
+  const ws = works();
+  for (let d = 1; d <= days; d++){
+    const k = mk+"-"+pad(d), dow = parseD(k).getDay(), hol = holidayName(k), fer = ferienOn(k);
+    const ab = absences().find(a => a.from <= k && a.to >= k);
+    const absCounts = ab && (ab.half || isWorkday(k));
+    const cos = [...new Set(ws.filter(e => e.company === "zweistil" && dkey(e.start) === k).map(e => e.company))];
+    if (trips().some(t => t.from <= k && (t.to||t.from) >= k)) cos.unshift("einsatz");
+    const cls = ["cday", dow===0||dow===6?"we":"", k===today?"today":"", hol?"hol":"", ab&&absCounts?ab.kind:"", ab&&ab.half?"half":""].filter(Boolean).join(" ");
+    const tag = hol ? hol : ab && absCounts ? ABS[ab.kind] : "";
+    const label = [fmtDate(k), hol, ab?ABS[ab.kind]:"", fer].filter(Boolean).join(", ");
+    h += `<button class="${cls}" data-act="day" data-k="${k}" aria-label="${esc(label)}"><span class="n">${d}</span>${tag?`<span class="tag">${esc(tag)}</span>`:""}${cos.length?`<span class="ws">${cos.map(c=>`<i class="dot ${c}"></i>`).join("")}</span>`:""}${fer?'<span class="fer"></span>':""}</button>`;
+  }
+  h += `</div>
+  <div class="legend"><span><i class="sw urlaub"></i>Urlaub</span><span><i class="sw krank"></i>Krank</span><span><i class="sw kindkrank"></i>Kind krank</span><span><i class="sw hol"></i>Feiertag NRW</span><span><i class="sw fer"></i>Schulferien NRW</span><span><i class="dot einsatz"></i>Einsatz Meise</span><span><i class="dot zweistil"></i>Zweistil</span></div>`;
+  // Monatsübersicht
+  const mFirst = mk+"-01", mLast = mk+"-"+pad(days);
+  const items = [];
+  Object.entries(holidays(y)).filter(([k]) => k.startsWith(mk)).forEach(([k,n]) => items.push({k, html:`<div class="item" style="cursor:default"><i class="dot feiertag"></i><span><span class="t">${esc(n)}</span><span class="sub" style="display:block">${fmtDate(k)} · Feiertag NRW</span></span><span></span></div>`}));
+  FERIEN.filter(f => f[1] <= mLast && f[2] >= mFirst).forEach(f => items.push({k:f[1], html:`<div class="item" style="cursor:default"><i class="dot ferien"></i><span><span class="t">${esc(f[0])}</span><span class="sub" style="display:block">${f[1]===f[2]?fmtDate(f[1]):fmtDateShort(f[1])+f[1].slice(0,4)+" – "+fmtDateShort(f[2])+f[2].slice(0,4)} · Schulferien NRW</span></span><span></span></div>`}));
+  absences().filter(a => a.from <= mLast && a.to >= mFirst).forEach(a => items.push({k:a.from, html:absItem(a)}));
+  trips().filter(t => t.from <= mLast && (t.to||t.from) >= mFirst).forEach(t => items.push({k:t.from, html:einsatzBody(t)}));
+  items.sort((a,b) => a.k.localeCompare(b.k));
+  h += `<section class="sec"><h2>Im ${MON[m-1]}</h2><div class="list">${items.length ? items.map(i=>i.html).join("") : `<div class="empty"><span>Keine Einsätze, Feiertage, Ferien oder Abwesenheiten in diesem Monat.</span></div>`}</div></section>`;
+  if (!FERIEN.some(f => f[1].slice(0,4) == y || f[2].slice(0,4) == y)) h += `<p class="note">Für ${y} sind noch keine Schulferien hinterlegt.</p>`;
+  return h;
+}
+
+function openDay(k){
+  const hol = holidayName(k), fer = ferienOn(k);
+  const ab = absences().filter(a => a.from <= k && a.to >= k);
+  const ws = works().filter(e => dkey(e.start) === k).sort((a,b)=>a.start-b.start);
+  const tot = ws.reduce((s,e)=>s+durMin(e),0);
+  const tk = trips().filter(t => t.from <= k && (t.to||t.from) >= k);
+  openSheet(`<h2>${fmtDate(k)} ${k.slice(0,4)}</h2>
+    ${hol||fer?`<div class="quick">${hol?`<span class="chipbtn" style="cursor:default"><i class="dot feiertag"></i>${esc(hol)}</span>`:""}${fer?`<span class="chipbtn" style="cursor:default"><i class="dot ferien"></i>${esc(fer)}</span>`:""}</div>`:""}
+    <div class="list">${tk.map(einsatzBody).join("")}${ab.map(a=>absItem(a)).join("")}${ws.map(e=>workItem(e)).join("")}${!ab.length&&!ws.length&&!tk.length?`<div class="empty"><span>Für diesen Tag ist nichts eingetragen.</span></div>`:""}</div>
+    ${tot?`<p class="hint">Zweistil: <b class="mono">${fmtH(tot)} h</b></p>`:""}
+    <div class="quick"><button class="chipbtn" data-act="dayAbs" data-kind="urlaub" data-k="${k}"><i class="dot urlaub"></i>Urlaub</button><button class="chipbtn" data-act="dayAbs" data-kind="krank" data-k="${k}"><i class="dot krank"></i>Krank</button><button class="chipbtn" data-act="dayAbs" data-kind="kindkrank" data-k="${k}"><i class="dot kindkrank"></i>Kind krank</button><button class="chipbtn" data-act="dayTrip" data-k="${k}"><i class="dot einsatz"></i>Einsatz</button><button class="chipbtn" data-act="dayWork" data-k="${k}"><i class="dot zweistil"></i>Zweistil-Zeit</button></div>
+    <button class="btn ghost" id="dClose">Schließen</button>`, () => { $("#dClose").onclick = closeSheet; });
+}
+
+function vacUsed(y, fromK, toK){
+  fromK = fromK || "0000"; toK = toK || "9999";
+  return absences().filter(a => a.kind === "urlaub").reduce((s,a) => {
+    if (a.half) return s + (+a.from.slice(0,4) === y && a.from >= fromK && a.from <= toK && isWorkday(a.from) ? 0.5 : 0);
+    let n = 0; eachDay(a.from, a.to, k => { if (+k.slice(0,4) === y && k >= fromK && k <= toK && isWorkday(k)) n++; }); return s + n;
+  }, 0);
+}
+function vacYear(y){
+  const st = S.settings, sd = st.vacStartDate, ent = +st.vacationDays || 0;
+  const today = dkey(new Date());
+  if (!sd || st.vacStartDays === null || st.vacStartDays === "" || st.vacStartDays === undefined){
+    const used = vacUsed(y); return {tracked:true, legacy:true, avail:ent, ent, carry:0, used, taken:vacUsed(y, null, today)};
+  }
+  const sy = +sd.slice(0,4);
+  if (y < sy) return {tracked:false};
+  if (y === sy) return {tracked:true, start:true, avail:+st.vacStartDays, used:vacUsed(y, sd), taken:vacUsed(y, sd, today), fromK:sd};
+  const prev = vacYear(y-1), carry = prev.avail - prev.used;
+  return {tracked:true, avail:carry + ent, ent, carry, used:vacUsed(y), taken:vacUsed(y, null, today)};
+}
+
+function viewAbwesend(){
+  const y = UI.year, today = dkey(new Date());
+  const abs = absences().filter(a => +a.from.slice(0,4) <= y && +a.to.slice(0,4) >= y);
+  const sum = kind => abs.filter(a => a.kind === kind).reduce((s,a) => s + absDays(a, y), 0);
+  const kk = sum("kindkrank"), kr = sum("krank");
+  const krDocs = abs.filter(a => a.kind === "krank").length;
+  let h = `<div class="monthnav"><button class="iconbtn" data-act="year" data-d="-1" aria-label="Vorjahr"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><b>${y}</b><button class="iconbtn" data-act="year" data-d="1" aria-label="Nächstes Jahr"><svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></button></div>
+  ${vacCard(y)}
+  <div class="stats">
+    <div class="stat" style="--c:var(--krank)"><span class="label"><i class="dot krank"></i> Krank</span><span class="v">${fmtDays(kr)}</span><span class="s">Arbeitstage · ${krDocs} ${krDocs===1?"Meldung":"Meldungen"}</span></div>
+    <div class="stat" style="--c:var(--kindkrank)"><span class="label"><i class="dot kindkrank"></i> Kind krank</span><span class="v">${fmtDays(kk)} <span class="muted" style="font-size:.85rem;font-family:var(--f-body);font-weight:500">/ ${S.settings.kidDays}</span></span><div class="bar"><i style="width:${S.settings.kidDays?Math.min(100,kk/S.settings.kidDays*100):0}%"></i></div><span class="s">${fmtDays(Math.max(0,S.settings.kidDays-kk))} Tage übrig</span></div>
+  </div>
+  <div class="quick"><button class="chipbtn" data-act="newAbs" data-kind="urlaub"><i class="dot urlaub"></i>Urlaub eintragen</button><button class="chipbtn" data-act="newAbs" data-kind="krank"><i class="dot krank"></i>Krank</button><button class="chipbtn" data-act="newAbs" data-kind="kindkrank"><i class="dot kindkrank"></i>Kind krank</button></div>
+  <p class="note">Urlaub, Krank und Kind krank gelten nur für Heinz Meise. Zweistil wird nur als Arbeitszeit erfasst.</p>
+  <section class="sec"><h2>Alle Einträge ${y}</h2><div class="list">`;
+  const sorted = abs.sort((a,b) => b.from.localeCompare(a.from));
+  if (!sorted.length) h += `<div class="empty"><b>Keine Abwesenheiten ${y}</b><span>Urlaub, Krankheit und Kind-krank-Tage zählen hier automatisch nur Arbeitstage, NRW-Feiertage sind ausgenommen.</span></div>`;
+  sorted.forEach(a => h += absItem(a, y));
+  h += `</div></section>`;
+  return h;
+}
+
+function vacCard(y){
+  const v = vacYear(y);
+  if (!v.tracked) return `<div class="stat" style="--c:var(--urlaub)"><span class="label"><i class="dot urlaub"></i> Urlaub</span><span class="s">Die Urlaubsrechnung beginnt am ${fmtDateShort(S.settings.vacStartDate)}${S.settings.vacStartDate.slice(0,4)}. Für ${y} wird kein Urlaubsstand geführt.</span></div>`;
+  const rest = v.avail - v.used, planned = v.used - v.taken;
+  const basis = v.legacy ? `Anspruch ${fmtDays(v.avail)} · <a href="#mehr">Startwert festlegen</a>` : v.start ? `Startwert ${fmtDays(v.avail)} am ${fmtDateShort(v.fromK)}${v.fromK.slice(0,4)}` : `${fmtDays(v.carry)} Rest ${y-1} + ${fmtDays(v.ent)} neu = ${fmtDays(v.avail)}`;
+  return `<div class="stat" style="--c:var(--urlaub)"><span class="label"><i class="dot urlaub"></i> Urlaub</span>
+    <span class="v ${rest<0?"neg":""}">${fmtDays(rest)} <span class="muted" style="font-size:.9rem;font-family:var(--f-body);font-weight:500">Tage übrig</span></span>
+    <div class="bar"><i style="width:${v.avail>0? Math.min(100, v.used/v.avail*100):0}%"></i></div>
+    <span class="s">${fmtDays(v.taken)} genommen · ${fmtDays(planned)} geplant · ${basis}</span></div>`;
+}
+
+function viewMehr(){
+  const s = S.settings, y = new Date().getFullYear();
+  return `<section class="card setgrid">
+    <h2>Heinz Meise</h2>
+    <label class="field"><span>Kind-krank-Tage pro Jahr</span><input type="number" inputmode="numeric" min="0" id="setKid" value="${s.kidDays}"></label>
+    <h3 style="margin-top:6px">Urlaubskonto</h3>
+    <div class="row"><label class="field"><span>Stichtag</span><input type="date" id="setVacDate" value="${s.vacStartDate||dkey(new Date())}"></label>
+    <label class="field"><span>Resturlaub am Stichtag</span><input type="number" inputmode="decimal" step="0.5" min="0" id="setVacStart" value="${s.vacStartDays??""}" placeholder="z. B. 12"></label></div>
+    <label class="field"><span>Urlaubsanspruch pro Jahr</span><input type="number" inputmode="decimal" step="0.5" min="0" id="setVac" value="${s.vacationDays}"></label>
+    <p class="note">${s.vacStartDate && s.vacStartDays !== null && s.vacStartDays !== "" ? `Ab ${fmtDateShort(s.vacStartDate)}${s.vacStartDate.slice(0,4)} zählt die App von ${fmtDays(+s.vacStartDays)} Tagen herunter. Urlaub vor dem Stichtag ist im Startwert schon enthalten. Am 1. Januar kommen jeweils ${fmtDays(+s.vacationDays)} Tage dazu, der Rest wird ins neue Jahr übernommen.` : "Trag ein, wie viele Urlaubstage du an einem Stichtag noch hast, zum Beispiel heute. Danach rechnet die App jedes Jahr den Anspruch dazu und übernimmt den Rest ins nächste Jahr."}</p>
+    <div class="field"><span>Arbeitstage (zählen für Urlaub und Krankheit)</span><div class="seg" role="group" aria-label="Arbeitstage">${[1,2,3,4,5,6].map(d => `<button data-act="wd" data-d="${d}" aria-pressed="${s.workdays.includes(d)}">${WD[d]}</button>`).join("")}</div></div>
+    <p class="note">NRW-Feiertage werden bei Urlaub und Krankheit nicht mitgezählt. Kind-krank-Tage pro Elternteil und Kind bitte an die aktuelle gesetzliche Regelung anpassen.</p>
+  </section>
+  <section class="card setgrid">
+    <h2>Reisekosten</h2>
+    <div class="row"><label class="field"><span>Name auf der Abrechnung</span><input id="setName" value="${esc(s.name)}"></label><label class="field"><span>Firma</span><input id="setFirm" value="${esc(s.firm)}"></label></div>
+    <div class="row3"><label class="field"><span>€ pro km</span><input type="number" inputmode="decimal" step="0.01" min="0" id="setKm" value="${s.kmRate}"></label><label class="field"><span>VMA ab 8 h</span><input type="number" inputmode="decimal" step="0.5" min="0" id="setV8" value="${s.vma8}"></label><label class="field"><span>VMA 24 h</span><input type="number" inputmode="decimal" step="0.5" min="0" id="setV24" value="${s.vma24}"></label></div>
+    <p class="note">Voreingestellt sind die steuerlichen Inlandspauschalen: 0,30 € pro km, 14 € Verpflegung bei mehr als 8 h und für An- und Abreisetage, 28 € für volle Tage. Gilt bei Meise eine eigene Reisekostenrichtlinie, trag deren Sätze ein.</p>
+  </section>
+  <section class="card setgrid">
+    <h2>Meise-Kalender</h2>
+    <p class="note">Jeden Montag früh schickt dir Claude einen Import-Link mit den Terminen aus deinem Kalender „Meise“. Tippst du ihn an, öffnet sich das Zeitbuch und legt die Termine als Einsätze an. Doppelte werden übersprungen.</p>
+    <label class="field"><span>Oder Import-Link hier einfügen</span><input id="setImport" placeholder="https://…#import=…" autocomplete="off"></label>
+    <p class="note">${s.lastImport ? `Letzte Übernahme: ${fmtDate(s.lastImport.slice(0,10))} ${s.lastImport.slice(0,4)}${s.lastImportCount != null ? ` · ${s.lastImportCount} neu` : ""}.` : "Bisher wurde noch nichts übernommen."}</p>
+  </section>
+  <section class="card setgrid">
+    <h2>Belegerkennung</h2>
+    <p class="note">Damit Betrag, Datum und Aussteller automatisch aus dem Foto gelesen werden, braucht die App einen Anthropic-API-Schlüssel (console.anthropic.com → API Keys). Er bleibt nur auf diesem Gerät. Ohne Schlüssel füllst du die Felder selbst aus.</p>
+    <label class="field"><span>API-Schlüssel</span><input id="setApiKey" type="password" value="${esc(s.apiKey)}" placeholder="sk-ant-…" autocomplete="off"></label>
+  </section>
+  <section class="card setgrid">
+    <h2>Export</h2>
+    <p class="note">CSV mit Semikolon und Dezimalkomma, passt direkt in Excel.</p>
+    <div class="quick"><button class="chipbtn" data-act="export" data-scope="year">Ganzes Jahr ${y}</button><button class="chipbtn" data-act="export" data-scope="all">Alle Daten</button></div>
+  </section>
+  <section class="card setgrid">
+    <h2>Speicherung &amp; Backup</h2>
+    <p class="note">Alle Einträge und Belegfotos liegen nur auf diesem Gerät im Browser. Wird die Website-Daten gelöscht oder das Handy gewechselt, sind sie ohne Backup weg. Sichere die Datei zum Beispiel in iCloud Drive.</p>
+    <p class="note">${S.entries.size} Einträge · letztes Backup: ${s.lastBackup ? fmtDate(s.lastBackup.slice(0,10)) + " " + s.lastBackup.slice(0,4) : "noch keins"}</p>
+    <div class="quick"><button class="chipbtn" data-act="backup">Backup speichern</button><button class="chipbtn" data-act="restore">Backup laden</button></div>
+  </section>`;
+}
+
+/* ---------- Live-Uhr ---------- */
+function tick(){
+  const t = S.timer; if (!t) return;
+  const el = $("#clock");
+  if (el){ const m = timerMin(), sec = Math.floor((m*60)%60); el.innerHTML = Math.floor(m/60)+":"+pad(Math.floor(m%60))+"<small>:"+pad(sec)+"</small>"; }
+  const p = $("#pauseInfo"); if (p) p.textContent = fmtH(timerPauseMin());
+  if (UI.tab === "zweistil"){
+    const [ws,we] = weekRange();
+    const wm = $("#wMeise"), wz = $("#wZweistil");
+    if (wm) wm.textContent = fmtH(istFor("meise", ws, we));
+    if (wz) wz.textContent = fmtH(istFor("zweistil", ws, we));
+  }
+}
+setInterval(tick, 1000);
+document.addEventListener("visibilitychange", () => { if (!document.hidden) render(); });
+
+/* ---------- Aktionen ---------- */
+function stopTimer(at = Date.now()){
+  const t = S.timer; if (!t) return null;
+  let pauseMs = (t.pauseMs||0) + (t.pauseStart ? at - t.pauseStart : 0);
+  const e = {id:uid(), type:"work", company:t.company, start:t.start, end:at, pause:Math.round(pauseMs/60000), note:(t.note||"").trim()};
+  if (e.end - e.start < 60000){ setTimer(null); toast("Unter einer Minute, nicht gespeichert."); return null; }
+  putEntry(e); setTimer(null);
+  return e;
+}
+function startTimer(c, at = Date.now()){ UI.editStart = false; return setTimer({company:c, start:at, pauseMs:0, pauseStart:null, note:""}); }
+
+document.addEventListener("click", ev => {
+  const b = ev.target.closest("[data-act]"); if (!b) return;
+  const a = b.dataset.act;
+  if (a === "start"){ startTimer(b.dataset.co); if (navigator.vibrate) try{navigator.vibrate(15)}catch(e){} }
+  else if (a === "stop"){
+    const prev = {...S.timer}; const e = stopTimer();
+    if (e){ const req = S.settings.arbzg && e.company==="meise" ? requiredPause(durMin(e)+(e.pause||0)) : 0;
+      toast(`${fmtH(durMin(e))} h ${CO[e.company].name} gespeichert${req && e.pause < req ? ` · Pause unter ${req} min`:""}`, "Rückgängig", () => { delEntry(e.id); setTimer(prev); }); }
+  }
+  else if (a === "pause"){
+    const t = {...S.timer}, now = Date.now();
+    if (t.pauseStart){ t.pauseMs = (t.pauseMs||0) + now - t.pauseStart; t.pauseStart = null; } else t.pauseStart = now;
+    setTimer(t);
+  }
+  else if (a === "switch_disabled"){
+    const other = S.timer.company === "meise" ? "zweistil" : "meise"; const now = Date.now();
+    const e = stopTimer(now); startTimer(other, now);
+    toast(e ? `${fmtH(durMin(e))} h ${CO[e.company].name} gespeichert, ${CO[other].name} läuft` : `${CO[other].name} läuft`);
+  }
+  else if (a === "editStart"){ UI.editStart = true; render(); const i = $("#startEdit"); if (i) i.focus(); }
+  else if (a === "saveStart"){
+    const v = $("#startEdit").value; UI.editStart = false;
+    if (v){ const [hh,mm] = v.split(":").map(Number); const d = new Date(S.timer.start); d.setHours(hh, mm, 0, 0); if (d.getTime() > Date.now()) d.setDate(d.getDate()-1); setTimer({...S.timer, start:d.getTime()}); toast("Beginn auf "+v+" gesetzt"); }
+    else render();
+  }
+  else if (a === "newWork") openWork(null);
+  else if (a === "editWork") openWork(S.entries.get(b.dataset.id));
+  else if (a === "newAbs") openAbs(null, b.dataset.kind);
+  else if (a === "editAbs") openAbs(S.entries.get(b.dataset.id));
+  else if (a === "month"){ const [y,m] = UI.month.split("-").map(Number); const d = new Date(y, m-1+Number(b.dataset.d), 1); UI.month = dkey(d).slice(0,7); render(); }
+  else if (a === "cmonth"){ const [y,m] = UI.calMonth.split("-").map(Number); UI.calMonth = dkey(new Date(y, m-1+Number(b.dataset.d), 1)).slice(0,7); render(); }
+  else if (a === "day") openDay(b.dataset.k);
+  else if (a === "dayAbs") openAbs(null, b.dataset.kind, b.dataset.k);
+  else if (a === "dayWork") openWork(null, b.dataset.k);
+  else if (a === "dayTrip") openTrip(null, b.dataset.k);
+  else if (a === "xfer"){ const t = S.entries.get(b.dataset.id); if (t){ const now = !t.transferred; putEntry({...t, transferred:now, transferredAt: now ? dkey(new Date()) : null}); if (now) toast(`„${t.title}“ als übertragen markiert`, "Rückgängig", () => putEntry({...S.entries.get(t.id), transferred:false, transferredAt:null})); } }
+  else if (a === "year"){ UI.year += Number(b.dataset.d); render(); }
+  else if (a === "filter"){ UI.filter = b.dataset.f; render(); }
+  else if (a === "wd"){ const d = +b.dataset.d; const w = S.settings.workdays.includes(d) ? S.settings.workdays.filter(x=>x!==d) : [...S.settings.workdays, d].sort(); setSettings({workdays:w}); }
+  else if (a === "export") exportCsv(b.dataset.scope);
+  else if (a === "backup") doBackup();
+  else if (a === "restore") doRestore();
+  else if (a === "scan") startScan(b.dataset.trip || null);
+  else if (a === "newTrip") openTrip(null);
+  else if (a === "newOwn") openOwn(null, null);
+  else if (a === "openTrip") openTrip(S.entries.get(b.dataset.id));
+  else if (a === "openRcpt"){ const r = S.entries.get(b.dataset.id); if (r) (r.own ? openOwn(r) : openReceipt(r)); }
+});
+document.addEventListener("change", ev => {
+  const id = ev.target.id, v = ev.target.value;
+  if (id === "timerNote" && S.timer) setTimer({...S.timer, note:v});
+  else if (id === "setWeek") setSettings({weekHours:Math.max(0, parseFloat(v.replace(",", "."))||0)});
+  else if (id === "setVac") setSettings({vacationDays:Math.max(0, parseFloat(v.replace(",", "."))||0)});
+  else if (id === "setKid") setSettings({kidDays:Math.max(0, parseInt(v)||0)});
+  else if (id === "setVacStart"){ const t = v.trim(); setSettings({vacStartDays: t === "" ? null : Math.max(0, parseFloat(t.replace(",", "."))||0), vacStartDate: S.settings.vacStartDate || ($("#setVacDate") && $("#setVacDate").value) || dkey(new Date())}); }
+  else if (id === "setVacDate") setSettings({vacStartDate:v});
+  else if (id === "setArbzg") setSettings({arbzg:ev.target.checked});
+  else if (id === "setName") setSettings({name:v.trim()});
+  else if (id === "setApiKey") setSettings({apiKey:v.trim()});
+  else if (id === "setImport"){ const i = v.indexOf("#import="); if (i < 0){ toast("Das ist kein Import-Link."); return; } try{ importItems(JSON.parse(b64urlDecode(v.slice(i+8).trim()))); }catch(e){ toast("Der Import-Link ist unvollständig."); } ev.target.value = ""; }
+  else if (id === "setFirm") setSettings({firm:v.trim()});
+  else if (id === "setKm") setSettings({kmRate:Math.max(0, parseFloat(v.replace(",", "."))||0)});
+  else if (id === "setV8") setSettings({vma8:Math.max(0, parseFloat(v.replace(",", "."))||0)});
+  else if (id === "setV24") setSettings({vma24:Math.max(0, parseFloat(v.replace(",", "."))||0)});
+});
+
+/* ---------- Bearbeiten (Sheets) ---------- */
+function openSheet(html, onMount){
+  $("#overlay").innerHTML = `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div>${html}</div></div>`;
+  $("#scrim").addEventListener("click", e => { if (e.target.id === "scrim") closeSheet(); });
+  onMount && onMount($("#overlay .sheet"));
+}
+function closeSheet(){ $("#overlay").innerHTML = ""; }
+document.addEventListener("keydown", e => { if (e.key === "Escape" && $("#scrim")) closeSheet(); });
+
+function openWork(e, presetDate){
+  const isNew = !e, now = new Date();
+  const company = e ? e.company : "zweistil";
+  const date = e ? dkey(e.start) : (presetDate || dkey(now));
+  const from = e ? hm(e.start) : "08:00", to = e ? hm(e.end) : pad(now.getHours())+":"+pad(now.getMinutes());
+  let co = company, confirm = false;
+  openSheet(`<h2>${isNew?"Zweistil-Zeit nachtragen":"Eintrag bearbeiten"}</h2>
+    <div class="seg" role="group" aria-label="Firma" id="wCo" ${company==="zweistil"?"hidden":""}>${["meise","zweistil"].map(c => `<button type="button" data-c="${c}" aria-pressed="${c===company}"><i class="dot ${c}"></i> ${CO[c].name}</button>`).join("")}</div>
+    <label class="field"><span>Datum</span><input type="date" id="wDate" value="${date}"></label>
+    <div class="row3"><label class="field"><span>Von</span><input type="time" id="wFrom" value="${from}"></label><label class="field"><span>Bis</span><input type="time" id="wTo" value="${to}"></label><label class="field"><span>Pause (min)</span><input type="number" inputmode="numeric" min="0" step="5" id="wPause" value="${e?e.pause||0:0}"></label></div>
+    <label class="field"><span>Notiz</span><input id="wNote" value="${esc(e?e.note:"")}" placeholder="z. B. Hochzeit Müller, Bildbearbeitung" autocomplete="off" list="notes-all"></label>
+    <datalist id="notes-all">${[...new Set(works().map(x=>x.note).filter(Boolean))].slice(0,20).map(n=>`<option value="${esc(n)}"></option>`).join("")}</datalist>
+    <p class="hint" id="wSum"></p>
+    <div class="acts">${isNew?`<button class="btn ghost" id="wCancel">Abbrechen</button>`:`<button class="btn danger" id="wDel">Löschen</button>`}<button class="btn primary" id="wSave">Speichern</button></div>`, sh => {
+    const calc = () => {
+      const [fh,fm] = $("#wFrom").value.split(":").map(Number), [th,tm] = $("#wTo").value.split(":").map(Number);
+      if ([fh,fm,th,tm].some(isNaN) || !$("#wDate").value) return null;
+      const s = parseD($("#wDate").value); s.setHours(fh,fm,0,0);
+      const en = parseD($("#wDate").value); en.setHours(th,tm,0,0); if (en <= s) en.setDate(en.getDate()+1);
+      return {start:s.getTime(), end:en.getTime(), pause:Math.max(0, parseInt($("#wPause").value)||0)};
+    };
+    const upd = () => { const c = calc(); $("#wSum").textContent = c ? `Arbeitszeit ${fmtH(durMin(c))} h${c.end - c.start > 86400000/2 && new Date(c.end).getDate() !== new Date(c.start).getDate() ? " · endet am Folgetag":""}` : "Bitte Datum und Uhrzeiten angeben."; };
+    sh.addEventListener("input", upd); upd();
+    $("#wCo").addEventListener("click", ev => { const b = ev.target.closest("[data-c]"); if (!b) return; co = b.dataset.c; $("#wCo").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.c===co)); });
+    $("#wSave").onclick = () => { const c = calc(); if (!c){ upd(); return; } if (durMin(c) <= 0){ $("#wSum").textContent = "Die Pause ist länger als die Arbeitszeit."; return; } putEntry({id:e?e.id:uid(), type:"work", company:co, ...c, note:$("#wNote").value.trim()}); closeSheet(); toast(isNew?"Eintrag gespeichert":"Änderung gespeichert"); };
+    if (isNew) $("#wCancel").onclick = closeSheet;
+    else $("#wDel").onclick = () => { if (!confirm){ confirm = true; $("#wDel").textContent = "Wirklich löschen?"; return; } const copy = {...e}; delEntry(e.id); closeSheet(); toast("Eintrag gelöscht", "Rückgängig", () => putEntry(copy)); };
+  });
+}
+
+function openAbs(a, kind, presetDate){
+  const isNew = !a, today = presetDate || dkey(new Date());
+  let k = a ? a.kind : (kind || "urlaub"), confirm = false;
+  openSheet(`<div class="sechead"><h2>${isNew?"Abwesenheit eintragen":"Abwesenheit bearbeiten"}</h2><span class="label">Heinz Meise</span></div>
+    <div class="seg" role="group" aria-label="Art" id="aKind">${Object.keys(ABS).map(x => `<button type="button" data-k="${x}" aria-pressed="${x===k}"><i class="dot ${x}"></i> ${ABS[x]}</button>`).join("")}</div>
+    <div class="row"><label class="field"><span>Von</span><input type="date" id="aFrom" value="${a?a.from:today}"></label><label class="field"><span>Bis</span><input type="date" id="aTo" value="${a?a.to:today}"></label></div>
+    <label style="display:flex;gap:10px;align-items:center" id="aHalfWrap"><input type="checkbox" id="aHalf" ${a&&a.half?"checked":""} style="width:22px;min-height:22px"> Halber Tag</label>
+    <label class="field" id="aChildWrap"><span>Welches Kind</span><input id="aChild" value="${esc(a?a.child:"")}" placeholder="Name" autocomplete="off"></label>
+    <label style="display:flex;gap:10px;align-items:center" id="aAuWrap"><input type="checkbox" id="aAu" ${a&&a.au?"checked":""} style="width:22px;min-height:22px"> Arbeitsunfähigkeitsbescheinigung liegt vor</label>
+    <label class="field"><span>Notiz</span><input id="aNote" value="${esc(a?a.note:"")}" placeholder="${k==="urlaub"?"z. B. Fuerteventura":"optional"}" autocomplete="off"></label>
+    <p class="hint" id="aSum"></p>
+    <div class="acts">${isNew?`<button class="btn ghost" id="aCancel">Abbrechen</button>`:`<button class="btn danger" id="aDel">Löschen</button>`}<button class="btn primary" id="aSave">Speichern</button></div>`, sh => {
+    const vals = () => ({from:$("#aFrom").value, to:$("#aTo").value, half:$("#aHalf").checked && $("#aFrom").value === $("#aTo").value});
+    const upd = () => {
+      const v = vals();
+      $("#aChildWrap").hidden = k !== "kindkrank"; $("#aAuWrap").hidden = k !== "krank";
+      $("#aHalfWrap").hidden = v.from !== v.to;
+      if (!v.from || !v.to){ $("#aSum").textContent = "Bitte Zeitraum angeben."; return; }
+      if (v.to < v.from){ $("#aSum").textContent = "„Bis“ liegt vor „Von“."; return; }
+      const n = absDays({...v}); const hols = []; eachDay(v.from, v.to, d => { if (holidayName(d)) hols.push(holidayName(d)); });
+      $("#aSum").textContent = `${fmtDays(n)} ${n===1?"Arbeitstag":"Arbeitstage"}${hols.length?" · Feiertage nicht mitgezählt: "+hols.join(", "):""}`;
+    };
+    sh.addEventListener("input", upd); sh.addEventListener("change", upd);
+    $("#aFrom").addEventListener("change", () => { if ($("#aTo").value < $("#aFrom").value) $("#aTo").value = $("#aFrom").value; upd(); });
+    $("#aKind").addEventListener("click", ev => { const b = ev.target.closest("[data-k]"); if (!b) return; k = b.dataset.k; $("#aKind").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x.dataset.k===k)); upd(); });
+    upd();
+    $("#aSave").onclick = () => { const v = vals(); if (!v.from || !v.to || v.to < v.from){ upd(); return; }
+      putEntry({id:a?a.id:uid(), type:"absence", kind:k, company:"meise", ...v, child:k==="kindkrank"?$("#aChild").value.trim():"", au:k==="krank"?$("#aAu").checked:false, note:$("#aNote").value.trim()});
+      closeSheet(); toast(`${ABS[k]} gespeichert · ${fmtDays(absDays(v))} Tage`); };
+    if (isNew) $("#aCancel").onclick = closeSheet;
+    else $("#aDel").onclick = () => { if (!confirm){ confirm = true; $("#aDel").textContent = "Wirklich löschen?"; return; } const copy = {...a}; delEntry(a.id); closeSheet(); toast("Abwesenheit gelöscht", "Rückgängig", () => putEntry(copy)); };
+  });
+}
+
+/* ---------- Toast ---------- */
+let toastT;
+function toast(msg, actLabel, act){
+  clearTimeout(toastT);
+  $("#toastbox").innerHTML = `<div class="toast" role="status"><span>${esc(msg)}</span>${actLabel?`<button id="toastAct">${esc(actLabel)}</button>`:""}</div>`;
+  if (actLabel) $("#toastAct").onclick = () => { act(); $("#toastbox").innerHTML = ""; };
+  toastT = setTimeout(() => $("#toastbox").innerHTML = "", actLabel ? 6000 : 3000);
+}
+
+/* ---------- Dateien ---------- */
+async function saveFile(blob, filename){
+  const file = new File([blob], filename, {type: blob.type});
+  try{ if (navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:filename}); return "shared"; } }
+  catch(e){ if (e && e.name === "AbortError") return "aborted"; }
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 3000);
+  return "saved";
+}
+async function doBackup(){
+  const imgs = await IDB.all("img").catch(() => ({}));
+  const data = {app:"zeitbuch", version:1, created:new Date().toISOString(), entries:[...S.entries.values()], settings:{...S.settings, apiKey:""}, timer:S.timer, images:imgs};
+  const r = await saveFile(new Blob([JSON.stringify(data)], {type:"application/json"}), `zeitbuch-backup-${dkey(new Date())}.json`);
+  if (r !== "aborted"){ setSettings({lastBackup:new Date().toISOString()}); toast("Backup erstellt"); }
+}
+function doRestore(){
+  const inp = document.createElement("input"); inp.type = "file"; inp.accept = "application/json,.json";
+  inp.onchange = async () => {
+    const f = inp.files && inp.files[0]; if (!f) return;
+    try{
+      const j = JSON.parse(await f.text()); if (j.app !== "zeitbuch") throw new Error("x");
+      const key = S.settings.apiKey;
+      for (const [k, v] of Object.entries(j.images || {})) await IDB.put("img", k, v);
+      imgCache.clear(); applyState(j); S.settings.apiKey = S.settings.apiKey || key; saveCache(); render();
+      toast(`Backup geladen · ${S.entries.size} Einträge`);
+    }catch(e){ toast("Das ist keine gültige Zeitbuch-Backup-Datei."); }
+  };
+  inp.click();
+}
+
+/* ---------- Export ---------- */
+async function exportCsv(scope){
+  let from = "0000", to = "9999", name = "alle";
+  if (scope === "month"){ from = UI.month+"-01"; to = UI.month+"-31"; name = UI.month; }
+  if (scope === "year"){ const y = new Date().getFullYear(); from = y+"-01-01"; to = y+"-12-31"; name = String(y); }
+  const num = n => String(Math.round(n*100)/100).replace(".", ",");
+  const q = s => '"' + String(s||"").replace(/"/g,'""') + '"';
+  const rows = [["Datum","Art","Firma","Beginn","Ende","Pause (min)","Stunden","Tage","Notiz"].join(";")];
+  trips().filter(t => t.from >= from && t.from <= to).sort((a,b)=>a.from.localeCompare(b.from)).forEach(t => { const tt = tripTime(t); rows.push([t.from+(t.to&&t.to!==t.from?" bis "+t.to:""), "Einsatz", "Heinz Meise", t.dep||"", t.ret||"", "", tt.ok && !(t.to&&t.to!==t.from) ? num((toMin(t.ret)-toMin(t.dep))/60) : "", "", q([t.title, t.purpose, num(t.km)?t.km+" km":"", t.transferred?"übertragen":"nicht übertragen"].filter(Boolean).join(" · "))].join(";")); });
+  works().filter(e => e.company === "zweistil" && dkey(e.start) >= from && dkey(e.start) <= to).sort((a,b)=>a.start-b.start).forEach(e => rows.push([dkey(e.start), "Arbeit", CO[e.company].full, hm(e.start), hm(e.end), e.pause||0, num(durMin(e)/60), "", q(e.note)].join(";")));
+  absences().filter(a => a.to >= from && a.from <= to).sort((a,b)=>a.from.localeCompare(b.from)).forEach(a => rows.push([a.from+(a.to!==a.from?" bis "+a.to:""), ABS[a.kind], "Heinz Meise", "", "", "", "", num(absDays(a)), q([a.child, a.kind==="krank"?(a.au?"AU":"ohne AU"):"", a.note].filter(Boolean).join(" · "))].join(";")));
+  const csv = "﻿" + rows.join("\r\n");
+  const filename = `zeitbuch-${name}.csv`;
+  try{ await saveFile(new Blob([csv], {type:"text/csv"}), filename); }
+  catch(e){ toast("Export ist hier nicht möglich."); }
+}
+
+/* ---------- Reisekosten ---------- */
+const KAT = ["Bahn / ÖPNV","Tanken","Parken","Taxi","Hotel","Bewirtung","Flug","Sonstiges"];
+const STAT = {offen:"Offen", eingereicht:"Eingereicht", bezahlt:"Bezahlt"};
+const trips = () => [...S.entries.values()].filter(e => e.type === "trip");
+const receipts = () => [...S.entries.values()].filter(e => e.type === "receipt");
+const tripReceipts = id => receipts().filter(r => r.tripId === id).sort((a,b) => (a.date||"").localeCompare(b.date||""));
+const fmtEur = n => (Math.round((+n||0)*100)/100).toLocaleString("de-DE",{minimumFractionDigits:2, maximumFractionDigits:2}) + " €";
+const pdfEur = n => (Math.round((+n||0)*100)/100).toLocaleString("de-DE",{minimumFractionDigits:2, maximumFractionDigits:2}) + " EUR";
+const num = v => { let t = String(v ?? "").trim().replace(/\s|€/g, ""); if (t.includes(",")) t = t.replace(/\./g, "").replace(",", "."); const x = parseFloat(t); return isNaN(x) ? 0 : x; };
+const daysBetween = (a, b) => Math.round((parseD(b) - parseD(a)) / 86400000);
+
+function tripCalc(t){
+  const st = S.settings, days = t.from && t.to && t.to >= t.from ? daysBetween(t.from, t.to) + 1 : 1;
+  let vma = 0, vmaTxt = "";
+  if (days === 1){
+    if (t.dep && t.ret){
+      const [a,b] = t.dep.split(":").map(Number), [c,d] = t.ret.split(":").map(Number);
+      const h = ((c*60+d) - (a*60+b)) / 60;
+      if (h > 8){ vma = st.vma8; vmaTxt = `${String(Math.round(h*10)/10).replace(".", ",")} h abwesend`; } else vmaTxt = h > 0 ? "unter 8 h, keine Pauschale" : "";
+    } else vmaTxt = "Abfahrt und Rückkehr angeben";
+  } else { vma = 2*st.vma8 + (days-2)*st.vma24; vmaTxt = `2 × ${fmtEur(st.vma8)}${days>2?` + ${days-2} × ${fmtEur(st.vma24)}`:""}`; }
+  if (t.vmaOverride !== null && t.vmaOverride !== undefined && t.vmaOverride !== ""){ vma = num(t.vmaOverride); vmaTxt = "manuell"; }
+  const rs = tripReceipts(t.id), belege = rs.reduce((s,r) => s + num(r.amount), 0);
+  const kmCost = num(t.km) * st.kmRate;
+  return {days, vma, vmaTxt, belege, kmCost, count:rs.length, total: belege + kmCost + vma};
+}
+
+function viewReisen(){
+  const ts = trips(), y = new Date().getFullYear(), today = dkey(new Date());
+  const sub = ts.filter(t => t.status === "eingereicht"), open = ts.filter(t => (t.status||"offen") === "offen" && costRelevant(t) && t.from <= today), paid = ts.filter(t => t.status === "bezahlt");
+  const sumSub = sub.reduce((s,t) => s + tripCalc(t).total, 0), sumOpen = open.reduce((s,t) => s + tripCalc(t).total, 0);
+  const paidY = paid.filter(t => (t.paidAt||"").startsWith(String(y))).reduce((s,t) => s + num(t.paidAmount ?? tripCalc(t).total), 0);
+  const oldest = sub.length ? Math.max(...sub.map(t => daysBetween(t.submittedAt || today, today))) : 0;
+  const loose = receipts().filter(r => !r.tripId || !S.entries.has(r.tripId));
+  let h = `<div class="stats">
+    <div class="stat" style="--c:var(--kindkrank)"><span class="label">Wartet auf Zahlung</span><span class="v">${fmtEur(sumSub)}</span><span class="s">${sub.length} ${sub.length===1?"Abrechnung":"Abrechnungen"}${sub.length?` · älteste seit ${oldest} ${oldest===1?"Tag":"Tagen"}`:""}</span></div>
+    <div class="stat"><span class="label">Noch einzureichen</span><span class="v">${fmtEur(sumOpen)}</span><span class="s">${open.length} ${open.length===1?"Einsatz":"Einsätze"} offen · ${fmtEur(paidY)} erstattet ${y}</span></div>
+  </div>
+`;
+  if (loose.length){
+    h += `<section class="sec"><div class="sechead"><h3>Belege ohne Einsatz</h3><span class="label">${loose.length}</span></div><div class="list">${loose.sort((a,b)=>(b.date||"").localeCompare(a.date||"")).map(rcptItem).join("")}</div></section>`;
+  }
+  const block = (title, list, hint) => list.length ? `<section class="sec"><div class="sechead"><h3>${title}</h3><span class="label">${hint||""}</span></div><div class="list">${list.map(tripItem).join("")}</div></section>` : "";
+  h += block("Abrechnung offen", open.sort((a,b)=>(b.from||"").localeCompare(a.from||"")), sumOpen ? fmtEur(sumOpen) : "");
+  h += block("Eingereicht", sub.sort((a,b)=>(a.submittedAt||"").localeCompare(b.submittedAt||"")), sumSub ? fmtEur(sumSub) : "");
+  h += block("Zuletzt bezahlt", paid.sort((a,b)=>(b.paidAt||"").localeCompare(a.paidAt||"")).slice(0,5), "");
+  if (!open.length && !sub.length && !loose.length) h += `<p class="note">Keine offenen Abrechnungen. Sobald ein Einsatz Belege, Kilometer oder den Haken „Reisekosten abrechnen“ hat, taucht er hier auf.</p>`;
+  return h;
+}
+function tripItem(t){
+  const c = tripCalc(t), st = t.status || "offen", today = dkey(new Date());
+  const range = t.from === t.to || !t.to ? fmtDate(t.from) : fmtDateShort(t.from)+" – "+fmtDateShort(t.to)+t.to.slice(0,4);
+  const extra = st === "eingereicht" && t.submittedAt ? ` · seit ${daysBetween(t.submittedAt, today)} T.` : st === "bezahlt" && t.paidAt ? ` · ${fmtDateShort(t.paidAt)}` : "";
+  return `<button class="item" data-act="openTrip" data-id="${t.id}"><span class="pill ${st}">${STAT[st]}</span>
+    <span style="min-width:0"><span class="t">${esc(t.title || "Einsatz")}</span><span class="sub" style="display:block">${range} · ${c.count} ${c.count===1?"Beleg":"Belege"}${extra}</span></span>
+    <span class="d">${fmtEur(st === "bezahlt" && t.paidAmount != null ? t.paidAmount : c.total)}</span></button>`;
+}
+function rcptItem(r){
+  const hasImg = r.imgAsset || r.imgDb || r.imgLocal;
+  return `<button class="item" data-act="openRcpt" data-id="${r.id}">${hasImg?`<img class="thumb" alt="" data-rid="${r.id}">`:`<span class="thumb ownthumb">EB</span>`}
+    <span style="min-width:0"><span class="t">${esc(r.vendor || "Beleg")}${r.own?' <span class="pill eingereicht">Eigenbeleg</span>':""}</span><span class="sub" style="display:block">${r.date?fmtDateShort(r.date)+r.date.slice(0,4)+" · ":""}${esc(r.category||"")}</span></span>
+    <span class="d">${fmtEur(r.amount)}</span></button>`;
+}
+
+/* Bilder: speichern und laden */
+const imgCache = new Map();
+async function imgSrc(r){
+  if (!r) return null;
+  if (imgCache.has(r.id)) return imgCache.get(r.id);
+  let url = null;
+  try{ url = await IDB.get("img", r.id); }catch(e){}
+  if (!url){ try{ url = localStorage.getItem("zeitbuch.img." + r.id); }catch(e){} }
+  if (url) imgCache.set(r.id, url);
+  return url;
+}
+function hydrateImgs(root){
+  root.querySelectorAll("img[data-rid]").forEach(async el => { const src = await imgSrc(S.entries.get(el.dataset.rid)); if (src) el.src = src; });
+}
+async function loadImage(file){
+  const url = URL.createObjectURL(file);
+  try{ const img = new Image(); img.src = url; await img.decode(); return img; } finally { setTimeout(() => URL.revokeObjectURL(url), 2000); }
+}
+function renderCanvas(img, max, rot, enhance){
+  let w = img.naturalWidth, h = img.naturalHeight; const sc = Math.min(1, max / Math.max(w, h)); w = Math.round(w*sc); h = Math.round(h*sc);
+  const c = document.createElement("canvas"), sw = rot % 180 ? h : w, sh = rot % 180 ? w : h; c.width = sw; c.height = sh;
+  const x = c.getContext("2d"); x.translate(sw/2, sh/2); x.rotate(rot*Math.PI/180); x.drawImage(img, -w/2, -h/2, w, h); x.setTransform(1,0,0,1,0,0);
+  if (enhance){
+    const d = x.getImageData(0,0,sw,sh), p = d.data, hist = new Uint32Array(256);
+    for (let i = 0; i < p.length; i += 4){ const l = (p[i]*.299 + p[i+1]*.587 + p[i+2]*.114)|0; p[i] = l; hist[l]++; }
+    const n = sw*sh; let lo = 0, hi = 255, acc = 0;
+    for (let i = 0; i < 256; i++){ acc += hist[i]; if (acc > n*.02){ lo = i; break; } }
+    acc = 0; for (let i = 255; i >= 0; i--){ acc += hist[i]; if (acc > n*.25){ hi = i; break; } }
+    const span = Math.max(30, hi - lo);
+    for (let i = 0; i < p.length; i += 4){ let v = (p[i] - lo) * 255 / span; v = v < 0 ? 0 : v > 255 ? 255 : v; p[i] = p[i+1] = p[i+2] = v; }
+    x.putImageData(d, 0, 0);
+  }
+  return c;
+}
+const canvasBlob = (c, q) => new Promise(r => c.toBlob(r, "image/jpeg", q));
+async function storeImage(rid, canvas){
+  const c = Math.max(canvas.width, canvas.height) > 1800 ? scaleCanvas(canvas, 1800) : canvas;
+  const data = c.toDataURL("image/jpeg", .72);
+  imgCache.set(rid, data);
+  try{ await IDB.put("img", rid, data); }catch(e){ toast("Bild konnte auf diesem Gerät nicht gespeichert werden."); }
+  return {imgLocal: rid};
+}
+function scaleCanvas(src, max){ const sc = max / Math.max(src.width, src.height); const c = document.createElement("canvas"); c.width = Math.round(src.width*sc); c.height = Math.round(src.height*sc); c.getContext("2d").drawImage(src, 0, 0, c.width, c.height); return c; }
+async function removeImage(r){
+  try{ await IDB.del("img", r.id); }catch(e){}
+  try{ localStorage.removeItem("zeitbuch.img." + r.id); }catch(e){}
+  imgCache.delete(r.id);
+}
+
+/* Scannen */
+let scanInput = null;
+function startScan(tripId){
+  if (!scanInput){ scanInput = document.createElement("input"); scanInput.type = "file"; scanInput.accept = "image/*"; scanInput.setAttribute("capture", "environment"); scanInput.hidden = true; document.body.appendChild(scanInput); }
+  scanInput.value = "";
+  scanInput.onchange = async () => {
+    const f = scanInput.files && scanInput.files[0]; if (!f) return;
+    let img; try{ img = await loadImage(f); }catch(e){ toast("Das Bild ließ sich nicht öffnen. Bitte als JPG oder PNG aufnehmen."); return; }
+    openReceipt(null, {img, rot:0, enhance:true, tripId});
+  };
+  scanInput.click();
+}
+async function recognize(canvas){
+  const key = S.settings.apiKey;
+  if (!key) return {err:"nokey"};
+  const data = scaleCanvas(canvas, Math.min(1600, Math.max(canvas.width, canvas.height))).toDataURL("image/jpeg", .85).split(",")[1];
+  const prompt = `Du liest das Foto eines Belegs für eine Reisekostenabrechnung (Kassenbon, Rechnung, Tankquittung, Parkschein, Bahn- oder Flugticket, Hotelrechnung, Taxiquittung, Kontoauszug oder Screenshot einer Kartenzahlung).
+Antworte ausschließlich mit einem JSON-Objekt in genau dieser Form:
+{"ist_beleg": true, "datum": "YYYY-MM-DD", "haendler": "kurzer Name des Ausstellers", "betrag": 12.34, "waehrung": "EUR", "kategorie": "...", "ort": "Stadt", "hinweis": ""}
+Regeln: "betrag" ist der zu zahlende Gesamtbetrag brutto als Zahl mit Punkt als Dezimaltrennzeichen. "kategorie" ist genau einer dieser Werte: ${KAT.map(k=>'"'+k+'"').join(", ")}. Unbekannte Felder sind null. Bei Hotelrechnungen mit Frühstück schreibe in "hinweis": "Frühstück enthalten". Wenn das Bild kein Beleg ist, setze "ist_beleg" auf false.`;
+  try{
+    const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 45000);
+    const res = await fetch("https://api.anthropic.com/v1/messages", {method:"POST", signal:ctl.signal, headers:{"content-type":"application/json", "x-api-key":key, "anthropic-version":"2023-06-01", "anthropic-dangerous-direct-browser-access":"true"},
+      body:JSON.stringify({model:"claude-haiku-5-5", max_tokens:400, messages:[{role:"user", content:[{type:"image", source:{type:"base64", media_type:"image/jpeg", data}}, {type:"text", text:prompt}]}]})});
+    clearTimeout(to);
+    if (res.status === 401) return {err:"badkey"};
+    if (!res.ok) return {err:"error"};
+    const j = await res.json(); const txt = (j.content||[]).map(c => c.text||"").join("");
+    const m = txt.match(/\{[\s\S]*\}/); return m ? {data: JSON.parse(m[0])} : {err:"error"};
+  }catch(e){ return {err: navigator.onLine === false ? "offline" : "error"}; }
+}
+function tripForDate(d){
+  if (!d) return null;
+  const cand = trips().filter(t => (t.status||"offen") === "offen" && t.from <= d && (t.to||t.from) >= d);
+  return cand.length ? cand[0].id : null;
+}
+
+function tripOptions(sel){
+  const list = trips().filter(t => (t.status||"offen") !== "bezahlt" || t.id === sel).sort((a,b)=>(b.from||"").localeCompare(a.from||""));
+  return `<option value="">Noch keinem Einsatz</option>${list.map(t => `<option value="${t.id}" ${t.id===sel?"selected":""}>${esc(t.title||"Einsatz")} · ${fmtDateShort(t.from)}${t.status==="eingereicht"?" (eingereicht)":""}</option>`).join("")}<option value="__new">＋ Neuen Einsatz anlegen</option>`;
+}
+
+function openReceipt(r, draft){
+  const isNew = !r; let confirm = false, canvas = null, busy = false;
+  const v = r || {date:"", vendor:"", amount:"", category:"Sonstiges", note:"", tripId:draft && draft.tripId || ""};
+  openSheet(`<h2>${isNew?"Neuer Beleg":"Beleg"}</h2>
+    <img class="preview" id="rImg" alt="Beleg">
+    ${isNew?`<div class="quick"><button class="chipbtn" id="rRot" type="button">↻ Drehen</button><button class="chipbtn" id="rEnh" type="button" aria-pressed="true">Scan-Look an</button><button class="chipbtn" id="rRetake" type="button">Neu aufnehmen</button></div>
+    <div class="ai" id="rAi"><i class="spin"></i><span>Beleg wird gelesen …</span></div>`:""}
+    <div class="row"><label class="field"><span>Datum</span><input type="date" id="rDate" value="${esc(v.date)}"></label><label class="field"><span>Betrag (€)</span><input inputmode="decimal" id="rAmt" value="${v.amount!==""&&v.amount!=null?String(v.amount).replace(".", ","):""}" placeholder="0,00"></label></div>
+    <label class="field"><span>Aussteller</span><input id="rVendor" value="${esc(v.vendor)}" placeholder="z. B. DB Fernverkehr, Aral, Hotel Adler" autocomplete="off"></label>
+    <div class="row"><label class="field"><span>Kategorie</span><select id="rCat">${KAT.map(k=>`<option ${k===v.category?"selected":""}>${k}</option>`).join("")}</select></label>
+    <label class="field"><span>Einsatz</span><select id="rTrip">${tripOptions(v.tripId)}</select></label></div>
+    <label class="field"><span>Notiz</span><input id="rNote" value="${esc(v.note)}" autocomplete="off"></label>
+    <div class="acts">${isNew?`<button class="btn ghost" id="rCancel">Verwerfen</button>`:`<button class="btn danger" id="rDel">Löschen</button>`}<button class="btn primary" id="rSave">${isNew?"Beleg speichern":"Speichern"}</button></div>`, async sh => {
+    const imgEl = $("#rImg");
+    if (isNew){
+      const redraw = () => { canvas = renderCanvas(draft.img, 2000, draft.rot, draft.enhance); imgEl.src = canvas.toDataURL("image/jpeg", .7); };
+      redraw();
+      $("#rRot").onclick = () => { draft.rot = (draft.rot + 90) % 360; redraw(); };
+      $("#rEnh").onclick = () => { draft.enhance = !draft.enhance; $("#rEnh").textContent = draft.enhance ? "Scan-Look an" : "Scan-Look aus"; $("#rEnh").setAttribute("aria-pressed", draft.enhance); redraw(); };
+      $("#rRetake").onclick = () => { closeSheet(); startScan(draft.tripId); };
+      $("#rCancel").onclick = closeSheet;
+      const res = await recognize(canvas);
+      if (!$("#rAi")) return;
+      if (res.data && res.data.ist_beleg !== false){
+        const d = res.data, set = (id, val) => { const el = $(id); if (el && !el.value && val != null && val !== "") el.value = val; };
+        if (d.datum && /^\d{4}-\d{2}-\d{2}$/.test(d.datum)) set("#rDate", d.datum);
+        if (typeof d.betrag === "number") set("#rAmt", d.betrag.toFixed(2).replace(".", ","));
+        set("#rVendor", d.haendler);
+        if (KAT.includes(d.kategorie)) $("#rCat").value = d.kategorie;
+        if (d.hinweis) set("#rNote", d.hinweis);
+        if (!$("#rTrip").value){ const t = tripForDate($("#rDate").value); if (t) $("#rTrip").value = t; }
+        const assigned = $("#rTrip").value && S.entries.get($("#rTrip").value);
+        $("#rAi").innerHTML = `<span>✓ Erkannt${d.waehrung && d.waehrung !== "EUR" ? ` · Achtung: ${esc(d.waehrung)}` : ""}${assigned ? ` · zugeordnet zu „${esc(assigned.title)}“` : ""}. Bitte kurz prüfen.</span>`;
+      } else if (res.data){
+        $("#rAi").innerHTML = `<span>Das sieht nicht nach einem Beleg aus. Du kannst die Felder trotzdem ausfüllen.</span>`;
+      } else {
+        $("#rAi").innerHTML = `<span>${res.err === "nokey" ? "Für die automatische Erkennung in den Einstellungen einen API-Schlüssel hinterlegen. Felder bitte selbst ausfüllen." : res.err === "badkey" ? "Der API-Schlüssel wurde abgelehnt. Bitte in den Einstellungen prüfen." : res.err === "offline" ? "Kein Netz. Felder bitte selbst ausfüllen." : "Erkennung hat nicht geklappt. Felder bitte selbst ausfüllen."}</span>`;
+      }
+    } else {
+      imgSrc(r).then(src => { if (src) imgEl.src = src; else imgEl.hidden = true; });
+      $("#rDel").onclick = async () => { if (!confirm){ confirm = true; $("#rDel").textContent = "Wirklich löschen?"; return; } closeSheet(); delEntry(r.id); removeImage(r); toast("Beleg gelöscht"); };
+    }
+    $("#rSave").onclick = async () => {
+      if (busy) return;
+      const amount = num($("#rAmt").value);
+      if (!$("#rAmt").value.trim()){ $("#rAmt").focus(); toast("Bitte den Betrag eintragen."); return; }
+      busy = true; $("#rSave").textContent = "Speichere …";
+      let tripId = $("#rTrip").value;
+      if (tripId === "__new"){
+        const d = $("#rDate").value || dkey(new Date());
+        const t = {id:uid(), type:"trip", title:$("#rVendor").value.trim() || "Einsatz", purpose:"", from:d, to:d, dep:"", ret:"", km:0, vmaOverride:null, status:"offen", note:""};
+        putEntry(t); tripId = t.id;
+      }
+      const base = {type:"receipt", date:$("#rDate").value, amount, vendor:$("#rVendor").value.trim(), category:$("#rCat").value, tripId, note:$("#rNote").value.trim()};
+      if (isNew){
+        const id = uid(); const ref = await storeImage(id, canvas);
+        putEntry({id, ...base, ...ref});
+        closeSheet();
+        const t = tripId && S.entries.get(tripId);
+        toast(`Beleg ${fmtEur(amount)} gespeichert${t?` bei „${t.title}“`:""}`, "Noch einer", () => startScan(tripId || null));
+      } else { putEntry({...r, ...base}); closeSheet(); toast("Beleg gespeichert"); }
+    };
+  });
+}
+
+function openTrip(t, presetDate){
+  const isNew = !t, today = dkey(new Date());
+  const v = t || {id:uid(), type:"trip", title:"", purpose:"", from:presetDate||today, to:presetDate||today, dep:"", ret:"", km:"", vmaOverride:null, status:"offen", note:""};
+  let confirm = false;
+  const st = v.status || "offen";
+  const read = () => ({...v, title:$("#tTitle").value.trim(), purpose:$("#tPurpose").value.trim(), from:$("#tFrom").value, to:$("#tTo").value < $("#tFrom").value ? $("#tFrom").value : $("#tTo").value, dep:$("#tDep").value, ret:$("#tRet").value, km:num($("#tKm").value), vmaOverride:$("#tVma").value.trim() === "" ? null : num($("#tVma").value), note:$("#tNote").value.trim(), transferred:$("#tXfer").checked, transferredAt: $("#tXfer").checked ? (v.transferredAt || today) : null, claim:$("#tClaim").checked});
+  const statusHtml = () => {
+    if (isNew) return "";
+    if (st === "offen") return `<div class="runbtns"><button class="btn" id="tPdf">PDF für die Firma</button><button class="btn primary" id="tSubmit">Als eingereicht markieren</button></div>`;
+    if (st === "eingereicht") return `<p class="hint">Eingereicht am ${t.submittedAt?fmtDate(t.submittedAt)+" "+t.submittedAt.slice(0,4):"–"} · wartet seit ${daysBetween(t.submittedAt||today, today)} Tagen</p>
+      <div class="row"><label class="field"><span>Erstattet (€)</span><input inputmode="decimal" id="tPaidAmt" value="${tripCalc(t).total.toFixed(2).replace(".", ",")}"></label><label class="field"><span>Zahlungseingang</span><input type="date" id="tPaidAt" value="${today}"></label></div>
+      <div class="runbtns"><button class="btn" id="tPdf">PDF erneut</button><button class="btn primary" id="tPaid">Zahlung erhalten</button><button class="btn ghost" id="tBack" style="grid-column:1/-1">Zurück auf offen</button></div>`;
+    const diff = num(t.paidAmount) - tripCalc(t).total;
+    return `<p class="hint">Bezahlt am ${t.paidAt?fmtDate(t.paidAt)+" "+t.paidAt.slice(0,4):"–"}: <b class="mono">${fmtEur(t.paidAmount)}</b>${Math.abs(diff) >= .01 ? ` · <span class="${diff<0?"neg":"pos"}">${diff>0?"+":""}${fmtEur(diff)} gegenüber Abrechnung</span>` : ""}</p>
+      <div class="runbtns"><button class="btn" id="tPdf">PDF</button><button class="btn ghost" id="tUnpay">Doch nicht bezahlt</button></div>`;
+  };
+  openSheet(`<div class="sechead"><h2>${isNew?"Neuer Einsatz":"Einsatz"}</h2>${isNew?"":`<span class="pill ${st}">${STAT[st]}</span>`}</div>
+    <label class="field"><span>Ziel / Kunde</span><input id="tTitle" value="${esc(v.title)}" placeholder="z. B. Lieferantenaudit, Düsseldorf" autocomplete="off"></label>
+    <label class="field"><span>Anlass</span><input id="tPurpose" value="${esc(v.purpose)}" placeholder="z. B. Messe Medica, Audit, Kundentermin" autocomplete="off"></label>
+    <div class="row"><label class="field"><span>Von</span><input type="date" id="tFrom" value="${v.from}"></label><label class="field"><span>Bis</span><input type="date" id="tTo" value="${v.to||v.from}"></label></div>
+    <div class="row"><label class="field"><span>Abfahrt</span><input type="time" id="tDep" value="${v.dep||""}"></label><label class="field"><span>Rückkehr</span><input type="time" id="tRet" value="${v.ret||""}"></label></div>
+    <div class="row"><label class="field"><span>Privat-Pkw km</span><input inputmode="decimal" id="tKm" value="${v.km||""}" placeholder="0"></label><label class="field"><span>Verpflegung (€) abweichend</span><input inputmode="decimal" id="tVma" value="${v.vmaOverride??""}" placeholder="automatisch"></label></div>
+    <label class="field"><span>Notiz</span><input id="tNote" value="${esc(v.note)}" autocomplete="off"></label>
+    <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="tXfer" ${v.transferred?"checked":""} style="width:22px;min-height:22px"> In Meise-Zeiterfassung übertragen</label>
+    <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="tClaim" ${v.claim || (!isNew && (tripReceipts(v.id).length || num(v.km))) ? "checked" : ""} style="width:22px;min-height:22px"> Reisekosten abrechnen</label>
+    ${v.calKey?`<p class="hint">Aus dem Meise-Kalender übernommen.</p>`:""}
+    <div class="card" id="tSum"></div>
+    ${isNew?"":`<section class="sec"><div class="sechead"><h3>Belege</h3><div class="quick"><button class="chipbtn" id="tScan">📷 Scannen</button><button class="chipbtn" id="tOwn">＋ Eigenbeleg</button></div></div><div class="list">${tripReceipts(v.id).map(rcptItem).join("") || `<div class="empty"><span>Noch keine Belege. Scanne Tickets, Tankquittungen und Hotelrechnungen direkt hier.</span></div>`}</div></section>`}
+    ${statusHtml()}
+    <div class="acts">${isNew?`<button class="btn ghost" id="tCancel">Abbrechen</button>`:`<button class="btn danger" id="tDel">Löschen</button>`}<button class="btn primary" id="tSave">Speichern</button></div>`, sh => {
+    hydrateImgs(sh);
+    const upd = () => { const c = tripCalc(read()); $("#tSum").innerHTML = `<div class="sumrow"><span>Belege (${c.count})</span><b>${fmtEur(c.belege)}</b></div><div class="sumrow"><span>Kilometer ${num($("#tKm").value)} × ${fmtEur(S.settings.kmRate)}</span><b>${fmtEur(c.kmCost)}</b></div><div class="sumrow"><span>Verpflegung · ${c.days} ${c.days===1?"Tag":"Tage"}${c.vmaTxt?" · "+esc(c.vmaTxt):""}</span><b>${fmtEur(c.vma)}</b></div><div class="sumrow total"><span>Erstattung gesamt</span><b>${fmtEur(c.total)}</b></div>`; };
+    sh.addEventListener("input", upd); sh.addEventListener("change", upd); upd();
+    $("#tFrom").addEventListener("change", () => { if ($("#tTo").value < $("#tFrom").value) $("#tTo").value = $("#tFrom").value; });
+    const save = (patch) => { const x = {...read(), ...(patch||{})}; if (!x.title) x.title = "Einsatz"; putEntry(x); return x; };
+    $("#tSave").onclick = () => { save(); closeSheet(); toast(isNew ? "Einsatz angelegt" : "Einsatz gespeichert"); };
+    if (isNew) $("#tCancel").onclick = closeSheet;
+    else {
+      $("#tScan").onclick = () => { save(); startScan(v.id); };
+      $("#tOwn").onclick = () => { save(); openOwn(null, v.id); };
+      $("#tDel").onclick = () => { if (!confirm){ confirm = true; $("#tDel").textContent = "Löschen? Belege bleiben erhalten"; return; } tripReceipts(v.id).forEach(r => putEntry({...r, tripId:""})); delEntry(v.id); closeSheet(); toast("Einsatz gelöscht, Belege liegen unter „Belege ohne Einsatz“"); };
+      const pdf = $("#tPdf"); if (pdf) pdf.onclick = async () => { const x = save(); pdf.textContent = "Erstelle PDF …"; await makePdf(x); pdf.textContent = st === "offen" ? "PDF für die Firma" : "PDF erneut"; };
+      const sub = $("#tSubmit"); if (sub) sub.onclick = () => { save({status:"eingereicht", submittedAt:today}); closeSheet(); toast("Als eingereicht markiert"); };
+      const paid = $("#tPaid"); if (paid) paid.onclick = () => { save({status:"bezahlt", paidAt:$("#tPaidAt").value || today, paidAmount:num($("#tPaidAmt").value)}); closeSheet(); toast("Zahlung eingetragen"); };
+      const back = $("#tBack"); if (back) back.onclick = () => { save({status:"offen", submittedAt:null}); closeSheet(); };
+      const unpay = $("#tUnpay"); if (unpay) unpay.onclick = () => { save({status:"eingereicht", paidAt:null, paidAmount:null}); closeSheet(); };
+    }
+  });
+}
+
+/* PDF für die Firma */
+async function blobToDataURL(b){ return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(b); }); }
+async function receiptDataURL(r){
+  const src = await imgSrc(r); if (!src) return null;
+  if (src.startsWith("data:")) return src;
+  try{ const b = await (await fetch(src)).blob(); return await blobToDataURL(b); }catch(e){ return null; }
+}
+function imgSize(url){ return new Promise(res => { const i = new Image(); i.onload = () => res({w:i.naturalWidth, h:i.naturalHeight}); i.onerror = () => res(null); i.src = url; }); }
+async function makePdf(t){
+  if (!window.jspdf){ toast("PDF-Bibliothek konnte nicht geladen werden."); return; }
+  const { jsPDF } = window.jspdf, doc = new jsPDF({unit:"mm", format:"a4"}), c = tripCalc(t), rs = tripReceipts(t.id), st = S.settings;
+  const L = 20, R = 190; let y = 22;
+  doc.setFont("helvetica","bold"); doc.setFontSize(18); doc.text("Reisekostenabrechnung", L, y); y += 8;
+  doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(90);
+  doc.text(`${st.name || ""} · ${st.firm || ""}`, L, y); doc.text(`Erstellt am ${fmtDateShort(dkey(new Date()))}${new Date().getFullYear()}`, R, y, {align:"right"}); y += 12;
+  doc.setTextColor(20); doc.setFontSize(11);
+  const kv = (k, val) => { doc.setFont("helvetica","bold"); doc.text(k, L, y); doc.setFont("helvetica","normal"); const lines = doc.splitTextToSize(String(val||"–"), R-L-38); doc.text(lines, L+38, y); y += 6*lines.length; };
+  kv("Einsatz", t.title); kv("Anlass", t.purpose);
+  kv("Zeitraum", (t.from === t.to ? fmtDate(t.from)+" "+t.from.slice(0,4) : fmtDateShort(t.from)+t.from.slice(0,4)+" bis "+fmtDateShort(t.to)+t.to.slice(0,4)) + (t.dep||t.ret ? `, ${t.dep||"?"} bis ${t.ret||"?"} Uhr` : ""));
+  if (t.note) kv("Notiz", t.note);
+  y += 4;
+  // Belegtabelle
+  doc.setFillColor(235,238,240); doc.rect(L, y-5, R-L, 8, "F"); doc.setFont("helvetica","bold"); doc.setFontSize(10);
+  doc.text("Nr.", L+2, y); doc.text("Datum", L+12, y); doc.text("Aussteller", L+36, y); doc.text("Kategorie", L+100, y); doc.text("Betrag", R-2, y, {align:"right"}); y += 7;
+  doc.setFont("helvetica","normal");
+  rs.forEach((r, i) => {
+    if (y > 265){ doc.addPage(); y = 22; }
+    doc.text(String(i+1), L+2, y); doc.text(r.date ? fmtDateShort(r.date)+r.date.slice(2,4) : "–", L+12, y);
+    doc.text(doc.splitTextToSize((r.vendor || "–") + (r.own ? " (Eigenbeleg)" : ""), 62)[0], L+36, y); doc.text(r.category || "", L+100, y); doc.text(pdfEur(r.amount), R-2, y, {align:"right"});
+    doc.setDrawColor(220); doc.line(L, y+2.5, R, y+2.5); y += 7;
+  });
+  if (!rs.length){ doc.setTextColor(120); doc.text("Keine Belege", L+2, y); doc.setTextColor(20); y += 7; }
+  y += 3;
+  const sumLine = (k, val, bold) => { doc.setFont("helvetica", bold ? "bold" : "normal"); doc.text(k, L+2, y); doc.text(pdfEur(val), R-2, y, {align:"right"}); y += 7; };
+  sumLine("Summe Belege", c.belege);
+  if (num(t.km)) sumLine(`Fahrtkosten Privat-Pkw: ${num(t.km).toLocaleString("de-DE")} km × ${pdfEur(st.kmRate)}`, c.kmCost);
+  if (c.vma) sumLine(`Verpflegungsmehraufwand (${c.days} ${c.days===1?"Tag":"Tage"}${c.vmaTxt && c.vmaTxt !== "manuell" ? ", "+c.vmaTxt.replace(/€/g,"EUR") : ""})`, c.vma);
+  doc.setDrawColor(40); doc.line(L, y-4, R, y-4); doc.setFontSize(12);
+  sumLine("Erstattungsbetrag", c.total, true);
+  doc.setFontSize(10); doc.setFont("helvetica","normal");
+  y = Math.max(y + 20, 250);
+  if (y > 270){ doc.addPage(); y = 250; }
+  doc.line(L, y, L+70, y); doc.line(R-70, y, R, y); doc.setTextColor(110);
+  doc.text("Datum, Unterschrift Mitarbeiter", L, y+5); doc.text("Geprüft / freigegeben", R-70, y+5);
+  if (rs.length){ doc.text(`Originalbelege: ${rs.length} Seite${rs.length===1?"":"n"} im Anhang`, L, 285); }
+  // Belegseiten
+  for (let i = 0; i < rs.length; i++){
+    const r = rs[i];
+    if (r.own){ doc.addPage(); await drawOwnPage(doc, r, `Beleg ${i+1}: Eigenbeleg`); continue; }
+    const url = await receiptDataURL(r);
+    doc.addPage(); doc.setTextColor(20); doc.setFont("helvetica","bold"); doc.setFontSize(11);
+    doc.text(`Beleg ${i+1}: ${r.vendor || "–"}`, L, 18); doc.setFont("helvetica","normal");
+    doc.text(`${r.date ? fmtDateShort(r.date)+r.date.slice(0,4) : ""}   ${r.category || ""}   ${pdfEur(r.amount)}`, R, 18, {align:"right"});
+    if (url){ const sz = await imgSize(url); if (sz){ const mw = R-L, mh = 260; const sc = Math.min(mw/sz.w, mh/sz.h); const w = sz.w*sc, h = sz.h*sc; doc.addImage(url, "JPEG", L + (mw-w)/2, 26, w, h); } }
+    else { doc.setTextColor(150); doc.text("Bild nicht verfügbar", L, 30); }
+  }
+  const slug = (t.title||"Einsatz").replace(/[^\wäöüÄÖÜß-]+/g, "_").slice(0,40);
+  const filename = `Reisekosten_${t.from}_${slug}.pdf`;
+  try{
+    const res = await saveFile(doc.output("blob"), filename);
+    if (res !== "aborted" && (t.status||"offen") === "offen") toast("PDF fertig. Jetzt an die Firma senden.", "Als eingereicht markieren", () => putEntry({...S.entries.get(t.id), status:"eingereicht", submittedAt:dkey(new Date())}));
+  }catch(e){ toast("PDF konnte nicht gespeichert werden."); }
+}
+
+/* Eigenbelege */
+const OWN_REASONS = ["Kein Beleg ausgestellt (z. B. Automat, Trinkgeld)","Beleg verloren","Beleg unleserlich / beschädigt","Zahlung nur per Kontoauszug nachweisbar","Sonstiges"];
+const PAY = ["Bar","EC-Karte","Kreditkarte","Überweisung","Mobil (Apple/Google Pay)","Sonstiges"];
+function openOwn(r, tripId){
+  const isNew = !r; let confirm = false, proof = null, busy = false, hadImg = !!(r && (r.imgAsset || r.imgDb || r.imgLocal));
+  const v = r || {date:dkey(new Date()), amount:"", vendor:"", category:"Sonstiges", tripId:tripId||"", note:"", ownReason:OWN_REASONS[0], ownDesc:"", place:"", payMethod:"Bar"};
+  openSheet(`<div class="sechead"><h2>${isNew?"Eigenbeleg erstellen":"Eigenbeleg"}</h2><span class="pill eingereicht">Eigenbeleg</span></div>
+    <p class="hint">Für Ausgaben ohne ordentliche Rechnung. Ein vorhandener Nachweis (Kontoauszug, Kartenzahlung, unleserlicher Bon) wird mit angehängt.</p>
+    <img class="preview" id="oImg" alt="Ursprungsnachweis" hidden>
+    <div class="quick"><button class="chipbtn" id="oScan" type="button">📷 ${hadImg?"Nachweis ersetzen":"Ursprungsnachweis scannen"}</button><button class="chipbtn" id="oRot" type="button" hidden>↻ Drehen</button></div>
+    <div class="ai" id="oAi" hidden></div>
+    <div class="row"><label class="field"><span>Datum der Ausgabe</span><input type="date" id="oDate" value="${esc(v.date)}"></label><label class="field"><span>Betrag (€)</span><input inputmode="decimal" id="oAmt" value="${v.amount!==""&&v.amount!=null?String(v.amount).replace(".", ","):""}" placeholder="0,00"></label></div>
+    <label class="field"><span>Zahlungsempfänger</span><input id="oVendor" value="${esc(v.vendor)}" placeholder="z. B. Parkhaus Messe Düsseldorf" autocomplete="off"></label>
+    <label class="field"><span>Leistung / Verwendungszweck</span><input id="oDesc" value="${esc(v.ownDesc)}" placeholder="z. B. Parkgebühr 1 Tag während Messebesuch" autocomplete="off"></label>
+    <div class="row"><label class="field"><span>Ort</span><input id="oPlace" value="${esc(v.place)}" autocomplete="off"></label><label class="field"><span>Bezahlt per</span><select id="oPay">${PAY.map(p=>`<option ${p===v.payMethod?"selected":""}>${p}</option>`).join("")}</select></label></div>
+    <label class="field"><span>Grund für Eigenbeleg</span><select id="oReason">${OWN_REASONS.map(p=>`<option ${p===v.ownReason?"selected":""}>${p}</option>`).join("")}</select></label>
+    <div class="row"><label class="field"><span>Kategorie</span><select id="oCat">${KAT.map(k=>`<option ${k===v.category?"selected":""}>${k}</option>`).join("")}</select></label><label class="field"><span>Einsatz</span><select id="oTrip">${tripOptions(v.tripId)}</select></label></div>
+    <label class="field"><span>Notiz</span><input id="oNote" value="${esc(v.note)}" autocomplete="off"></label>
+    <div class="runbtns"><button class="btn" id="oPdf" style="grid-column:1/-1">Eigenbeleg als PDF</button></div>
+    <div class="acts">${isNew?`<button class="btn ghost" id="oCancel">Abbrechen</button>`:`<button class="btn danger" id="oDel">Löschen</button>`}<button class="btn primary" id="oSave">Speichern</button></div>`, sh => {
+    const imgEl = $("#oImg");
+    if (hadImg) imgSrc(r).then(src => { if (src){ imgEl.src = src; imgEl.hidden = false; } });
+    let input = document.createElement("input"); input.type = "file"; input.accept = "image/*"; input.setAttribute("capture","environment"); input.hidden = true; sh.appendChild(input);
+    const redraw = () => { proof.canvas = renderCanvas(proof.img, 2000, proof.rot, true); imgEl.src = proof.canvas.toDataURL("image/jpeg", .7); imgEl.hidden = false; };
+    $("#oScan").onclick = () => { input.value = ""; input.click(); };
+    $("#oRot").onclick = () => { if (!proof) return; proof.rot = (proof.rot + 90) % 360; redraw(); };
+    input.onchange = async () => {
+      const f = input.files && input.files[0]; if (!f) return;
+      try{ proof = {img: await loadImage(f), rot:0}; }catch(e){ toast("Das Bild ließ sich nicht öffnen."); return; }
+      redraw(); $("#oRot").hidden = false;
+      const ai = $("#oAi"); ai.hidden = false; ai.innerHTML = `<i class="spin"></i><span>Nachweis wird gelesen …</span>`;
+      const res = await recognize(proof.canvas); if (!$("#oAi")) return;
+      if (res.data){
+        const d = res.data, set = (id, val) => { const el = $(id); if (el && !el.value && val != null && val !== "") el.value = val; };
+        if (d.datum && /^\d{4}-\d{2}-\d{2}$/.test(d.datum)) $("#oDate").value = d.datum;
+        if (typeof d.betrag === "number") set("#oAmt", d.betrag.toFixed(2).replace(".", ","));
+        set("#oVendor", d.haendler); set("#oPlace", d.ort);
+        if (KAT.includes(d.kategorie)) $("#oCat").value = d.kategorie;
+        if (!$("#oTrip").value){ const t = tripForDate($("#oDate").value); if (t) $("#oTrip").value = t; }
+        ai.innerHTML = `<span>✓ Daten aus dem Nachweis übernommen. Bitte prüfen und Verwendungszweck ergänzen.</span>`;
+      } else ai.innerHTML = `<span>Automatisches Auslesen nicht möglich. Der Nachweis wird trotzdem angehängt.</span>`;
+    };
+    const collect = () => ({type:"receipt", own:true, date:$("#oDate").value, amount:num($("#oAmt").value), vendor:$("#oVendor").value.trim(), ownDesc:$("#oDesc").value.trim(), place:$("#oPlace").value.trim(), payMethod:$("#oPay").value, ownReason:$("#oReason").value, category:$("#oCat").value, tripId:$("#oTrip").value === "__new" ? "__new" : $("#oTrip").value, note:$("#oNote").value.trim()});
+    const persistOwn = async () => {
+      const base = collect();
+      if (!$("#oAmt").value.trim() || !base.ownDesc){ toast(!$("#oAmt").value.trim() ? "Bitte den Betrag eintragen." : "Bitte die Leistung beschreiben."); return null; }
+      if (base.tripId === "__new"){ const t = {id:uid(), type:"trip", title:base.vendor || "Einsatz", purpose:"", from:base.date, to:base.date, dep:"", ret:"", km:0, vmaOverride:null, status:"offen", note:""}; putEntry(t); base.tripId = t.id; $("#oTrip").innerHTML = tripOptions(t.id); }
+      const id = r ? r.id : (v.id || (v.id = uid()));
+      let ref = {};
+      if (proof){ if (r && hadImg) await removeImage(r); ref = await storeImage(id, proof.canvas); proof = null; hadImg = true; }
+      const prev = S.entries.get(id) || {};
+      const entry = {...prev, ...base, id, ...ref, ownNo: prev.ownNo || ownNumber(base.date)};
+      putEntry(entry); r = entry; return entry;
+    };
+    $("#oSave").onclick = async () => { if (busy) return; busy = true; $("#oSave").textContent = "Speichere …"; const e = await persistOwn(); busy = false; $("#oSave").textContent = "Speichern"; if (e){ closeSheet(); toast(`Eigenbeleg ${fmtEur(e.amount)} gespeichert`); } };
+    $("#oPdf").onclick = async () => { if (busy) return; busy = true; $("#oPdf").textContent = "Erstelle PDF …"; const e = await persistOwn(); if (e) await ownPdf(e); busy = false; if ($("#oPdf")) $("#oPdf").textContent = "Eigenbeleg als PDF"; };
+    if (isNew) $("#oCancel").onclick = closeSheet;
+    else $("#oDel").onclick = () => { if (!confirm){ confirm = true; $("#oDel").textContent = "Wirklich löschen?"; return; } closeSheet(); delEntry(r.id); removeImage(r); toast("Eigenbeleg gelöscht"); };
+  });
+}
+function ownNumber(date){
+  const y = (date || dkey(new Date())).slice(0,4);
+  const n = receipts().filter(x => x.own && x.ownNo && x.ownNo.startsWith("EB-"+y)).length + 1;
+  return `EB-${y}-${String(n).padStart(3,"0")}`;
+}
+async function drawOwnPage(doc, r, title){
+  const L = 20, R = 190, st = S.settings; let y = 22;
+  doc.setTextColor(20); doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.text(title || "Eigenbeleg", L, y);
+  doc.setFontSize(10); doc.setFont("helvetica","normal"); doc.setTextColor(90); doc.text(`Nr. ${r.ownNo || "–"}`, R, y, {align:"right"}); y += 6;
+  doc.text("Ersatzbeleg für eine Ausgabe ohne ordnungsgemäße Rechnung", L, y); y += 12; doc.setTextColor(20); doc.setFontSize(11);
+  const kv = (k, val) => { doc.setFont("helvetica","bold"); doc.text(k, L, y); doc.setFont("helvetica","normal"); const lines = doc.splitTextToSize(String(val||"–"), R-L-55); doc.text(lines, L+55, y); y += 6.5*lines.length; };
+  kv("Datum der Ausgabe", r.date ? fmtDateShort(r.date)+r.date.slice(0,4) : "–");
+  kv("Betrag (brutto)", pdfEur(r.amount));
+  kv("Zahlungsempfänger", r.vendor);
+  kv("Ort", r.place);
+  kv("Leistung / Zweck", r.ownDesc);
+  const t = r.tripId && S.entries.get(r.tripId); if (t) kv("Dienstlicher Anlass", [t.title, t.purpose].filter(Boolean).join(" · "));
+  kv("Bezahlt per", r.payMethod);
+  kv("Grund für Eigenbeleg", r.ownReason);
+  if (r.note) kv("Bemerkung", r.note);
+  y += 4; doc.setFontSize(10);
+  const decl = doc.splitTextToSize(`Ich versichere, dass die oben genannte Ausgabe in dieser Höhe tatsächlich und ausschließlich aus dienstlichem Anlass für ${st.firm || "den Arbeitgeber"} entstanden ist und ein Originalbeleg nicht vorgelegt werden kann. Die Ausgabe wurde nicht anderweitig erstattet.`, R-L);
+  doc.text(decl, L, y); y += decl.length*5 + 16;
+  doc.setDrawColor(40); doc.line(L, y, L+75, y); doc.line(R-70, y, R, y); doc.setTextColor(110);
+  doc.text(`Ort, Datum, Unterschrift ${st.name || ""}`, L, y+5); doc.text("Geprüft / freigegeben", R-70, y+5); y += 14;
+  const url = (r.imgAsset || r.imgDb || r.imgLocal) ? await receiptDataURL(r) : null;
+  doc.setTextColor(20); doc.setFont("helvetica","bold"); doc.text("Ursprungsnachweis", L, y); doc.setFont("helvetica","normal"); y += 4;
+  if (url){ const sz = await imgSize(url); if (sz){ const mw = R-L, mh = 287 - y; const sc = Math.min(mw/sz.w, mh/sz.h); doc.addImage(url, "JPEG", L, y, sz.w*sc, sz.h*sc); } }
+  else { doc.setTextColor(120); doc.text("Kein Nachweis vorhanden.", L, y+5); }
+}
+async function ownPdf(r){
+  if (!window.jspdf){ toast("PDF-Bibliothek konnte nicht geladen werden."); return; }
+  const doc = new window.jspdf.jsPDF({unit:"mm", format:"a4"});
+  await drawOwnPage(doc, r);
+  try{ await saveFile(doc.output("blob"), `${r.ownNo || "Eigenbeleg"}_${(r.vendor||"").replace(/[^\wäöüÄÖÜß-]+/g,"_").slice(0,30)}.pdf`); }
+  catch(e){ toast("PDF konnte nicht gespeichert werden."); }
+}
+
+readHash();
+boot();
+})();
+</script>
+
+</body></html>
