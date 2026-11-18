@@ -1,5 +1,5 @@
 // Zeitbuch Service Worker: App offline verfügbar, Updates kommen beim nächsten Start an
-const SHELL_CACHE = 'zeitbuch-shell-v1';
+const SHELL_CACHE = 'zeitbuch-shell-v2';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-180.png', './icon-192.png', './icon-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'];
 

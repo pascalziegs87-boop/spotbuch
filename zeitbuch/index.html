@@ -510,11 +510,11 @@ function tripTime(t){
   if (t.dep && t.ret){ const m = toMin(t.ret) - toMin(t.dep); return {txt:`${t.dep}–${t.ret}`, dur: m > 0 ? fmtH(m)+" h" : "–", ok: m > 0}; }
   return {txt: t.dep ? `ab ${t.dep}` : t.ret ? `bis ${t.ret}` : "Zeiten fehlen", dur:"–", ok:false};
 }
-function costRelevant(t){ return t.claim === true || tripReceipts(t.id).length > 0 || num(t.km) > 0; }
+function costRelevant(t){ return t.claim === true || tripReceipts(t.id).length > 0; }
 const CHECK = '<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 function einsatzBody(t){
   const d = parseD(t.from), tt = tripTime(t);
-  const sub = [tt.txt, t.purpose ? esc(t.purpose) : "", num(t.km) ? num(t.km).toLocaleString("de-DE")+" km" : ""].filter(Boolean).join(" · ");
+  const sub = [tt.txt, t.purpose ? esc(t.purpose) : ""].filter(Boolean).join(" · ");
   return `<button class="item" data-act="openTrip" data-id="${t.id}"><span class="datebox"><b>${d.getDate()}</b><span>${MON[d.getMonth()].slice(0,3)}</span></span>
     <span style="min-width:0"><span class="t">${esc(t.title || "Einsatz")}${t.calKey?'<span class="cal-src">Kalender</span>':""}</span><span class="sub mono" style="display:block">${sub}</span></span>
     <span class="d">${tt.dur}<small>${tt.ok?"Dauer":"<span class='neg'>Zeiten fehlen</span>"}</small></span></button>`;
@@ -657,8 +657,8 @@ function viewMehr(){
   <section class="card setgrid">
     <h2>Reisekosten</h2>
     <div class="row"><label class="field"><span>Name auf der Abrechnung</span><input id="setName" value="${esc(s.name)}"></label><label class="field"><span>Firma</span><input id="setFirm" value="${esc(s.firm)}"></label></div>
-    <div class="row3"><label class="field"><span>€ pro km</span><input type="number" inputmode="decimal" step="0.01" min="0" id="setKm" value="${s.kmRate}"></label><label class="field"><span>VMA ab 8 h</span><input type="number" inputmode="decimal" step="0.5" min="0" id="setV8" value="${s.vma8}"></label><label class="field"><span>VMA 24 h</span><input type="number" inputmode="decimal" step="0.5" min="0" id="setV24" value="${s.vma24}"></label></div>
-    <p class="note">Voreingestellt sind die steuerlichen Inlandspauschalen: 0,30 € pro km, 14 € Verpflegung bei mehr als 8 h und für An- und Abreisetage, 28 € für volle Tage. Gilt bei Meise eine eigene Reisekostenrichtlinie, trag deren Sätze ein.</p>
+    <div class="row"><label class="field"><span>VMA ab 8 h</span><input type="number" inputmode="decimal" step="0.5" min="0" id="setV8" value="${s.vma8}"></label><label class="field"><span>VMA 24 h</span><input type="number" inputmode="decimal" step="0.5" min="0" id="setV24" value="${s.vma24}"></label></div>
+    <p class="note">Voreingestellt sind die steuerlichen Inlandspauschalen: 14 € Verpflegung bei mehr als 8 h und für An- und Abreisetage, 28 € für volle Tage. Gilt bei Meise eine eigene Reisekostenrichtlinie, trag deren Sätze ein.</p>
   </section>
   <section class="card setgrid">
     <h2>Meise-Kalender</h2>
@@ -897,7 +897,7 @@ async function exportCsv(scope){
   const num = n => String(Math.round(n*100)/100).replace(".", ",");
   const q = s => '"' + String(s||"").replace(/"/g,'""') + '"';
   const rows = [["Datum","Art","Firma","Beginn","Ende","Pause (min)","Stunden","Tage","Notiz"].join(";")];
-  trips().filter(t => t.from >= from && t.from <= to).sort((a,b)=>a.from.localeCompare(b.from)).forEach(t => { const tt = tripTime(t); rows.push([t.from+(t.to&&t.to!==t.from?" bis "+t.to:""), "Einsatz", "Heinz Meise", t.dep||"", t.ret||"", "", tt.ok && !(t.to&&t.to!==t.from) ? num((toMin(t.ret)-toMin(t.dep))/60) : "", "", q([t.title, t.purpose, num(t.km)?t.km+" km":"", t.transferred?"übertragen":"nicht übertragen"].filter(Boolean).join(" · "))].join(";")); });
+  trips().filter(t => t.from >= from && t.from <= to).sort((a,b)=>a.from.localeCompare(b.from)).forEach(t => { const tt = tripTime(t); rows.push([t.from+(t.to&&t.to!==t.from?" bis "+t.to:""), "Einsatz", "Heinz Meise", t.dep||"", t.ret||"", "", tt.ok && !(t.to&&t.to!==t.from) ? num((toMin(t.ret)-toMin(t.dep))/60) : "", "", q([t.title, t.purpose, t.transferred?"übertragen":"nicht übertragen"].filter(Boolean).join(" · "))].join(";")); });
   works().filter(e => e.company === "zweistil" && dkey(e.start) >= from && dkey(e.start) <= to).sort((a,b)=>a.start-b.start).forEach(e => rows.push([dkey(e.start), "Arbeit", CO[e.company].full, hm(e.start), hm(e.end), e.pause||0, num(durMin(e)/60), "", q(e.note)].join(";")));
   absences().filter(a => a.to >= from && a.from <= to).sort((a,b)=>a.from.localeCompare(b.from)).forEach(a => rows.push([a.from+(a.to!==a.from?" bis "+a.to:""), ABS[a.kind], "Heinz Meise", "", "", "", "", num(absDays(a)), q([a.child, a.kind==="krank"?(a.au?"AU":"ohne AU"):"", a.note].filter(Boolean).join(" · "))].join(";")));
   const csv = "﻿" + rows.join("\r\n");
@@ -929,7 +929,7 @@ function tripCalc(t){
   } else { vma = 2*st.vma8 + (days-2)*st.vma24; vmaTxt = `2 × ${fmtEur(st.vma8)}${days>2?` + ${days-2} × ${fmtEur(st.vma24)}`:""}`; }
   if (t.vmaOverride !== null && t.vmaOverride !== undefined && t.vmaOverride !== ""){ vma = num(t.vmaOverride); vmaTxt = "manuell"; }
   const rs = tripReceipts(t.id), belege = rs.reduce((s,r) => s + num(r.amount), 0);
-  const kmCost = num(t.km) * st.kmRate;
+  const kmCost = 0;
   return {days, vma, vmaTxt, belege, kmCost, count:rs.length, total: belege + kmCost + vma};
 }
 
@@ -952,7 +952,7 @@ function viewReisen(){
   h += block("Abrechnung offen", open.sort((a,b)=>(b.from||"").localeCompare(a.from||"")), sumOpen ? fmtEur(sumOpen) : "");
   h += block("Eingereicht", sub.sort((a,b)=>(a.submittedAt||"").localeCompare(b.submittedAt||"")), sumSub ? fmtEur(sumSub) : "");
   h += block("Zuletzt bezahlt", paid.sort((a,b)=>(b.paidAt||"").localeCompare(a.paidAt||"")).slice(0,5), "");
-  if (!open.length && !sub.length && !loose.length) h += `<p class="note">Keine offenen Abrechnungen. Sobald ein Einsatz Belege, Kilometer oder den Haken „Reisekosten abrechnen“ hat, taucht er hier auf.</p>`;
+  if (!open.length && !sub.length && !loose.length) h += `<p class="note">Keine offenen Abrechnungen. Sobald ein Einsatz Belege oder den Haken „Reisekosten abrechnen“ hat, taucht er hier auf.</p>`;
   return h;
 }
 function tripItem(t){
@@ -1131,7 +1131,7 @@ function openTrip(t, presetDate){
   const v = t || {id:uid(), type:"trip", title:"", purpose:"", from:presetDate||today, to:presetDate||today, dep:"", ret:"", km:"", vmaOverride:null, status:"offen", note:""};
   let confirm = false;
   const st = v.status || "offen";
-  const read = () => ({...v, title:$("#tTitle").value.trim(), purpose:$("#tPurpose").value.trim(), from:$("#tFrom").value, to:$("#tTo").value < $("#tFrom").value ? $("#tFrom").value : $("#tTo").value, dep:$("#tDep").value, ret:$("#tRet").value, km:num($("#tKm").value), vmaOverride:$("#tVma").value.trim() === "" ? null : num($("#tVma").value), note:$("#tNote").value.trim(), transferred:$("#tXfer").checked, transferredAt: $("#tXfer").checked ? (v.transferredAt || today) : null, claim:$("#tClaim").checked});
+  const read = () => ({...v, title:$("#tTitle").value.trim(), purpose:$("#tPurpose").value.trim(), from:$("#tFrom").value, to:$("#tTo").value < $("#tFrom").value ? $("#tFrom").value : $("#tTo").value, dep:$("#tDep").value, ret:$("#tRet").value,  vmaOverride:$("#tVma").value.trim() === "" ? null : num($("#tVma").value), note:$("#tNote").value.trim(), transferred:$("#tXfer").checked, transferredAt: $("#tXfer").checked ? (v.transferredAt || today) : null, claim:$("#tClaim").checked});
   const statusHtml = () => {
     if (isNew) return "";
     if (st === "offen") return `<div class="runbtns"><button class="btn" id="tPdf">PDF für die Firma</button><button class="btn primary" id="tSubmit">Als eingereicht markieren</button></div>`;
@@ -1147,17 +1147,17 @@ function openTrip(t, presetDate){
     <label class="field"><span>Anlass</span><input id="tPurpose" value="${esc(v.purpose)}" placeholder="z. B. Messe Medica, Audit, Kundentermin" autocomplete="off"></label>
     <div class="row"><label class="field"><span>Von</span><input type="date" id="tFrom" value="${v.from}"></label><label class="field"><span>Bis</span><input type="date" id="tTo" value="${v.to||v.from}"></label></div>
     <div class="row"><label class="field"><span>Abfahrt</span><input type="time" id="tDep" value="${v.dep||""}"></label><label class="field"><span>Rückkehr</span><input type="time" id="tRet" value="${v.ret||""}"></label></div>
-    <div class="row"><label class="field"><span>Privat-Pkw km</span><input inputmode="decimal" id="tKm" value="${v.km||""}" placeholder="0"></label><label class="field"><span>Verpflegung (€) abweichend</span><input inputmode="decimal" id="tVma" value="${v.vmaOverride??""}" placeholder="automatisch"></label></div>
+    <label class="field"><span>Verpflegung (€) abweichend</span><input inputmode="decimal" id="tVma" value="${v.vmaOverride??""}" placeholder="automatisch"></label>
     <label class="field"><span>Notiz</span><input id="tNote" value="${esc(v.note)}" autocomplete="off"></label>
     <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="tXfer" ${v.transferred?"checked":""} style="width:22px;min-height:22px"> In Meise-Zeiterfassung übertragen</label>
-    <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="tClaim" ${v.claim || (!isNew && (tripReceipts(v.id).length || num(v.km))) ? "checked" : ""} style="width:22px;min-height:22px"> Reisekosten abrechnen</label>
+    <label style="display:flex;gap:10px;align-items:center"><input type="checkbox" id="tClaim" ${v.claim || (!isNew && tripReceipts(v.id).length) ? "checked" : ""} style="width:22px;min-height:22px"> Reisekosten abrechnen</label>
     ${v.calKey?`<p class="hint">Aus dem Meise-Kalender übernommen.</p>`:""}
     <div class="card" id="tSum"></div>
     ${isNew?"":`<section class="sec"><div class="sechead"><h3>Belege</h3><div class="quick"><button class="chipbtn" id="tScan">📷 Scannen</button><button class="chipbtn" id="tOwn">＋ Eigenbeleg</button></div></div><div class="list">${tripReceipts(v.id).map(rcptItem).join("") || `<div class="empty"><span>Noch keine Belege. Scanne Tickets, Tankquittungen und Hotelrechnungen direkt hier.</span></div>`}</div></section>`}
     ${statusHtml()}
     <div class="acts">${isNew?`<button class="btn ghost" id="tCancel">Abbrechen</button>`:`<button class="btn danger" id="tDel">Löschen</button>`}<button class="btn primary" id="tSave">Speichern</button></div>`, sh => {
     hydrateImgs(sh);
-    const upd = () => { const c = tripCalc(read()); $("#tSum").innerHTML = `<div class="sumrow"><span>Belege (${c.count})</span><b>${fmtEur(c.belege)}</b></div><div class="sumrow"><span>Kilometer ${num($("#tKm").value)} × ${fmtEur(S.settings.kmRate)}</span><b>${fmtEur(c.kmCost)}</b></div><div class="sumrow"><span>Verpflegung · ${c.days} ${c.days===1?"Tag":"Tage"}${c.vmaTxt?" · "+esc(c.vmaTxt):""}</span><b>${fmtEur(c.vma)}</b></div><div class="sumrow total"><span>Erstattung gesamt</span><b>${fmtEur(c.total)}</b></div>`; };
+    const upd = () => { const c = tripCalc(read()); $("#tSum").innerHTML = `<div class="sumrow"><span>Belege (${c.count})</span><b>${fmtEur(c.belege)}</b></div><div class="sumrow"><span>Verpflegung · ${c.days} ${c.days===1?"Tag":"Tage"}${c.vmaTxt?" · "+esc(c.vmaTxt):""}</span><b>${fmtEur(c.vma)}</b></div><div class="sumrow total"><span>Erstattung gesamt</span><b>${fmtEur(c.total)}</b></div>`; };
     sh.addEventListener("input", upd); sh.addEventListener("change", upd); upd();
     $("#tFrom").addEventListener("change", () => { if ($("#tTo").value < $("#tFrom").value) $("#tTo").value = $("#tFrom").value; });
     const save = (patch) => { const x = {...read(), ...(patch||{})}; if (!x.title) x.title = "Einsatz"; putEntry(x); return x; };
@@ -1211,7 +1211,6 @@ async function makePdf(t){
   y += 3;
   const sumLine = (k, val, bold) => { doc.setFont("helvetica", bold ? "bold" : "normal"); doc.text(k, L+2, y); doc.text(pdfEur(val), R-2, y, {align:"right"}); y += 7; };
   sumLine("Summe Belege", c.belege);
-  if (num(t.km)) sumLine(`Fahrtkosten Privat-Pkw: ${num(t.km).toLocaleString("de-DE")} km × ${pdfEur(st.kmRate)}`, c.kmCost);
   if (c.vma) sumLine(`Verpflegungsmehraufwand (${c.days} ${c.days===1?"Tag":"Tage"}${c.vmaTxt && c.vmaTxt !== "manuell" ? ", "+c.vmaTxt.replace(/€/g,"EUR") : ""})`, c.vma);
   doc.setDrawColor(40); doc.line(L, y-4, R, y-4); doc.setFontSize(12);
   sumLine("Erstattungsbetrag", c.total, true);
