@@ -1632,7 +1632,7 @@ $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const
   syncTabs()};
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v14';
+const APPV='v15';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -1658,7 +1658,7 @@ try{if(matchMedia('(display-mode: standalone)').matches||navigator.standalone)do
     mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots')}
   catch(e){toast('Lokaler Speicher nicht verfügbar (privater Modus?) – Daten werden nicht gespeichert',null,null,8000)}
   renderMarkers();
-  if(!S.spots.length)renderWelcome();
+  // kein Willkommensbildschirm beim Start
   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
   if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
   if(navigator.permissions)navigator.permissions.query({name:'geolocation'}).then(r=>{if(r.state==='granted')locate(false).catch(()=>{})}).catch(()=>{});
