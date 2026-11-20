@@ -3,12 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Spotbuch</title>
+<title>Zweistil Fotografie</title>
 <meta name="theme-color" content="#1b1d21">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="Spotbuch">
+<meta name="apple-mobile-web-app-title" content="Zweistil">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
@@ -478,6 +478,25 @@ h3 .sum{font-weight:500;color:var(--mute);margin-left:6px}h3 .sum.over{color:#c2
 .stph img{width:100%;height:100%;object-fit:cover;display:block}
 .stph .mini{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;border-radius:50%;width:26px;height:26px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+.libs{margin:8px 0 10px}
+.lgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.lc{position:relative;border:0;padding:0;background:var(--panel);border-radius:14px;overflow:hidden;text-align:left;box-shadow:0 1px 3px rgba(0,0,0,.08);color:var(--ink)}
+.lc img{display:block;width:100%;aspect-ratio:1;object-fit:cover;background:var(--soft)}
+.lc span{display:flex;flex-direction:column;padding:8px 10px 10px;gap:2px}.lc b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lc small{color:var(--mute);font-size:12px}
+.lc .miss{position:absolute;top:8px;left:8px;background:rgba(226,85,58,.92);color:#fff;font-style:normal;font-size:11px;font-weight:700;padding:3px 7px;border-radius:7px}
+.shimg{display:block;border:0;padding:0;width:100%;background:none;margin:6px 0 0}.shimg img{width:100%;max-height:52vh;object-fit:contain;border-radius:14px;background:var(--soft)}
+.grp.sub{background:var(--soft);border-radius:12px;padding:10px;margin:0 0 10px}.sth2{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.wx{padding:12px 14px}.wxh{display:flex;flex-direction:column;gap:2px}.wxh b{font-size:17px}.wxh span{color:var(--mute);font-size:13px}
+.wxr{display:flex;gap:6px;overflow-x:auto;margin:10px -4px 6px;padding:0 4px}.wxr div{flex:0 0 44px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px}
+.wxr i{display:block;width:26px;height:6px;border-radius:3px;background:linear-gradient(90deg,#8a919c var(--cc),#f0c36a var(--cc))}.wxr small{color:var(--mute)}
+.wxt{margin:6px 0;padding-left:18px;font-size:14px}.wxt li{margin:2px 0}
+.pack{padding:6px 12px}.pcat{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--mute);margin:10px 0 2px}
+.pk{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}.pk:last-child{border-bottom:0}.pk span{flex:1}.pk input{width:20px;height:20px;accent-color:var(--pin)}
+.pk.on span{text-decoration:line-through;color:var(--mute)}
+.pkadd{display:flex;gap:8px;margin-top:8px}.pkadd input{flex:1}
+.mdimg{width:100%;border-radius:14px;margin:14px 0 10px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.chk{display:flex!important;align-items:center;gap:10px;flex-direction:row!important}.chk input{width:20px;height:20px}
 </style>
 </head>
 <body>
@@ -531,6 +550,7 @@ h3 .sum{font-weight:500;color:var(--mute);margin-left:6px}h3 .sum.over{color:#c2
 <div id="run" hidden><div class="rbar" id="runBar"></div><div class="rimg" id="runImg"></div><div class="rinfo" id="runInfo"></div><div class="rnav" id="runNav"></div><div class="rgridw" id="runGrid"></div><button class="rx" aria-label="Zurück">×</button></div>
 <input type="file" id="fPose" accept="image/*" hidden>
 <input type="file" id="fSt" accept="image/*" multiple hidden>
+<input type="file" id="fShots" accept="image/*" multiple hidden>
 <div id="toast" role="status"><span id="toastT"></span><button id="toastB" hidden></button></div>
 <div class="busy" id="busy" hidden>Bilder werden verarbeitet …</div>
 <input type="file" id="fPhotos" accept="image/*" multiple hidden>
@@ -603,11 +623,11 @@ const Sun=(()=>{
 /* ---------- IndexedDB ---------- */
 const rq=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 const DB={db:null,
-  open(){return new Promise((res,rej)=>{const r=indexedDB.open('spotbuch',3);
-    r.onupgradeneeded=()=>{const d=r.result,h=n=>d.objectStoreNames.contains(n);if(!h('spots'))d.createObjectStore('spots',{keyPath:'id'});if(!h('photos'))d.createObjectStore('photos',{keyPath:'id'}).createIndex('spot','spotId');if(!h('poses'))d.createObjectStore('poses',{keyPath:'id'});if(!h('shoots'))d.createObjectStore('shoots',{keyPath:'id'});if(!h('setups'))d.createObjectStore('setups',{keyPath:'id'})};
+  open(){return new Promise((res,rej)=>{const r=indexedDB.open('spotbuch',4);
+    r.onupgradeneeded=()=>{const d=r.result,h=n=>d.objectStoreNames.contains(n);if(!h('shots'))d.createObjectStore('shots',{keyPath:'id'});if(!h('kv'))d.createObjectStore('kv',{keyPath:'k'});if(!h('spots'))d.createObjectStore('spots',{keyPath:'id'});if(!h('photos'))d.createObjectStore('photos',{keyPath:'id'}).createIndex('spot','spotId');if(!h('poses'))d.createObjectStore('poses',{keyPath:'id'});if(!h('shoots'))d.createObjectStore('shoots',{keyPath:'id'});if(!h('setups'))d.createObjectStore('setups',{keyPath:'id'})};
     r.onsuccess=()=>{this.db=r.result;res()};r.onerror=()=>rej(r.error)})},
   st(n,m='readonly'){return this.db.transaction(n,m).objectStore(n)},
-  all(n){return rq(this.st(n).getAll())},put(n,v){return rq(this.st(n,'readwrite').put(v))},del(n,id){return rq(this.st(n,'readwrite').delete(id))}
+  all(n){return rq(this.st(n).getAll())},put(n,v){if(n!=='kv'||v.k==='gear')bumpChanges();return rq(this.st(n,'readwrite').put(v))},del(n,id){return rq(this.st(n,'readwrite').delete(id))}
 };
 
 /* ---------- Zustand ---------- */
@@ -647,7 +667,7 @@ function parseTiff(v,t){
   const cam=[i0[0x010F],i0[0x0110]].filter(Boolean).join(' ');if(cam)r.cam=cam.replace(/^(\w+) \1/i,'$1');
   if(ex[0xA434])r.lens=ex[0xA434];
   if(ex[0x920A])r.fl=Math.round(ex[0x920A]*10)/10;if(ex[0xA405])r.fl35=ex[0xA405];
-  if(ex[0x829D])r.f=Math.round(ex[0x829D]*10)/10;
+  if(ex[0x829D])r.f=Math.round(ex[0x829D]*10)/10;if(ex[0x9209]!=null)r.fired=!!(ex[0x9209]&1);
   if(ex[0x829A]){const s=ex[0x829A];r.ss=s>=1?s+' s':'1/'+Math.round(1/s)+' s'}
   const iso=ex[0x8827];if(iso)r.iso=Array.isArray(iso)?iso[0]:iso;
   return r;
@@ -796,12 +816,14 @@ function renderSpot(s){const ps=phOf(s.id),d=meDist(s);if(simTimer){clearInterva
   ${isApple?`<a class="alt" href="https://www.google.com/maps/dir/?api=1&destination=${s.lat},${s.lng}" target="_blank" rel="noopener">Route lieber mit Google Maps</a>`:''}
   ${ps.length?'':`<button class="empty" data-act="addph">${ic('img')}<b>Referenzfotos hinzufügen</b><span>Kamera, Mediathek oder Dateien</span></button>`}
   ${sunBlock(s)}
+  <h3>Wetter <span class="sum">${fmtD(S.date)}</span></h3><div class="card wx" id="wxSpot"></div>
   <button class="btn planbtn" data-act="plan">${ic('sun')} Sonnenstand auf der Karte planen</button>
   <button class="btn planbtn" data-sh="newat">${ic('cal')} Shooting hier planen</button>
   ${s.notes?`<h3>Bildideen & Notizen</h3><div class="card prose">${esc(s.notes)}</div>`:''}
   ${facts.length?`<h3>Vor Ort</h3><div class="card"><dl>${facts.map(x=>`<dt>${x[0]}</dt><dd>${esc(x[1])}</dd>`).join('')}</dl></div>`:''}
   ${(s.tags||[]).length?`<div class="tags">${s.tags.map(t=>`<span>#${esc(t)}</span>`).join('')}</div>`:''}
   <div class="foot"><span>${fmtC(s.lat,s.lng)}</span><span><button class="lnk" data-act="move">${ic('move')} Verschieben</button><button class="lnk dng" data-act="del">${ic('trash')} Löschen</button></span></div>`);
+  fillWeather($('#wxSpot'),s.lat,s.lng,S.date);
   const tr=$('#track'),dots=$('#dots');if(tr&&dots)tr.addEventListener('scroll',()=>{const i=Math.round(tr.scrollLeft/tr.clientWidth);[...dots.children].forEach((x,j)=>x.classList.toggle('on',i===j))},{passive:true});
 }
 
@@ -1037,9 +1059,10 @@ const stamp=()=>todayISO();
 async function backup(){busy(true);try{const photos=[];for(const list of S.photos.values())for(const p of list){const {blob,thumb,...m}=p;photos.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}
   const poses=[];for(const r of await DB.all('poses')){const {blob,thumb,orig,...m}=r;poses.push({...m,data:blob?await blobToData(blob):null,thumbData:thumb?await blobToData(thumb):null})}
   const setups=[];for(const x of S.setups){const ph=[];for(const p of x.photos||[]){const {blob,thumb,...m}=p;ph.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}setups.push({...x,photos:ph})}
-  const json=JSON.stringify({app:'spotbuch',version:3,exported:new Date().toISOString(),spots:S.spots,photos,poses,shoots:S.shoots,setups});
-  await deliver(new Blob([json],{type:'application/json'}),`spotbuch-backup-${stamp()}.json`)}finally{busy(false)}}
-async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(await file.text());if(d.app!=='spotbuch')throw new Error('Kein Spotbuch-Backup');
+  const shots=[];for(const x of S.shots){const {blob,thumb,...m}=x;shots.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}
+  const json=JSON.stringify({app:'spotbuch',version:4,exported:new Date().toISOString(),spots:S.spots,photos,poses,shoots:S.shoots,setups,shots,gear:S.gear});
+  await deliver(new Blob([json],{type:'application/json'}),`zweistil-backup-${stamp()}.json`);ls.set('lastBackup',Date.now());ls.set('chg',0)}finally{busy(false)}}
+async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(await file.text());if(d.app!=='spotbuch')throw new Error('Kein Backup dieser App');
   for(const s of d.spots||[]){migrate(s);const ex=spot(s.id);if(!ex||(s.updated||0)>(ex.updated||0)){await DB.put('spots',s);if(ex)Object.assign(ex,s);else S.spots.push(s);ns++}}
   const have=new Set([...S.photos.values()].flat().map(p=>p.id));
   for(const p of d.photos||[]){if(have.has(p.id))continue;const {data,thumbData,...m}=p;
@@ -1050,6 +1073,8 @@ async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(awa
   for(const x of d.shoots||[]){const ex=shoot(x.id);if(!ex||(x.updated||0)>(ex.updated||0)){await DB.put('shoots',x);if(ex)Object.assign(ex,x);else S.shoots.push(x);nsh++}}
   for(const x of d.setups||[]){const ex=setup(x.id);if(ex&&(x.updated||0)<=(ex.updated||0))continue;const ph=[];for(const p of x.photos||[]){const {data,thumbData,...m}=p;ph.push({...m,blob:await (await fetch(data)).blob(),thumb:await (await fetch(thumbData||data)).blob()})}
     const rec={...x,photos:ph};await DB.put('setups',rec);if(ex)Object.assign(ex,rec);else S.setups.push(rec);nsh++}
+  for(const x of d.shots||[]){const ex=shot(x.id);if(ex&&(x.updated||0)<=(ex.updated||0))continue;const {data,thumbData,...m}=x;const rec={...m,blob:await (await fetch(data)).blob(),thumb:await (await fetch(thumbData||data)).blob()};await DB.put('shots',rec);if(ex)Object.assign(ex,rec);else S.shots.push(rec);nsh++}
+  if(d.gear){S.gear=d.gear;await DB.put('kv',{k:'gear',v:S.gear})}
   renderMarkers();if(S.view==='welcome'||S.view==='settings'){sheet.hidden=true;S.view=null}toast(`${ns} Spots, ${np} Fotos${nsh?`, ${nsh} Shootings`:''} übernommen`)}catch(e){toast('Backup konnte nicht gelesen werden: '+e.message)}finally{busy(false)}}
 const xml=s=>esc(s);
 function descOf(s){return [envNames(s).join(', '),s.notes,s.access&&('Zugang: '+s.access),s.rain&&('Regen: '+s.rain)].filter(Boolean).join('\n')}
@@ -1473,10 +1498,11 @@ function renderShoot(id){const x=shoot(id);if(!x)return renderShoots();S.view='s
   showSheet(`<div class="hd"><div style="flex:1"><h2>${esc(x.name)}</h2><div class="meta"><span class="tag">${esc(lab(STYPES,x.type))}</span><span>${fmtD(x.date)}</span></div></div>
     <button class="ib" data-sh="list" aria-label="Zurück zu den Shootings">${ic('back')}</button></div>
    <div class="qa"><button class="q pri" data-sh="run" ${n?'':'disabled'}>${ic('play')}<span>${d&&d<n?'Fortsetzen':'Starten'}</span></button>
-    <button class="q" data-sh="ics">${ic('cal')}<span>Kalender</span></button><button class="q" data-sh="sun" ${s0?'':'disabled'}>${ic('sun')}<span>Licht</span></button><button class="q" data-sh="edit">${ic('edit')}<span>Bearbeiten</span></button></div>
+    <button class="q" data-sh="ics">${ic('cal')}<span>Kalender</span></button><button class="q" data-sh="sun" ${s0?'':'disabled'}>${ic('sun')}<span>Licht</span></button><button class="q" data-sh="mood">${ic('img')}<span>Moodboard</span></button><button class="q" data-sh="edit">${ic('edit')}<span>Bearbeiten</span></button></div>
    ${n?`<div class="prog2"><i style="width:${d/n*100}%"></i></div><p class="ex" style="margin:4px 0 0">${d} von ${n} Posen erledigt</p>`:''}
    <div class="card kvs"><div class="kv"><span>Zeit</span><b>${hasT?`${hm(x.time)}–${hm((+x.time+dur)%1440)} Uhr · ${fmtDur(dur)}`:'Noch keine Uhrzeit'}</b></div>
     ${x.clients?`<div class="kv"><span>Kunden</span><b>${esc(x.clients)}</b></div>`:''}${light}</div>
+   ${s0&&x.date?`<h3>Wetter am Shooting-Tag</h3><div class="card wx" id="wxShoot"></div>`:''}
    ${sp.length?`<h3>Spot</h3>${sp.map(s=>{const p=cover(s);return `<button class="li" data-open="${s.id}"><span class="th" style="${p?`background-image:url(${url(p,'t')})`:''};--c:${envOf(s).color}">${p?'':ic('pin')}</span><span class="tx"><b>${esc(s.name)}</b><small>${esc(envNames(s).join(', '))}${s.parking?' · Parkplatz hinterlegt':''}</small></span><span class="d">${fmtDist(meDist(s))}</span></button>`}).join('')}`:`<p class="ex">Kein Spot zugeordnet – unter „Bearbeiten“ auswählen.</p>`}
    <h3>Ablauf ${x.items.length?`<span class="sum ${planned>dur?'over':''}">${fmtDur(planned)} von ${fmtDur(dur)} verplant</span>`:''}</h3>
    ${hasT?'':'<p class="ex">Tipp: Startzeit eintragen, dann siehst du für jede Pose Uhrzeit und Lichtphase.</p>'}
@@ -1484,8 +1510,9 @@ function renderShoot(id){const x=shoot(id);if(!x)return renderShoots();S.view='s
    ${hasT&&x.items.length?`<p class="ex">Ende laut Ablauf: ${hm((shotTime(x,x.items.length))%1440)} Uhr</p>`:''}
    <div class="row2" style="margin-top:10px"><button class="btn" data-sh="pick">${ic('plus')} Posen</button><button class="btn" data-sh="blkmenu">${ic('plus')} Block</button></div>
    <div class="opts blks" id="blks" hidden>${BLOCKS.map(b=>`<button type="button" data-sh="blk" data-t="${esc(b)}">${esc(b)}</button>`).join('')}</div>
+   ${packHTML(x)}
    ${x.notes?`<h3>Notizen</h3><div class="card prose">${esc(x.notes)}</div>`:''}
-   <div class="foot"><span>${d?`<button class="lnk" data-sh="reset">Häkchen zurücksetzen</button>`:''}</span><span><button class="lnk dng" data-sh="del">${ic('trash')} Shooting löschen</button></span></div>`,true)}
+   <div class="foot"><span>${d?`<button class="lnk" data-sh="reset">Häkchen zurücksetzen</button>`:''}</span><span><button class="lnk dng" data-sh="del">${ic('trash')} Shooting löschen</button></span></div>`,true);if(s0&&x.date)fillWeather($('#wxShoot'),s0.lat,s0.lng,x.date,x.time,dur)}
 
 /* Kalender (.ics) */
 function icsText(x){const sp=(x.spots||[]).map(spot).filter(Boolean),s0=sp[0],dur=+x.duration||60,pad=n=>String(n).padStart(2,'0');
@@ -1618,6 +1645,7 @@ body.addEventListener('click',async e=>{
   if(a==='rm'){x.items.splice(i,1);await saveShoot(x);return renderShoot(x.id)}
   if(a==='reset'&&confirm('Alle Häkchen zurücksetzen?')){x.items.forEach(t=>t.done=false);await saveShoot(x);return renderShoot(x.id)}
   if(a==='ics'&&x)return exportIcs(x);
+  if(a==='mood'&&x)return renderMood(x.id);
   if(a==='blkmenu'){const m=$('#blks');if(m)m.hidden=!m.hidden;return}
   if(a==='blk'&&x){x.items.push({kind:'block',title:b.dataset.t,min:b.dataset.t==='Puffer'?5:10});await saveShoot(x);return renderShoot(x.id)}
   if(a==='min'&&x){const t=x.items[i];t.min=Math.max(0,Math.min(240,itMin(t)+(+b.dataset.d)));await saveShoot(x);const sc=body.scrollTop;renderShoot(x.id);body.scrollTop=sc;return}
@@ -1664,7 +1692,7 @@ $('#run').addEventListener('click',e=>{const R=$('#run');if(R.classList.contains
 document.addEventListener('visibilitychange',async()=>{if(!$('#run').hidden&&document.visibilityState==='visible'&&navigator.wakeLock){try{run.lock=await navigator.wakeLock.request('screen')}catch(e){}}});
 
 /* ---------- Menüleiste unten ---------- */
-function syncTabs(){const v=sheet.hidden?null:S.view,t=!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'||v==='settings'?'map':v==='setups'||v==='setup'?'studio':v==='list'?'spots':v==='poseLib'||(v==='poseEdit'||v==='poseCrop')&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
+function syncTabs(){const v=sheet.hidden?null:S.view,t=!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'||v==='settings'?'map':v==='setups'||v==='setup'||v==='lib'||v==='shot'?'studio':v==='gear'||v==='mood'?'shoots':v==='list'?'spots':v==='poseLib'||(v==='poseEdit'||v==='poseCrop')&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
   document.querySelectorAll('#tabs [data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===t?'page':'false'))}
 new MutationObserver(syncTabs).observe(sheet,{attributes:true,attributeFilter:['hidden']});
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const t=b.dataset.tab;
@@ -1672,7 +1700,7 @@ $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const
   if(t==='spots'){if(S.plan)closePlanner();renderList()}
   if(t==='shoots'){if(S.plan)closePlanner();renderShoots()}
   if(t==='poses'){if(S.plan)closePlanner();S.libTypes=[];renderPoseLib()}
-  if(t==='studio'){if(S.plan)closePlanner();renderSetups()}
+  if(t==='studio'){if(S.plan)closePlanner();renderLib()}
   syncTabs()};
 
 /* ---------- Studio-Planer (Produktfotografie) ---------- */
@@ -1819,6 +1847,7 @@ function stDescribe(x){const cam=x.camera,v=[-cam.x,-cam.y],ca=Math.atan2(v[1],v
 /* Ansichten */
 function renderSetups(){S.view='setups';const arr=[...S.setups].sort((a,b)=>b.updated-a.updated);
   showSheet(`<div class="hd"><div style="flex:1"><h2>Studio</h2><div class="meta"><span>Licht-Setups für Produktfotografie</span></div></div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
+   ${studioSeg('set')}
    <button class="btn acc big" data-st="new">${ic('plus')} Neues Setup</button>
    ${arr.length?arr.map(x=>{const p=x.photos[0];return `<button class="li" data-st="open" data-id="${x.id}"><span class="th" style="${p?`background-image:url(${url(p,'t')})`:''};--c:var(--gold)">${p?'':ic('flash')}</span>
      <span class="tx"><b>${esc(x.name)}</b><small>${x.lights.length} Blitz${x.lights.length===1?'':'e'} · ${x.camera.fl} mm · f/${x.camera.f} · ${x.wb} K</small><small>${x.photos.length} Beispielbild${x.photos.length===1?'':'er'} · ${new Date(x.updated).toLocaleDateString('de-DE')}</small></span><span class="d"></span></button>`}).join('')
@@ -1916,7 +1945,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v16';
+const APPV='v17';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -1934,12 +1963,189 @@ function diag(){const old=document.getElementById('dg');if(old){old.remove();ret
   document.body.appendChild(d)}
 /* ---------- iOS Home-Bildschirm-App erkennen ---------- */
 try{if(matchMedia('(display-mode: standalone)').matches||navigator.standalone)document.documentElement.classList.add('pwa')}catch(e){}
+/* ---------- Foto-Bibliothek (Studio) ---------- */
+S.shots=[];S.libQ='';
+const shot=id=>S.shots.find(x=>x.id===id);
+async function saveShot(x){x.updated=Date.now();await DB.put('shots',x);if(!S.shots.includes(x))S.shots.push(x)}
+const shotLightTxt=L=>[(FLASHES.find(f=>f[0]===L.flash)||[])[1],(MOD[L.mod]||{}).name,stopsTxt(L.stops||0),L.gel?lab(GELS,L.gel):'',L.pos].filter(Boolean).join(' · ');
+function shotSettings(x){const e=x.exif||{};return [x.cam||e.cam,x.lens||e.lens,(x.fl||e.fl)&&((x.fl||e.fl)+' mm'),(x.f||e.f)&&('f/'+String(x.f||e.f).replace('.',',')),x.ss||e.ss,(x.iso||e.iso)&&('ISO '+(x.iso||e.iso)),x.wb&&(x.wb+' K')].filter(Boolean).join(' · ')}
+function shotText(x){const out=[x.title||'Produktfoto',x.product?'Produkt: '+x.product:'',x.client?'Projekt: '+x.client:'',
+  'Kamera: '+(shotSettings(x)||'–'),...(x.lights||[]).map((L,i)=>`Blitz ${i+1}: ${shotLightTxt(L)}`),x.aids&&x.aids.length?'Hilfsmittel: '+x.aids.join(', '):'',x.notes?'Notizen: '+x.notes:''];return out.filter(Boolean).join('\n')}
+function studioSeg(cur){return `<div class="seg" role="group" aria-label="Studio-Bereich"><button data-st="seglib" aria-pressed="${cur==='lib'}">Bibliothek · ${S.shots.length}</button><button data-st="segset" aria-pressed="${cur==='set'}">Setups · ${S.setups.length}</button></div>`}
+function renderLib(){S.view='lib';const q=S.libQ.trim().toLowerCase();
+  const arr=[...S.shots].filter(x=>!q||[x.title,x.product,x.client,(x.tags||[]).join(' '),x.notes,shotSettings(x),(x.lights||[]).map(shotLightTxt).join(' ')].join(' ').toLowerCase().includes(q))
+    .sort((a,b)=>(b.exif&&b.exif.date||'').localeCompare(a.exif&&a.exif.date||'')||b.created-a.created);
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Studio</h2><div class="meta"><span>Produktfotos mit allen Einstellungen</span></div></div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
+   ${studioSeg('lib')}
+   <div class="row2"><button class="btn acc" data-st="imp">${ic('plus')} Fotos importieren</button></div>
+   ${S.shots.length?`<label class="search libs"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="libQ" value="${esc(S.libQ)}" placeholder="Suchen: Produkt, Objektiv, Softbox, Kunde …" aria-label="Bibliothek durchsuchen"></label>`:''}
+   ${arr.length?`<div class="lgrid">${arr.map(x=>`<button class="lc" data-st="shot" data-id="${x.id}"><img src="${url(x,'t')}" alt="" loading="lazy"><span><b>${esc(x.title||x.product||'Ohne Titel')}</b><small>${esc([(x.fl||x.exif&&x.exif.fl)&&((x.fl||x.exif.fl)+' mm'),(x.f||x.exif&&x.exif.f)&&('f/'+(x.f||x.exif.f))].filter(Boolean).join(' · '))}</small></span>${(x.lights||[]).length?'':'<i class="miss">Blitz fehlt</i>'}</button>`).join('')}</div>`
+   :`<div class="empty static">${ic('img')}<b>${S.shots.length?'Nichts gefunden':'Noch keine Produktfotos'}</b><span>${S.shots.length?'Andere Suche probieren.':'Importiere fertige Fotos – Kamera, Objektiv, Brennweite, Blende, Zeit und ISO liest die App aus den Bilddaten. Blitz, Lichtformer und Leistung trägst du einmal nach.'}</span></div>`}`,true)}
+function lightRow(L,i){return `<div class="grp sub" data-li="${i}"><div class="sth2"><b>Blitz ${i+1}</b><button type="button" class="mini" data-st="shLdel" data-i="${i}" aria-label="Blitz entfernen">${ic('trash')}</button></div>
+  <div class="two">${stSel('Blitz','L.'+i+'.flash',[['','–'],...FLASHES],L.flash||'')}${stSel('Lichtformer','L.'+i+'.mod',[['','–'],...MODS.map(m=>[m.k,m.name])],L.mod||'')}</div>
+  <div class="two">${stSel('Leistung','L.'+i+'.stops',Array.from({length:22},(_,j)=>[(j/3).toFixed(4),stopsTxt(j/3)]),(Math.round((L.stops||0)*3)/3).toFixed(4))}${stSel('Farbfolie','L.'+i+'.gel',GELS.map(g=>[g[0],g[1]]),L.gel||'')}</div>
+  ${stField('Position','L.'+i+'.pos',L.pos,'placeholder="z. B. links 45°, 1 m, Höhe 1,2 m"')}</div>`.replace(/data-sk=/g,'data-hk=')}
+function renderShot(id){const x=shot(id);if(!x)return renderLib();S.view='shot';S.shotId=id;const e=x.exif||{};
+  const setOpts=[['','– kein Setup –'],...S.setups.map(s=>[s.id,s.name])];
+  showSheet(`<div class="f stf" id="shf"><div class="hd"><div style="flex:1"><input class="stname" data-hk="title" value="${esc(x.title||'')}" placeholder="Titel, z. B. Parfum Flakon schwarz"></div><button class="ib" data-st="libback" aria-label="Zurück">${ic('back')}</button></div>
+   <button class="shimg" data-st="shlb"><img src="${url(x,'f')}" alt=""></button>
+   <div class="card kvs"><div class="kv"><span>Aufnahme</span><b>${esc(shotSettings(x)||'Keine Kameradaten')}</b></div>${e.date?`<div class="kv"><span>Datum</span><b>${new Date(e.date).toLocaleString('de-DE',{dateStyle:'medium',timeStyle:'short'})}</b></div>`:''}
+    ${e.fired!=null?`<div class="kv"><span>Blitz</span><b>${e.fired?'hat ausgelöst':'nicht ausgelöst'}</b></div>`:''}</div>
+   <div class="row2" style="margin-top:10px"><button class="btn sm" data-st="shcopy">${ic('copy')} Einstellungen kopieren</button><button class="btn sm" data-st="shmkset">${ic('flash')} Als Setup planen</button></div>
+   <section class="grp"><h4>Motiv</h4><div class="two">${shF('Produkt','product',x.product,'z. B. Parfum')}${shF('Kunde / Projekt','client',x.client,'')}</div>${shF('Tags (Komma)','tags',(x.tags||[]).join(', '),'z. B. Glas, Schwarz, Reflexion')}</section>
+   <section class="grp"><h4>Kamera</h4><div class="two">${shF('Kamera','cam',x.cam??e.cam,'')}${shF('Objektiv','lens',x.lens??e.lens,'')}</div>
+    <div class="three">${shF('Brennweite','fl',x.fl??e.fl,'mm')}${shF('Blende','f',x.f??e.f,'f/')}${shF('Zeit','ss',x.ss??e.ss,'1/160 s')}</div>
+    <div class="two">${shF('ISO','iso',x.iso??e.iso,'')}${shF('Weißabgleich (K)','wb',x.wb,'z. B. 5500')}</div></section>
+   <section class="grp"><h4>Blitze</h4>${(x.lights||[]).map(lightRow).join('')}<button type="button" class="btn" data-st="shLadd">${ic('plus')} Blitz hinzufügen</button></section>
+   <section class="grp"><h4>Hilfsmittel</h4><div class="opts" data-multi="shaids">${HELP.map(h=>`<button type="button" data-v="${esc(h)}" aria-pressed="${(x.aids||[]).includes(h)}">${esc(h)}</button>`).join('')}</div></section>
+   <section class="grp"><h4>Setup & Notizen</h4>${stSel('Verknüpftes Setup','setupId',setOpts,x.setupId||'').replace('data-sk=','data-hk=')}
+    ${x.setupId&&setup(x.setupId)?`<button type="button" class="btn sm" data-st="open" data-id="${x.setupId}">${ic('flash')} Setup öffnen</button>`:''}
+    <label>Notizen<textarea data-hk="notes" placeholder="Was war besonders? Was würdest du nächstes Mal ändern?">${esc(x.notes||'')}</textarea></label></section>
+   <div class="foot"><span></span><span><button class="lnk dng" data-st="shdel">${ic('trash')} Foto löschen</button></span></div></div>`,true)}
+function shF(label,key,val,ph){return `<label>${label}<input type="text" data-hk="${key}" value="${esc(val??'')}" placeholder="${esc(ph||'')}"></label>`}
+function shSet(x,key,val){if(key.startsWith('L.')){const [,i,k]=key.split('.');const L=x.lights[+i];L[k]=k==='stops'?+val:val;return}
+  if(key==='tags'){x.tags=val.split(',').map(t=>t.trim()).filter(Boolean);return}if(['fl','f','iso','wb'].includes(key)){x[key]=val===''?'':+String(val).replace(',','.')||val;return}x[key]=val}
+function shotToSetup(x){const n=setupNew();n.name=x.title||x.product||'Setup aus Foto';const e=x.exif||{};
+  Object.assign(n.camera,{body:x.cam||e.cam||'',lens:x.lens||e.lens||'',fl:+(x.fl||e.fl)||90,f:+(x.f||e.f)||11,ss:x.ss||e.ss||'1/160',iso:+(x.iso||e.iso)||100});if(x.wb)n.wb=+x.wb;n.help=[...(x.aids||[])];n.notes=x.notes||'';
+  if((x.lights||[]).length){const nL=x.lights.length;n.lights=x.lights.map((L,i)=>{const a=(nL===1?150:180-i*180/(nL-1))*rad;
+    return {id:uid(),name:'Blitz '+(i+1),x:+(Math.cos(a)*.9).toFixed(2),y:+(Math.sin(a)*.9).toFixed(2),h:1.2,flash:L.flash||'400',mod:L.mod||'softbox',stops:+L.stops||3,gel:L.gel||'',aim:true,ang:0}})}
+  n.photos=[{id:uid(),blob:x.blob,thumb:x.thumb,exif:x.exif||{},caption:x.title||'',created:Date.now()}];return n}
+async function importShots(files){busy(true);let n=0;try{for(const f of files){const ex=await readExif(f),{full,thumb}=await shrink(f);
+  await saveShot({id:uid(),blob:full,thumb,exif:ex,title:'',product:'',client:'',tags:[],lights:[],aids:[],notes:'',created:Date.now()});n++}}finally{busy(false)}
+  toast(`${n} Foto${n===1?'':'s'} importiert – Blitzdaten nachtragen`);renderLib()}
+/* Ereignisse Bibliothek */
+body.addEventListener('click',async e=>{
+  if(S.view==='shot'){const hb=e.target.closest('[data-multi="shaids"] button');if(hb){const x=shot(S.shotId);x.aids=[...body.querySelectorAll('[data-multi="shaids"] [aria-pressed=true]')].map(b=>b.dataset.v);return saveShot(x)}}
+  const b=e.target.closest('[data-st]');if(!b)return;const a=b.dataset.st,x=shot(S.shotId);
+  if(a==='seglib')return renderLib();if(a==='segset')return renderSetups();
+  if(a==='imp')return $('#fShots').click();
+  if(a==='shot')return renderShot(b.dataset.id);
+  if(a==='libback')return renderLib();
+  if(!x||S.view!=='shot')return;
+  if(a==='shlb')return openLB([{...x,caption:x.title,dir:null}],0);
+  if(a==='shLadd'){x.lights=x.lights||[];const last=x.lights[x.lights.length-1];x.lights.push(last?{...last,pos:''}:{flash:'400',mod:'softbox',stops:3,gel:'',pos:''});await saveShot(x);const sc=body.scrollTop;renderShot(x.id);body.scrollTop=sc;return}
+  if(a==='shLdel'){x.lights.splice(+b.dataset.i,1);await saveShot(x);const sc=body.scrollTop;renderShot(x.id);body.scrollTop=sc;return}
+  if(a==='shcopy'){try{await navigator.clipboard.writeText(shotText(x));toast('Einstellungen kopiert')}catch(err){toast('Kopieren nicht möglich')}return}
+  if(a==='shmkset'){const n=shotToSetup(x);await saveSetup(n);x.setupId=n.id;await saveShot(x);S.st.sel='L0';toast('Setup angelegt – Positionen jetzt im Plan anpassen');return renderSetup(n.id)}
+  if(a==='shdel'&&confirm('Foto aus der Bibliothek löschen?')){await DB.del('shots',x.id);S.shots=S.shots.filter(q=>q!==x);resetUrl(x.id);return renderLib()}
+});
+const shInput=e=>{if(S.view!=='shot')return;const el=e.target.closest('[data-hk]');if(!el)return;const x=shot(S.shotId);if(!x)return;shSet(x,el.dataset.hk,el.value);saveShot(x)};
+body.addEventListener('change',shInput);
+let shT;body.addEventListener('input',e=>{if(e.target.id==='libQ'){clearTimeout(shT);shT=setTimeout(()=>{S.libQ=e.target.value;const pos=e.target.selectionStart;renderLib();const q=$('#libQ');if(q){q.focus();try{q.setSelectionRange(pos,pos)}catch(x){}}},250);return}
+  if(S.view==='shot'&&e.target.matches('input[type=text],textarea')){clearTimeout(shT);shT=setTimeout(()=>shInput(e),400)}});
+$('#fShots').onchange=e=>{const f=[...e.target.files];e.target.value='';if(f.length)importShots(f)};
+
+/* ---------- Wetter (Open-Meteo, ohne Schlüssel) ---------- */
+const WXC={0:'Klar',1:'Überwiegend klar',2:'Teilweise bewölkt',3:'Bedeckt',45:'Nebel',48:'Reifnebel',51:'Leichter Niesel',53:'Niesel',55:'Starker Niesel',56:'Gefrierender Niesel',57:'Gefrierender Niesel',
+  61:'Leichter Regen',63:'Regen',65:'Starker Regen',66:'Gefrierender Regen',67:'Gefrierender Regen',71:'Leichter Schneefall',73:'Schneefall',75:'Starker Schneefall',77:'Schneegriesel',80:'Leichte Schauer',81:'Schauer',82:'Starke Schauer',85:'Schneeschauer',86:'Starke Schneeschauer',95:'Gewitter',96:'Gewitter mit Hagel',99:'Gewitter mit Hagel'};
+const wxCache=new Map();
+async function weatherFor(lat,lng,date){const days=Math.round((new Date(date+'T12:00')-new Date(todayISO()+'T12:00'))/864e5);
+  if(days>15)return {far:days};if(days<-60)return {past:true};const key=`${lat.toFixed(2)},${lng.toFixed(2)},${date}`;if(wxCache.has(key))return wxCache.get(key);
+  const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(4)}&longitude=${lng.toFixed(4)}&hourly=temperature_2m,precipitation_probability,precipitation,cloud_cover,wind_speed_10m,weather_code&timezone=auto&start_date=${date}&end_date=${date}`;
+  const r=await fetch(u);if(!r.ok)throw new Error('Wetterdienst antwortet nicht');const j=await r.json();const h=j.hourly;
+  const res={hours:h.time.map((t,i)=>({h:+t.slice(11,13),temp:h.temperature_2m[i],pp:h.precipitation_probability?h.precipitation_probability[i]:null,pr:h.precipitation[i],cc:h.cloud_cover[i],wind:h.wind_speed_10m[i],code:h.weather_code[i]}))};wxCache.set(key,res);return res}
+function wxHint(hs){const cc=hs.reduce((a,b)=>a+b.cc,0)/hs.length,pp=Math.max(...hs.map(x=>x.pp??0)),w=Math.max(...hs.map(x=>x.wind));const t=[];
+  if(pp>=50)t.push('Regen wahrscheinlich – Regen-Alternative einplanen');else if(pp>=25)t.push('Etwas Regenrisiko – Schirm einpacken');
+  if(cc<25)t.push('Viel Sonne – harte Schatten, Schatten oder Gegenlicht suchen');else if(cc>75)t.push('Bedeckt – weiches, gleichmäßiges Licht');else t.push('Wechselnd bewölkt – Licht ändert sich schnell');
+  if(w>30)t.push('Windig – Haare, Schleier und Reflektor sichern');return t}
+async function fillWeather(el,lat,lng,date,startMin,durMin){if(!el)return;el.innerHTML='<span class="ex">Wetter wird geladen …</span>';
+  try{const w=await weatherFor(lat,lng,date);if(!el.isConnected)return;
+    if(w.far){el.innerHTML=`<span class="ex">Wettervorhersage gibt es ab ca. 16 Tage vorher – noch ${w.far-15} Tag${w.far-15===1?'':'e'} warten.</span>`;return}
+    if(w.past){el.innerHTML='<span class="ex">Kein Wetter für so weit zurückliegende Tage.</span>';return}
+    const hasS=startMin!=null&&startMin!=='',s=hasS?Math.max(0,Math.floor(+startMin/60)-1):8,e=Math.min(23,hasS?Math.ceil((+startMin+(+durMin||60))/60)+1:20);
+    const hs=w.hours.filter(x=>x.h>=s&&x.h<=e);const m=hs[0]||w.hours[12];
+    el.innerHTML=`<div class="wxh"><b>${esc(WXC[m.code]||'–')}</b><span>${Math.round(m.temp)}° · Regen ${m.pp??'–'} % · Wolken ${m.cc} % · Wind ${Math.round(m.wind)} km/h</span></div>
+      <div class="wxr">${hs.map(x=>`<div><small>${String(x.h).padStart(2,'0')}</small><b>${Math.round(x.temp)}°</b><i style="--cc:${x.cc}%"></i><small>${x.pp??0} %</small></div>`).join('')}</div>
+      <ul class="wxt">${wxHint(hs.length?hs:[m]).map(t=>`<li>${esc(t)}</li>`).join('')}</ul><span class="ex">Quelle: Open-Meteo · Stand ${new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}</span>`}
+  catch(err){if(el.isConnected)el.innerHTML='<span class="ex">Wetter gerade nicht abrufbar (offline?).</span>'}}
+
+/* ---------- Ausrüstung & Packliste ---------- */
+const GEAR_DEF=[['Kamera','Kamera-Body 1'],['Kamera','Kamera-Body 2'],['Objektive','24–70 mm'],['Objektive','70–200 mm'],['Objektive','35 mm'],['Objektive','85 mm'],['Objektive','Makro 90/100 mm'],
+  ['Licht','Aufsteckblitz'],['Licht','Blitzauslöser'],['Licht','Reflektor'],['Licht','Videoleuchte'],['Strom & Daten','Akkus geladen'],['Strom & Daten','Speicherkarten leer'],['Strom & Daten','Ersatzakkus Blitz'],
+  ['Zubehör','Stativ'],['Zubehör','Regenschirm'],['Zubehör','Putztuch / Blasebalg'],['Zubehör','Taschenlampe'],['Zubehör','Decke'],['Hund & Pferd','Leckerli / Quietschie'],['Orga','Vertrag / Ablaufplan'],['Orga','Wasser & Snacks']];
+S.gear=null;
+async function loadGear(){try{const r=await rq(DB.st('kv').get('gear'));S.gear=r?r.v:GEAR_DEF.map(([cat,name])=>({id:uid(),cat,name}))}catch(e){S.gear=GEAR_DEF.map(([cat,name])=>({id:uid(),cat,name}))}}
+async function saveGear(){await DB.put('kv',{k:'gear',v:S.gear})}
+function packHTML(x){const p=x.pack||[],d=p.filter(i=>i.done).length;const cats=[...new Set(p.map(i=>i.cat||'Sonstiges'))];
+  return `<h3>Packliste ${p.length?`<span class="sum">${d} von ${p.length} eingepackt</span>`:''}</h3>
+   ${p.length?`<div class="card pack">${cats.map(c=>`<div class="pcat">${esc(c)}</div>${p.map((i,k)=>i.cat===c||(!i.cat&&c==='Sonstiges')?`<label class="pk ${i.done?'on':''}"><input type="checkbox" data-pk="${k}" ${i.done?'checked':''}><span>${esc(i.name)}</span><button type="button" class="mini" data-pkdel="${k}" aria-label="Entfernen">${ic('x')}</button></label>`:'').join('')}`).join('')}</div>`
+    :'<p class="ex">Noch leer – übernimm deine Ausrüstung mit einem Tipp und hake beim Einpacken ab.</p>'}
+   <div class="row2" style="margin-top:8px"><button class="btn sm" data-pkact="tpl">${ic('plus')} Ausrüstung übernehmen</button><button class="btn sm" data-pkact="gear">Ausrüstung bearbeiten</button>${d?'<button class="btn sm" data-pkact="reset">Häkchen zurücksetzen</button>':''}</div>
+   <div class="pkadd"><input type="text" id="pkNew" placeholder="Eigenen Punkt hinzufügen …" aria-label="Eigener Packlisten-Punkt"><button class="btn sm" data-pkact="add">${ic('plus')}</button></div>`}
+function renderGear(back){S.view='gear';S.gearBack=back;const cats=[...new Set(S.gear.map(g=>g.cat))];
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Meine Ausrüstung</h2><div class="meta"><span>Vorlage für alle Packlisten</span></div></div><button class="ib" data-pkact="gearback" aria-label="Zurück">${ic('back')}</button></div>
+   ${cats.map(c=>`<h3>${esc(c)}</h3><div class="card pack">${S.gear.map((g,k)=>g.cat===c?`<div class="pk"><span>${esc(g.name)}</span><button class="mini" data-gdel="${k}" aria-label="Entfernen">${ic('x')}</button></div>`:'').join('')}</div>`).join('')}
+   <section class="grp" style="margin-top:14px"><div class="two"><label>Bereich<input type="text" id="gCat" list="gcats" placeholder="z. B. Objektive"><datalist id="gcats">${cats.map(c=>`<option value="${esc(c)}">`).join('')}</datalist></label><label>Teil<input type="text" id="gName" placeholder="z. B. 50 mm f/1.2"></label></div>
+   <button class="btn acc" data-pkact="gadd">${ic('plus')} Hinzufügen</button></section>`,true)}
+body.addEventListener('change',async e=>{const c=e.target.closest('[data-pk]');if(!c)return;const x=shoot(S.shootId);if(!x)return;x.pack[+c.dataset.pk].done=c.checked;c.closest('.pk').classList.toggle('on',c.checked);await saveShoot(x);
+  const h=[...body.querySelectorAll('h3')].find(h=>h.textContent.startsWith('Packliste'));if(h){const d=x.pack.filter(i=>i.done).length;h.innerHTML=`Packliste <span class="sum">${d} von ${x.pack.length} eingepackt</span>`}});
+body.addEventListener('click',async e=>{const dl=e.target.closest('[data-pkdel]'),gd=e.target.closest('[data-gdel]'),b=e.target.closest('[data-pkact]');if(!dl&&!gd&&!b)return;
+  const x=shoot(S.shootId),re=()=>{const sc=body.scrollTop;renderShoot(x.id);body.scrollTop=sc};
+  if(dl&&x){e.preventDefault();x.pack.splice(+dl.dataset.pkdel,1);await saveShoot(x);return re()}
+  if(gd){S.gear.splice(+gd.dataset.gdel,1);await saveGear();return renderGear(S.gearBack)}
+  const a=b.dataset.pkact;
+  if(a==='tpl'&&x){x.pack=x.pack||[];const have=new Set(x.pack.map(i=>i.name));for(const g of S.gear)if(!have.has(g.name))x.pack.push({name:g.name,cat:g.cat,done:false});await saveShoot(x);return re()}
+  if(a==='add'&&x){const v=$('#pkNew').value.trim();if(!v)return;x.pack=x.pack||[];x.pack.push({name:v,cat:'Sonstiges',done:false});await saveShoot(x);return re()}
+  if(a==='reset'&&x){x.pack.forEach(i=>i.done=false);await saveShoot(x);return re()}
+  if(a==='gear')return renderGear(S.shootId);
+  if(a==='gearback')return S.gearBack&&shoot(S.gearBack)?renderShoot(S.gearBack):renderSettings();
+  if(a==='gadd'){const n=$('#gName').value.trim(),c=$('#gCat').value.trim()||'Sonstiges';if(!n)return;S.gear.push({id:uid(),cat:c,name:n});await saveGear();return renderGear(S.gearBack)}});
+body.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='pkNew'){e.preventDefault();body.querySelector('[data-pkact=add]').click()}});
+
+/* ---------- Moodboard für Kunden ---------- */
+function renderMood(id){const x=shoot(id);if(!x)return;S.view='mood';S.shootId=id;
+  showSheet(`<div class="f"><div class="hd"><div style="flex:1"><h2>Moodboard für Kunden</h2><div class="meta"><span>${esc(x.name)}</span></div></div><button class="ib" data-sh="open" data-id="${x.id}" aria-label="Zurück">${ic('back')}</button></div>
+   <section class="grp"><label>Begrüßung<input type="text" id="mdHi" value="${esc(x.moodHi??('Hallo '+(x.clients||'ihr zwei').split(',')[0]+'!'))}"></label>
+    <label>Hinweise für die Kunden<textarea id="mdTxt" placeholder="Treffpunkt, Parken, Outfit-Tipps, was mitbringen …">${esc(x.moodText??'Bequeme Schuhe für den Weg einpacken, Outfits in ruhigen, abgestimmten Farben, gern ein Wechsel-Outfit. Wir freuen uns auf euch!')}</textarea></label>
+    <label class="chk"><input type="checkbox" id="mdPoses" ${x.moodPoses===false?'':'checked'}>Posen-Ideen zeigen (ohne deine Notizen)</label>
+    <label class="chk"><input type="checkbox" id="mdLight" ${x.moodLight===false?'':'checked'}>Uhrzeit & goldene Stunde zeigen</label></section>
+   <button class="btn acc big" data-md="make">${ic('img')} Moodboard erstellen</button>
+   <div id="mdOut"></div></div>`,true)}
+const loadImg=src=>new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src});
+const svgImg=svg=>loadImg(URL.createObjectURL(new Blob([svg.replace('<svg ','<svg width="400" height="320" ')],{type:'image/svg+xml'})));
+function wrapTxt(g,t,maxW){const out=[];for(const para of String(t).split('\n')){let line='';for(const w of para.split(' ')){const tt=line?line+' '+w:w;if(g.measureText(tt).width>maxW&&line){out.push(line);line=w}else line=tt}out.push(line)}return out}
+function coverDraw(g,img,x,y,w,h){const r=Math.max(w/img.width,h/img.height),sw=w/r,sh=h/r;g.drawImage(img,(img.width-sw)/2,(img.height-sh)/2,sw,sh,x,y,w,h)}
+async function makeMood(x){const W=1080,P=56,F='-apple-system,"Helvetica Neue",Arial,sans-serif',sp=(x.spots||[]).map(spot).filter(Boolean),s0=sp[0],c0=s0&&cover(s0);
+  const poses=x.moodPoses===false?[]:x.items.filter(t=>t.kind!=='block').map(t=>S.poses.get(t.pose)).filter(Boolean).slice(0,12);
+  const meas=document.createElement('canvas').getContext('2d');meas.font=`400 34px ${F}`;const lines=wrapTxt(meas,x.moodText||'',W-2*P);
+  const heroH=c0?680:0,cols=3,cellW=(W-2*P-2*24)/3,cellH=cellW*.8+64,rows=Math.ceil(poses.length/cols);
+  const H=330+heroH+170+(poses.length?110+rows*cellH:0)+(lines.length?100+lines.length*50:0)+150;
+  const cv=document.createElement('canvas');cv.width=W;cv.height=H;const g=cv.getContext('2d');
+  g.fillStyle='#f7f5f1';g.fillRect(0,0,W,H);g.fillStyle='#1b1d21';g.fillRect(0,0,W,300);
+  g.fillStyle='#e2553a';g.font=`700 26px ${F}`;g.fillText('ZWEISTIL FOTOGRAFIE',P,78);
+  g.fillStyle='#fff';g.font=`700 64px ${F}`;g.fillText(x.moodHi||'Hallo!',P,170);g.font=`400 34px ${F}`;g.fillStyle='#d6d3cc';
+  const tLine=[x.date?new Date(x.date+'T12:00').toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):'',x.moodLight!==false&&x.time!==''&&x.time!=null?hm(x.time)+' Uhr':''].filter(Boolean).join(' · ');g.fillText(tLine||x.name,P,230);
+  let y=300;
+  if(c0){const img=await loadImg(url(c0,'f'));coverDraw(g,img,0,y,W,heroH);const gr=g.createLinearGradient(0,y+heroH-220,0,y+heroH);gr.addColorStop(0,'rgba(0,0,0,0)');gr.addColorStop(1,'rgba(0,0,0,.65)');g.fillStyle=gr;g.fillRect(0,y+heroH-220,W,220);
+    g.fillStyle='#fff';g.font=`700 48px ${F}`;g.fillText(s0.name,P,y+heroH-56);y+=heroH}
+  y+=60;g.fillStyle='#1b1d21';g.font=`700 36px ${F}`;
+  if(s0){g.fillText('Treffpunkt',P,y);g.font=`400 32px ${F}`;g.fillStyle='#5d626b';g.fillText(`${s0.name}${s0.parking?' · Parkplatz hinterlegt':''}`,P,y+46);
+    if(x.moodLight!==false&&x.date){const t=Sun.times(new Date(x.date+'T12:00'),s0.lat,s0.lng);g.fillText(`Goldene Stunde ${fmtT(t.goldA)}–${fmtT(t.blueA)} · Sonnenuntergang ${fmtT(t.set)}`,P,y+90)}y+=110}
+  if(poses.length){y+=50;g.fillStyle='#1b1d21';g.font=`700 36px ${F}`;g.fillText('Unsere Ideen für euch',P,y);y+=36;
+    for(let i=0;i<poses.length;i++){const p=poses[i],cx=P+(i%cols)*(cellW+24),cy=y+Math.floor(i/cols)*cellH;let img;try{img=p.blob?await loadImg(url(p,'f')):await svgImg(Sketch.svg(p.sk||'custom'))}catch(err){img=null}
+      g.save();g.beginPath();g.roundRect?g.roundRect(cx,cy,cellW,cellW*.8,18):g.rect(cx,cy,cellW,cellW*.8);g.clip();g.fillStyle='#ebe6dd';g.fillRect(cx,cy,cellW,cellW*.8);if(img)coverDraw(g,img,cx,cy,cellW,cellW*.8);g.restore();
+      g.fillStyle='#1b1d21';g.font=`600 26px ${F}`;g.fillText(wrapTxt(g,p.title,cellW)[0],cx+4,cy+cellW*.8+38)}
+    y+=rows*cellH}
+  if(lines.length&&x.moodText){y+=60;g.fillStyle='#1b1d21';g.font=`700 36px ${F}`;g.fillText('Gut zu wissen',P,y);y+=54;g.font=`400 32px ${F}`;g.fillStyle='#3b4048';for(const l of lines){g.fillText(l,P,y);y+=48}}
+  g.fillStyle='#1b1d21';g.fillRect(0,H-90,W,90);g.fillStyle='#d6d3cc';g.font=`500 26px ${F}`;g.fillText('Wir freuen uns auf euch – Zweistil Fotografie',P,H-36);
+  return new Promise(r=>cv.toBlob(r,'image/jpeg',.9))}
+body.addEventListener('click',async e=>{const b=e.target.closest('[data-md]');if(!b)return;const x=shoot(S.shootId);if(!x)return;
+  if(b.dataset.md==='make'){x.moodHi=$('#mdHi').value;x.moodText=$('#mdTxt').value;x.moodPoses=$('#mdPoses').checked;x.moodLight=$('#mdLight').checked;await saveShoot(x);busy(true);let blob;try{blob=await makeMood(x)}finally{busy(false)}
+    S.moodBlob=blob;const u=URL.createObjectURL(blob);$('#mdOut').innerHTML=`<img src="${u}" alt="Moodboard" class="mdimg"><button class="btn acc big" data-md="share">${ic('share')} Teilen / Speichern</button><p class="ex">Teilen öffnet das iOS-Menü – z. B. WhatsApp, Mail oder „Bild sichern“.</p>`;$('#mdOut').scrollIntoView({behavior:'smooth'})}
+  if(b.dataset.md==='share'&&S.moodBlob)deliver(S.moodBlob,`Moodboard ${x.name}.jpg`.replace(/[\/\\:]/g,'-'))});
+
+/* ---------- Sicherung: Erinnerung ---------- */
+function bumpChanges(){ls.set('chg',(ls.get('chg',0)||0)+1)}
+function backupReminder(){const last=ls.get('lastBackup',0),chg=ls.get('chg',0),days=last?Math.floor((Date.now()-last)/864e5):null;
+  if(!chg)return;if(last&&days<7&&chg<25)return;
+  toast(last?`Letzte Sicherung vor ${days} Tag${days===1?'':'en'} – jetzt sichern?`:'Noch keine Sicherung – jetzt sichern?','Sichern',()=>backup(),10000)}
+
 /* ---------- Start ---------- */
 (async()=>{
   mergePoses([]);
   try{await DB.open();S.spots=await DB.all('spots');for(const x of S.spots)if(migrate(x))DB.put('spots',x);for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
     for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);
-    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups')}
+    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');await loadGear();setTimeout(backupReminder,2500)}
   catch(e){toast('Lokaler Speicher nicht verfügbar (privater Modus?) – Daten werden nicht gespeichert',null,null,8000)}
   renderMarkers();
   // kein Willkommensbildschirm beim Start
