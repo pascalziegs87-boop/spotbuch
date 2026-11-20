@@ -394,7 +394,7 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
 /* ---- Menüleiste ---- */
 :root{--tbh:calc(60px + var(--sb))}
 #btnList{display:none}
-#tabs{position:fixed;left:0;right:0;bottom:0;padding:4px max(6px,env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));z-index:720;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-top:1px solid var(--line)}
+#tabs{position:fixed;left:0;right:0;bottom:0;padding:4px max(6px,env(safe-area-inset-right)) calc(4px + env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left));z-index:720;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:color-mix(in srgb,var(--panel) 92%,transparent);-webkit-backdrop-filter:saturate(1.6) blur(16px);backdrop-filter:saturate(1.6) blur(16px);border-top:1px solid var(--line)}
 #tabs button{border:0;background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600;color:var(--mute);padding:4px 0 2px;min-height:52px}
 .tico{display:grid;place-items:center;width:56px;height:30px;border-radius:15px;transition:background .2s,color .2s}
 #tabs button[aria-current=page]{color:var(--pin)}
@@ -439,6 +439,44 @@ h3 .sum{font-weight:500;color:var(--mute);margin-left:6px}h3 .sum.over{color:#c2
 .cropf::after{content:"";position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 0 2px rgba(255,255,255,.85);background:linear-gradient(90deg,transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px) calc(33.33% + .5px),transparent 0,transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px) calc(66.66% + .5px),transparent 0),linear-gradient(transparent calc(33.33% - .5px),rgba(255,255,255,.45) calc(33.33% - .5px) calc(33.33% + .5px),transparent 0,transparent calc(66.66% - .5px),rgba(255,255,255,.45) calc(66.66% - .5px) calc(66.66% + .5px),transparent 0)}
 .zrow{display:flex;align-items:center;gap:10px;color:var(--mute)}
 .zrow input{flex:1;accent-color:var(--pin);height:28px}
+/* ---- Studio ---- */
+.stname{width:100%;font:700 24px/1.15 Figtree,system-ui,sans-serif;border:0;background:none;color:var(--ink);padding:2px 0;border-bottom:1px dashed var(--line)}
+.stf{gap:0}.stf h3{margin-top:18px}.stf .grp{margin-top:12px}.stbar{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 8px}
+.stplan{position:relative;width:100%;aspect-ratio:4/3;border-radius:16px;overflow:hidden;background:#24262b;touch-action:none;user-select:none;-webkit-user-select:none}
+.stplan canvas{position:absolute;inset:0;width:100%;height:100%;image-rendering:auto;transition:opacity .2s}
+.stplan svg{position:absolute;inset:0;width:100%;height:100%}
+.sg{stroke:rgba(255,255,255,.08);stroke-width:1}
+.sl{font:600 10px Figtree,system-ui,sans-serif;fill:#e9e7e2;text-anchor:middle;paint-order:stroke;stroke:rgba(0,0,0,.55);stroke-width:2.5px}
+.sfov{stroke:rgba(255,255,255,.35);stroke-width:1.2;stroke-dasharray:4 4;fill:none}
+.scone{fill:rgba(255,230,160,.10);stroke:rgba(255,230,160,.35);stroke-width:1}
+.sobj{cursor:grab}
+.slight{fill:#f4f1ea;stroke:#2b2f36;stroke-width:1.5}
+.shead{fill:#3b4048}
+.sobj.off .slight{fill:#6b7078}
+.sobj.on .slight,.sobj.on .scam,.sobj.on .sprod{stroke:var(--pin);stroke-width:3}
+.scam{fill:#1b1d21;stroke:#e9e7e2;stroke-width:1.2}
+.sprod{stroke:#fff;stroke-width:1.5}
+.srot{fill:var(--pin);stroke:#fff;stroke-width:2;cursor:alias}
+.stsel{margin-top:10px;display:grid;gap:10px}
+.stsel label{display:grid;gap:4px;font-size:14px;font-weight:600}
+.stsel select,.stsel input[type=text]{border:1px solid var(--line);background:var(--panel);border-radius:10px;padding:9px 10px;font-size:16px;width:100%}
+.stsel input[type=range]{width:100%;accent-color:var(--pin)}
+.sth2{display:flex;gap:10px;align-items:center}.sth2 input[type=text],.sth2 input:not([type]){flex:1;font-weight:700}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lrow{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line)}
+.lrow:last-child{border-bottom:0}.lrow span{grid-column:1;font-size:13px;color:var(--mute)}
+.lrow .pw{grid-column:2;grid-row:1/3;display:flex;align-items:center;background:var(--panel);border-radius:12px}
+.lrow .pw b{min-width:64px;text-align:center;font-variant-numeric:tabular-nums;font-size:14px}
+.lrow .pw .mini{width:40px;height:40px;font-size:20px;font-weight:600;color:var(--ink)}
+.grp input[type=color]{width:100%;height:44px;border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:3px}
+.evb{display:grid;gap:2px;margin-top:8px;padding:10px 12px;border-radius:12px;background:var(--soft)}
+.evb b{font-size:20px;font-variant-numeric:tabular-nums}.evb span{font-size:13px;color:var(--mute)}
+.evb.ok{background:color-mix(in srgb,#3d8b5a 18%,transparent)}.evb.hi{background:color-mix(in srgb,var(--gold) 22%,transparent)}.evb.lo{background:color-mix(in srgb,var(--blue) 20%,transparent)}
+.ex.warn{color:#c23b2a}
+.stph{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:8px}
+.stph>div{position:relative}.stph>div>button:first-child{border:0;padding:0;width:100%;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--panel)}
+.stph img{width:100%;height:100%;object-fit:cover;display:block}
+.stph .mini{position:absolute;top:4px;right:4px;background:rgba(0,0,0,.55);color:#fff;border-radius:50%;width:26px;height:26px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -488,9 +526,11 @@ h3 .sum{font-weight:500;color:var(--mute);margin-left:6px}h3 .sum.over{color:#c2
   <button data-tab="spots"><span class="tico"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>Spots</span></button>
   <button data-tab="shoots"><span class="tico"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/></svg></span><span>Shootings</span></button>
   <button data-tab="poses"><span class="tico"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v7M7 11l5-2 5 2M9 21l3-6 3 6"/></svg></span><span>Posen</span></button>
+  <button data-tab="studio"><span class="tico"><svg class="i" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><span>Studio</span></button>
 </nav>
 <div id="run" hidden><div class="rbar" id="runBar"></div><div class="rimg" id="runImg"></div><div class="rinfo" id="runInfo"></div><div class="rnav" id="runNav"></div><div class="rgridw" id="runGrid"></div><button class="rx" aria-label="Zurück">×</button></div>
 <input type="file" id="fPose" accept="image/*" hidden>
+<input type="file" id="fSt" accept="image/*" multiple hidden>
 <div id="toast" role="status"><span id="toastT"></span><button id="toastB" hidden></button></div>
 <div class="busy" id="busy" hidden>Bilder werden verarbeitet …</div>
 <input type="file" id="fPhotos" accept="image/*" multiple hidden>
@@ -563,8 +603,8 @@ const Sun=(()=>{
 /* ---------- IndexedDB ---------- */
 const rq=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 const DB={db:null,
-  open(){return new Promise((res,rej)=>{const r=indexedDB.open('spotbuch',2);
-    r.onupgradeneeded=()=>{const d=r.result,h=n=>d.objectStoreNames.contains(n);if(!h('spots'))d.createObjectStore('spots',{keyPath:'id'});if(!h('photos'))d.createObjectStore('photos',{keyPath:'id'}).createIndex('spot','spotId');if(!h('poses'))d.createObjectStore('poses',{keyPath:'id'});if(!h('shoots'))d.createObjectStore('shoots',{keyPath:'id'})};
+  open(){return new Promise((res,rej)=>{const r=indexedDB.open('spotbuch',3);
+    r.onupgradeneeded=()=>{const d=r.result,h=n=>d.objectStoreNames.contains(n);if(!h('spots'))d.createObjectStore('spots',{keyPath:'id'});if(!h('photos'))d.createObjectStore('photos',{keyPath:'id'}).createIndex('spot','spotId');if(!h('poses'))d.createObjectStore('poses',{keyPath:'id'});if(!h('shoots'))d.createObjectStore('shoots',{keyPath:'id'});if(!h('setups'))d.createObjectStore('setups',{keyPath:'id'})};
     r.onsuccess=()=>{this.db=r.result;res()};r.onerror=()=>rej(r.error)})},
   st(n,m='readonly'){return this.db.transaction(n,m).objectStore(n)},
   all(n){return rq(this.st(n).getAll())},put(n,v){return rq(this.st(n,'readwrite').put(v))},del(n,id){return rq(this.st(n,'readwrite').delete(id))}
@@ -996,7 +1036,8 @@ async function deliver(blob,name){const file=new File([blob],name,{type:blob.typ
 const stamp=()=>todayISO();
 async function backup(){busy(true);try{const photos=[];for(const list of S.photos.values())for(const p of list){const {blob,thumb,...m}=p;photos.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}
   const poses=[];for(const r of await DB.all('poses')){const {blob,thumb,orig,...m}=r;poses.push({...m,data:blob?await blobToData(blob):null,thumbData:thumb?await blobToData(thumb):null})}
-  const json=JSON.stringify({app:'spotbuch',version:2,exported:new Date().toISOString(),spots:S.spots,photos,poses,shoots:S.shoots});
+  const setups=[];for(const x of S.setups){const ph=[];for(const p of x.photos||[]){const {blob,thumb,...m}=p;ph.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}setups.push({...x,photos:ph})}
+  const json=JSON.stringify({app:'spotbuch',version:3,exported:new Date().toISOString(),spots:S.spots,photos,poses,shoots:S.shoots,setups});
   await deliver(new Blob([json],{type:'application/json'}),`spotbuch-backup-${stamp()}.json`)}finally{busy(false)}}
 async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(await file.text());if(d.app!=='spotbuch')throw new Error('Kein Spotbuch-Backup');
   for(const s of d.spots||[]){migrate(s);const ex=spot(s.id);if(!ex||(s.updated||0)>(ex.updated||0)){await DB.put('spots',s);if(ex)Object.assign(ex,s);else S.spots.push(s);ns++}}
@@ -1007,6 +1048,8 @@ async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(awa
   let nsh=0;for(const r of d.poses||[]){const {data,thumbData,...m}=r;await DB.put('poses',{...m,blob:data?await (await fetch(data)).blob():null,thumb:thumbData?await (await fetch(thumbData)).blob():null})}
   if(d.poses&&d.poses.length)mergePoses(await DB.all('poses'));
   for(const x of d.shoots||[]){const ex=shoot(x.id);if(!ex||(x.updated||0)>(ex.updated||0)){await DB.put('shoots',x);if(ex)Object.assign(ex,x);else S.shoots.push(x);nsh++}}
+  for(const x of d.setups||[]){const ex=setup(x.id);if(ex&&(x.updated||0)<=(ex.updated||0))continue;const ph=[];for(const p of x.photos||[]){const {data,thumbData,...m}=p;ph.push({...m,blob:await (await fetch(data)).blob(),thumb:await (await fetch(thumbData||data)).blob()})}
+    const rec={...x,photos:ph};await DB.put('setups',rec);if(ex)Object.assign(ex,rec);else S.setups.push(rec);nsh++}
   renderMarkers();if(S.view==='welcome'||S.view==='settings'){sheet.hidden=true;S.view=null}toast(`${ns} Spots, ${np} Fotos${nsh?`, ${nsh} Shootings`:''} übernommen`)}catch(e){toast('Backup konnte nicht gelesen werden: '+e.message)}finally{busy(false)}}
 const xml=s=>esc(s);
 function descOf(s){return [envNames(s).join(', '),s.notes,s.access&&('Zugang: '+s.access),s.rain&&('Regen: '+s.rain)].filter(Boolean).join('\n')}
@@ -1621,7 +1664,7 @@ $('#run').addEventListener('click',e=>{const R=$('#run');if(R.classList.contains
 document.addEventListener('visibilitychange',async()=>{if(!$('#run').hidden&&document.visibilityState==='visible'&&navigator.wakeLock){try{run.lock=await navigator.wakeLock.request('screen')}catch(e){}}});
 
 /* ---------- Menüleiste unten ---------- */
-function syncTabs(){const v=sheet.hidden?null:S.view,t=!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'||v==='settings'?'map':v==='list'?'spots':v==='poseLib'||(v==='poseEdit'||v==='poseCrop')&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
+function syncTabs(){const v=sheet.hidden?null:S.view,t=!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'||v==='settings'?'map':v==='setups'||v==='setup'?'studio':v==='list'?'spots':v==='poseLib'||(v==='poseEdit'||v==='poseCrop')&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
   document.querySelectorAll('#tabs [data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===t?'page':'false'))}
 new MutationObserver(syncTabs).observe(sheet,{attributes:true,attributeFilter:['hidden']});
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const t=b.dataset.tab;
@@ -1629,10 +1672,251 @@ $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const
   if(t==='spots'){if(S.plan)closePlanner();renderList()}
   if(t==='shoots'){if(S.plan)closePlanner();renderShoots()}
   if(t==='poses'){if(S.plan)closePlanner();S.libTypes=[];renderPoseLib()}
+  if(t==='studio'){if(S.plan)closePlanner();renderSetups()}
   syncTabs()};
 
+/* ---------- Studio-Planer (Produktfotografie) ---------- */
+const MODS=[
+  ['normal','Normalreflektor',30,.1,0,.18],['softbox','Softbox 60×90',55,.8,1.5,.9],['okta','Oktabox 120',60,.9,1.7,1.2],['strip','Stripbox 30×120',50,.7,2,.3],
+  ['dish','Beauty Dish',40,.5,.7,.55],['umbrella','Durchlichtschirm',70,.75,1.3,1],['grid','Softbox mit Wabe',25,.6,2,.9],['snoot','Spot / Snoot',12,.05,2.5,.12]
+].map(([k,name,spread,soft,loss,size])=>({k,name,spread,soft,loss,size}));
+const MOD=Object.fromEntries(MODS.map(m=>[m.k,m]));
+const FLASHES=[['gn36','Aufsteckblitz (LZ 36)',36],['200','Studioblitz 200 Ws',45],['300','Studioblitz 300 Ws',55],['400','Studioblitz 400 Ws',64],['500','Studioblitz 500 Ws',72],['600','Studioblitz 600 Ws',78]];
+const GELS=[['','Ohne Folie',5500],['ctoq','CTO ¼',4900],['ctoh','CTO ½',3800],['cto','CTO voll',3200],['ctbh','CTB ½',7500],['ctb','CTB voll',10000]];
+const AIDS=[['refw','Reflektor weiß',.35,'#f2f0ea'],['refs','Reflektor silber',.6,'#c9ced6'],['refg','Reflektor gold',.5,'#e0b75a'],['flag','Abschatter schwarz',0,'#111']];
+const AID=Object.fromEntries(AIDS.map(a=>[a[0],{name:a[1],k:a[2],col:a[3]}]));
+const HELP=['Hohlkehle','Plexiglasplatte','Diffusorrahmen','Lichtzelt','Dulling Spray','Knete / Museum Wax','Klebeband','Clamps','Galgenstativ','Tethering','Polfilter','Makroschiene','Drehteller','Sprühflasche (Tropfen)'];
+const SHAPES=[['round','Rund (Flasche, Dose)'],['box','Eckig (Box, Verpackung)']];
+const MATS=[['matt','Matt',0],['satin','Seidenmatt',.35],['gloss','Glänzend',.8],['glass','Glas / Chrom',1]];
+const PLAN={x0:-1.5,x1:1.5,y0:-1,y1:1.25};
+const stopsTxt=s=>{const w=Math.floor(s+1e-6),r=Math.round((s-w)*3);return '1/'+2**w+(r?(r===1?' −⅓':' −⅔'):'')};
+const setupNew=()=>({id:uid(),name:'Neues Setup',created:Date.now(),updated:Date.now(),wb:5500,bg:'#ffffff',bgDist:.7,
+  product:{shape:'round',w:8,d:8,h:20,mat:'gloss',col:'#3c6e8f',rot:0},
+  camera:{x:0,y:1.05,h:.35,fl:90,f:11,ss:'1/160',iso:100,body:'',lens:''},
+  lights:[{id:uid(),name:'Blitz 1',x:-.85,y:-.35,h:1.2,flash:'400',mod:'strip',stops:2,gel:'',aim:true,ang:0},{id:uid(),name:'Blitz 2',x:.9,y:-.2,h:1.1,flash:'400',mod:'strip',stops:3,gel:'',aim:true,ang:0}],
+  aids:[],help:[],notes:'',photos:[]});
+S.setups=[];S.st={id:null,sel:'L0',heat:true};
+const setup=id=>S.setups.find(x=>x.id===id);
+async function saveSetup(x){x.updated=Date.now();await DB.put('setups',x);if(!S.setups.includes(x))S.setups.push(x)}
+let stSaveT;const stSaveSoon=()=>{clearTimeout(stSaveT);stSaveT=setTimeout(()=>{const x=setup(S.st.id);if(x)saveSetup(x)},400)};
+const aimAng=o=>Math.atan2(-o.y,-o.x)/rad;
+const dirOf=o=>o.aim!==false?aimAng(o):(o.ang||0);
+const kelvinRGB=k=>{const t=k/100;let r,g,b;r=t<=66?255:329.698727446*Math.pow(t-60,-.1332047592);g=t<=66?99.4708025861*Math.log(t)-161.1195681661:288.1221695283*Math.pow(t-60,-.0755148492);b=t>=66?255:t<=19?0:138.5177312231*Math.log(t-10)-305.0447927307;return [r,g,b].map(v=>Math.max(0,Math.min(255,v))/255)};
+
+/* Physik: Beitrag eines Lichts an Punkt p (x,y,z) mit Flächennormale n (3D, optional) */
+function lightAt(x,L,p,n){const m=MOD[L.mod]||MOD.normal,F=FLASHES.find(f=>f[0]===L.flash)||FLASHES[3];
+  const dx=p[0]-L.x,dy=p[1]-L.y,dz=p[2]-L.h,d2=dx*dx+dy*dy+dz*dz,d=Math.sqrt(d2)||1e-3;
+  const dir=dirOf(L)*rad,ax=Math.cos(dir),ay=Math.sin(dir),hd=Math.hypot(dx,dy)||1e-3,off=Math.acos(Math.max(-1,Math.min(1,(dx*ax+dy*ay)/hd)))/rad;
+  const edge=m.spread,cone=off<=edge*.7?1:off>=edge*1.15?0:1-(off-edge*.7)/(edge*.45);if(cone<=0)return 0;
+  let cos=1;if(n){cos=-(n[0]*dx+n[1]*dy+n[2]*dz)/d;if(cos<=0)return 0}
+  if(blocked(x,[L.x,L.y],[p[0],p[1]]))return 0;
+  const iso=(+x.camera.iso||100)/100,N=+x.camera.f||8;
+  return F[2]**2*2**(-L.stops)*2**(-m.loss)*cone*cos*iso/(Math.max(d2,.04)*N*N)}
+function segX(a,b,c,d){const r=[b[0]-a[0],b[1]-a[1]],s=[d[0]-c[0],d[1]-c[1]],den=r[0]*s[1]-r[1]*s[0];if(Math.abs(den)<1e-9)return false;
+  const t=((c[0]-a[0])*s[1]-(c[1]-a[1])*s[0])/den,u=((c[0]-a[0])*r[1]-(c[1]-a[1])*r[0])/den;return t>0.001&&t<.999&&u>=0&&u<=1}
+function aidSeg(A){const a=(A.ang||0)*rad,l=(A.len||.6)/2,px=-Math.sin(a)*l,py=Math.cos(a)*l;return [[A.x-px,A.y-py],[A.x+px,A.y+py]]}
+function blocked(x,a,b){for(const A of x.aids){if(A.k!=='flag')continue;const [c,d]=aidSeg(A);if(segX(a,b,c,d))return true}return false}
+function prodShadow(x,L,g){const P=x.product,r=Math.max(P.w,P.d)/200,h=P.h/100,vx=g[0]-L.x,vy=g[1]-L.y,l2=vx*vx+vy*vy;if(!l2)return false;
+  const t=Math.max(0,Math.min(1,(-L.x*vx-L.y*vy)/l2)),cx=L.x+vx*t,cy=L.y+vy*t;
+  let inside;if(P.shape==='box'){const a=-(P.rot||0)*rad,qx=cx*Math.cos(a)-cy*Math.sin(a),qy=cx*Math.sin(a)+cy*Math.cos(a);inside=Math.abs(qx)<P.w/200&&Math.abs(qy)<P.d/200}else inside=Math.hypot(cx,cy)<r;
+  return inside&&L.h*(1-t)<h}
+// Reflektoren: werden von Lichtern angestrahlt und strahlen weich zurück
+function bounces(x){return x.aids.filter(A=>A.k!=='flag').map(A=>{const a=AID[A.k];let inc=0;for(const L of x.lights)if(L.on!==false)inc+=lightAt(x,L,[A.x,A.y,A.h??.5],null)*.5;
+  return {name:a.name,x:A.x,y:A.y,h:A.h??.5,inc:inc*a.k,col:A.k==='refg'?[1,.82,.55]:[1,1,1],ang:aimAng(A)}})}
+function bounceAt(B,p,n){const dx=p[0]-B.x,dy=p[1]-B.y,dz=p[2]-B.h,d2=dx*dx+dy*dy+dz*dz,d=Math.sqrt(d2);let cos=1;if(n){cos=-(n[0]*dx+n[1]*dy+n[2]*dz)/d;if(cos<=0)return 0}
+  const hd=Math.hypot(dx,dy)||1e-3,face=(dx*Math.cos(B.ang*rad)+dy*Math.sin(B.ang*rad))/hd;if(face<=0)return 0;return B.inc*face*cos*.25/Math.max(d2,.04)}
+function exposure(x){const P=x.product,c=[0,0,P.h/200];let tot=0;const per=[];
+  for(const L of x.lights){const v=L.on===false?0:lightAt(x,L,c,null);per.push(v);tot+=v}for(const B of bounces(x))tot+=bounceAt(B,c,null);
+  return {ev:tot>0?Math.log2(tot):-9,per}}
+
+/* Zeichnen */
+function stW2P(svg,p){const r=svg.viewBox.baseVal;return [(p[0]-PLAN.x0)/(PLAN.x1-PLAN.x0)*r.width,(p[1]-PLAN.y0)/(PLAN.y1-PLAN.y0)*r.height]}
+function stDrawHeat(x){const cv=$('#stHeat');if(!cv)return;const W=120,H=90;cv.width=W;cv.height=H;const g=cv.getContext('2d'),im=g.createImageData(W,H),bs=bounces(x),wbc=kelvinRGB(x.wb||5500);
+  const tint=x.lights.map(L=>{const k=(GELS.find(q=>q[0]===L.gel)||GELS[0])[2],c=kelvinRGB(k);return c.map((v,i)=>v/wbc[i])});
+  for(let j=0;j<H;j++)for(let i=0;i<W;i++){const gx=PLAN.x0+(i+.5)/W*(PLAN.x1-PLAN.x0),gy=PLAN.y0+(j+.5)/H*(PLAN.y1-PLAN.y0),p=[gx,gy,0];let r=0,gg=0,b=0;
+    x.lights.forEach((L,k)=>{if(L.on===false||prodShadow(x,L,p))return;const v=lightAt(x,L,p,[0,0,1]);r+=v*tint[k][0];gg+=v*tint[k][1];b+=v*tint[k][2]});
+    for(const B of bs){const v=bounceAt(B,p,[0,0,1]);r+=v*B.col[0];gg+=v*B.col[1];b+=v*B.col[2]}
+    const o=(j*W+i)*4,tm=v=>255*(.07+.93*(1-Math.exp(-1.1*v)));im.data[o]=tm(r);im.data[o+1]=tm(gg);im.data[o+2]=tm(b);im.data[o+3]=255}
+  g.putImageData(im,0,0)}
+function stDrawPlan(x){const svg=$('#stPlan');if(!svg)return;const R=svg.viewBox.baseVal,sc=R.width/(PLAN.x1-PLAN.x0),P=x.product,o=[];
+  // Raster
+  for(let gx=Math.ceil(PLAN.x0*2)/2;gx<=PLAN.x1;gx+=.5){const p=stW2P(svg,[gx,0]);o.push(`<line x1="${p[0]}" y1="0" x2="${p[0]}" y2="${R.height}" class="sg"/>`)}
+  for(let gy=Math.ceil(PLAN.y0*2)/2;gy<=PLAN.y1;gy+=.5){const p=stW2P(svg,[0,gy]);o.push(`<line x1="0" y1="${p[1]}" x2="${R.width}" y2="${p[1]}" class="sg"/>`)}
+  // Hintergrund
+  const cam=x.camera,vx=-cam.x,vy=-cam.y,vl=Math.hypot(vx,vy)||1,bx=vx/vl*(x.bgDist||.7),by=vy/vl*(x.bgDist||.7),bp=stW2P(svg,[bx,by]),ba=Math.atan2(vy,vx)/rad+90;
+  o.push(`<g transform="translate(${bp[0]} ${bp[1]}) rotate(${ba})"><rect x="${-sc*.9}" y="-3" width="${sc*1.8}" height="6" rx="3" fill="${x.bg}" stroke="#888" stroke-width="1"/><text y="-8" class="sl">Hintergrund</text></g>`);
+  // Kamera-Sichtfeld
+  const cp=stW2P(svg,[cam.x,cam.y]),ca=Math.atan2(vy,vx),fov=2*Math.atan(18/(+cam.fl||50)),fl=vl*sc*1.6;
+  o.push(`<path d="M${cp[0]} ${cp[1]}L${cp[0]+Math.cos(ca-fov/2)*fl} ${cp[1]+Math.sin(ca-fov/2)*fl}M${cp[0]} ${cp[1]}L${cp[0]+Math.cos(ca+fov/2)*fl} ${cp[1]+Math.sin(ca+fov/2)*fl}" class="sfov"/>`);
+  // Lichtkegel & Lichter
+  x.lights.forEach((L,k)=>{const m=MOD[L.mod]||MOD.normal,p=stW2P(svg,[L.x,L.y]),a=dirOf(L),len=sc*1.1,sel=S.st.sel==='L'+k;
+    const c1=(a-m.spread)*rad,c2=(a+m.spread)*rad;
+    if(L.on!==false)o.push(`<path d="M${p[0]} ${p[1]}L${p[0]+Math.cos(c1)*len} ${p[1]+Math.sin(c1)*len}A${len} ${len} 0 0 1 ${p[0]+Math.cos(c2)*len} ${p[1]+Math.sin(c2)*len}Z" class="scone"/>`);
+    const w=Math.max(14,m.size*sc),hh=Math.max(7,Math.min(.25,m.size*.3)*sc);
+    o.push(`<g data-obj="L${k}" transform="translate(${p[0]} ${p[1]}) rotate(${a+90})" class="sobj ${sel?'on':''} ${L.on===false?'off':''}"><rect x="${-w/2}" y="${-hh/2}" width="${w}" height="${hh}" rx="${L.mod==='okta'||L.mod==='umbrella'||L.mod==='dish'?hh/2:3}" class="slight"/><rect x="-6" y="${hh/2}" width="12" height="8" rx="2" class="shead"/></g>`);
+    const hp=[p[0]+Math.cos(a*rad)*28,p[1]+Math.sin(a*rad)*28];
+    o.push(`<text x="${p[0]}" y="${p[1]-hh/2-8}" class="sl">${esc(L.name)}</text>`);if(sel)o.push(`<circle data-rot="L${k}" cx="${hp[0]}" cy="${hp[1]}" r="9" class="srot"/>`)});
+  // Hilfsmittel
+  x.aids.forEach((A,k)=>{const [a,b]=aidSeg(A),pa=stW2P(svg,a),pb=stW2P(svg,b),m=[(pa[0]+pb[0])/2,(pa[1]+pb[1])/2],sel=S.st.sel==='A'+k,na=(A.ang||0)*rad;
+    o.push(`<g data-obj="A${k}" class="sobj ${sel?'on':''}"><line x1="${pa[0]}" y1="${pa[1]}" x2="${pb[0]}" y2="${pb[1]}" stroke="${AID[A.k].col}" stroke-width="7" stroke-linecap="round"/><line x1="${pa[0]}" y1="${pa[1]}" x2="${pb[0]}" y2="${pb[1]}" stroke="rgba(0,0,0,.35)" stroke-width="1"/><circle cx="${m[0]}" cy="${m[1]}" r="14" fill="transparent"/></g>`);
+    if(sel){const hp=[m[0]+Math.cos(na)*24,m[1]+Math.sin(na)*24];o.push(`<circle data-rot="A${k}" cx="${hp[0]}" cy="${hp[1]}" r="9" class="srot"/>`)}});
+  // Produkt
+  const pp=stW2P(svg,[0,0]),pw=Math.max(8,P.w/100*sc),pd=Math.max(8,P.d/100*sc);
+  o.push(`<g data-obj="P" class="sobj ${S.st.sel==='P'?'on':''}">${P.shape==='box'?`<rect x="${pp[0]-pw/2}" y="${pp[1]-pd/2}" width="${pw}" height="${pd}" rx="2" transform="rotate(${P.rot||0} ${pp[0]} ${pp[1]})" fill="${P.col}" class="sprod"/>`:`<ellipse cx="${pp[0]}" cy="${pp[1]}" rx="${pw/2}" ry="${pd/2}" fill="${P.col}" class="sprod"/>`}</g><text x="${pp[0]}" y="${pp[1]+pd/2+14}" class="sl">Produkt</text>`);
+  // Kamera
+  o.push(`<g data-obj="C" transform="translate(${cp[0]} ${cp[1]}) rotate(${ca/rad+90})" class="sobj ${S.st.sel==='C'?'on':''}"><rect x="-13" y="-8" width="26" height="17" rx="4" class="scam"/><rect x="-6" y="-14" width="12" height="7" rx="2" class="scam"/><circle cx="0" cy="1" r="5" fill="#fff" opacity=".85"/></g><text x="${cp[0]}" y="${cp[1]+26}" class="sl">Kamera</text>`);
+  // Maßstab
+  o.push(`<g transform="translate(10 ${R.height-10})"><line x1="0" y1="0" x2="${sc*.5}" y2="0" stroke="#666" stroke-width="2"/><text x="${sc*.25}" y="-5" class="sl">50 cm</text></g>`);
+  svg.querySelector('#stG').innerHTML=o.join('')}
+function stDrawPreview(x){const cv=$('#stPrev');if(!cv)return;const W=cv.clientWidth||320,H=Math.round(W*.66),dpr=Math.min(2,devicePixelRatio||1);cv.width=W*dpr;cv.height=H*dpr;cv.style.height=H+'px';
+  const g=cv.getContext('2d');g.setTransform(dpr,0,0,dpr,0,0);const P=x.product,cam=x.camera;
+  const vx=-cam.x,vy=-cam.y,vl=Math.hypot(vx,vy)||1,v=[vx/vl,vy/vl],r=[-v[1],v[0]],wbc=kelvinRGB(x.wb||5500),bs=bounces(x);
+  const tints=x.lights.map(L=>{const c=kelvinRGB((GELS.find(q=>q[0]===L.gel)||GELS[0])[2]);return c.map((q,i)=>q/wbc[i])});
+  const mat=MATS.find(m=>m[0]===P.mat)||MATS[0],alb=[1,3,5].map(i=>parseInt(P.col.slice(i,i+2),16)/255),bgc=[1,3,5].map(i=>parseInt(x.bg.slice(i,i+2),16)/255);
+  const tm=q=>Math.round(255*Math.min(1,Math.pow(1-Math.exp(-2.1*Math.max(0,q)),1/1.15)));
+  const shade=(pt,n,albedo,spec)=>{let c=[.025,.025,.025];x.lights.forEach((L,k)=>{if(L.on===false)return;const val=lightAt(x,L,pt,n),vis=lightAt(x,L,pt,null);if(!vis)return;let s=0;
+      if(spec){const m=MOD[L.mod]||MOD.normal,lx=L.x-pt[0],ly=L.y-pt[1],lz=L.h-pt[2],ll=Math.hypot(lx,ly,lz),cx=cam.x-pt[0],cy=cam.y-pt[1],cz=cam.h-pt[2],cl=Math.hypot(cx,cy,cz);
+        const hx=lx/ll+cx/cl,hy=ly/ll+cy/cl,hz=lz/ll+cz/cl,hl=Math.hypot(hx,hy,hz),nh=Math.max(0,(n[0]*hx+n[1]*hy+n[2]*hz)/hl),sh=8+(1-m.soft)*160+(P.mat==='glass'?80:0);s=spec*Math.pow(nh,sh)*(1.4+m.size)*Math.min(1.6,.5+vis*2)}
+      for(let i=0;i<3;i++)c[i]+=(val*albedo[i]*(1-spec*.5)+s)*tints[k][i]});
+    for(const B of bs){const val=bounceAt(B,pt,n);for(let i=0;i<3;i++)c[i]+=val*albedo[i]*B.col[i]}return c};
+  // Hintergrund
+  const bgP=[v[0]*(x.bgDist||.7),v[1]*(x.bgDist||.7)];
+  for(let yy=0;yy<H;yy+=4){const z=Math.max(0,(H*.78-yy)/(H*.78))*(P.h/100*2.2),c=shade([bgP[0],bgP[1],z],[-v[0],-v[1],0],bgc,0);g.fillStyle=`rgb(${tm(c[0])},${tm(c[1])},${tm(c[2])})`;g.fillRect(0,yy,W,4.6)}
+  // Boden
+  const floorY=H*.78;for(let yy=floorY;yy<H;yy+=3){const t=(yy-floorY)/(H-floorY),c=shade([-v[0]*t*.5,-v[1]*t*.5,0],[0,0,1],bgc,0);g.fillStyle=`rgb(${tm(c[0])},${tm(c[1])},${tm(c[2])})`;g.fillRect(0,yy,W,3.6)}
+  // Maßstab: Produkt füllt je nach Brennweite
+  const scale=Math.min(H*.62/(P.h/100),W*.5/(Math.max(P.w,P.d)/100))*Math.min(1.25,(+cam.fl||50)/90),ph=P.h/100*scale,pw=P.w/100*scale,cx=W/2,base=floorY+4;
+  // Schatten am Boden
+  x.lights.forEach((L,k)=>{if(L.on===false)return;const val=lightAt(x,L,[0,0,P.h/200],null);if(!val)return;const lx=-L.x,ly=-L.y,ll=Math.hypot(lx,ly)||1,sxv=(lx*r[0]+ly*r[1])/ll,elev=Math.atan2(L.h,Math.hypot(L.x,L.y)),len=Math.min(2.4,1/Math.tan(Math.max(.25,elev)))*ph*.35,m=MOD[L.mod]||MOD.normal;
+    g.save();g.translate(cx+sxv*len*.7,base);g.scale(1,.18);const gr=g.createRadialGradient(0,0,0,0,0,pw*.6+len*.6);gr.addColorStop(0,`rgba(0,0,0,${Math.min(.45,.12+val*.25)*(1-m.soft*.5)})`);gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.beginPath();g.arc(0,0,pw*.6+len*.6,0,7);g.fill();g.restore()});
+  // Produkt (Säulen)
+  const cols=Math.max(24,Math.round(pw));for(let i=0;i<cols;i++){const u=(i+.5)/cols*2-1;let n;
+    if(P.shape==='box'){n=[-v[0],-v[1],0]}else{const s=Math.sqrt(1-u*u);n=[u*r[0]-s*v[0],u*r[1]-s*v[1],0]}
+    for(let j=0;j<12;j++){const z=(j+.5)/12*P.h/100,pt=[n[0]*P.w/200,n[1]*P.w/200,z],c=shade(pt,n,alb,mat[2]);
+      g.fillStyle=`rgb(${tm(c[0])},${tm(c[1])},${tm(c[2])})`;g.fillRect(cx-pw/2+i*pw/cols,base-ph+(11-j)/12*ph,pw/cols+.6,ph/12+.6)}}
+  // Deckel
+  const tc=shade([0,0,P.h/100],[0,0,1],alb,mat[2]);g.fillStyle=`rgb(${tm(tc[0])},${tm(tc[1])},${tm(tc[2])})`;g.beginPath();
+  if(P.shape==='box')g.rect(cx-pw/2,base-ph-pw*.12,pw,pw*.12);else g.ellipse(cx,base-ph,pw/2,pw*.09,0,0,7);g.fill();
+  if(P.shape!=='box'){g.beginPath();g.ellipse(cx,base,pw/2,pw*.09,0,0,Math.PI);g.strokeStyle='rgba(0,0,0,.25)';g.stroke()}}
+function stReadout(x){const el=$('#stRead');if(!el)return;const e=exposure(x),cam=x.camera;const ev=e.ev;
+  const sorted=x.lights.map((L,k)=>({L,v:e.per[k]})).filter(o=>o.v>0).sort((a,b)=>b.v-a.v);
+  const ratio=sorted.length>1?`${esc(sorted[0].L.name)} ist ${Math.abs(Math.log2(sorted[0].v/sorted[1].v)).toFixed(1).replace('.',',')} Blenden heller als ${esc(sorted[1].L.name)}`:'';
+  const ssv=(()=>{const m=String(cam.ss).match(/1\/(\d+)/);return m?1/+m[1]:parseFloat(cam.ss)||0})();
+  el.innerHTML=`<div class="evb ${Math.abs(ev)<.4?'ok':ev>0?'hi':'lo'}"><b>${ev>-8?(ev>0?'+':'')+ev.toFixed(1).replace('.',',')+' EV':'kein Licht'}</b><span>${ev>-8?(Math.abs(ev)<.4?'Belichtung passt':ev>0?'zu hell – Blende schließen oder Leistung runter':'zu dunkel – Blende öffnen oder Leistung hoch'):'Blitze zeigen nicht aufs Produkt'}</span></div>
+   ${ratio?`<p class="ex" style="margin:6px 0 0">${ratio}</p>`:''}${ssv&&ssv<1/250?`<p class="ex warn">Achtung: ${esc(cam.ss)} ist schneller als die übliche Blitzsynchronzeit.</p>`:''}`}
+let stRaf=0;function stDraw(heat=true){if(stRaf)return;stRaf=requestAnimationFrame(()=>{stRaf=0;const x=setup(S.st.id);if(!x)return;stDrawPlan(x);if(heat&&S.st.heat)stDrawHeat(x);stDrawPreview(x);stReadout(x)})}
+
+/* Beschreibung zum Nachbauen */
+function stDescribe(x){const cam=x.camera,v=[-cam.x,-cam.y],ca=Math.atan2(v[1],v[0]);const out=[`${x.name}`,`Kamera: ${[cam.body,cam.lens].filter(Boolean).join(', ')||'–'} · ${cam.fl} mm · f/${cam.f} · ${cam.ss} · ISO ${cam.iso} · Weißabgleich ${x.wb} K`,`Kamera ${Math.round(Math.hypot(cam.x,cam.y)*100)} cm vom Produkt, Höhe ${Math.round(cam.h*100)} cm`];
+  const cl=Math.hypot(cam.x,cam.y)||1,vv=[-cam.x/cl,-cam.y/cl],rr=[-vv[1],vv[0]];
+  x.lights.forEach(L=>{const ll=Math.hypot(L.x,L.y)||1,deg=Math.round(Math.acos(Math.max(-1,Math.min(1,(L.x*cam.x+L.y*cam.y)/(ll*cl))))/rad),lat=L.x*rr[0]+L.y*rr[1];
+    const side=deg<8?'auf der Kamera-Achse':`${deg}° ${lat<0?'links':'rechts'} von der Kamera-Achse${deg>120?' (Gegenlicht)':deg>70?' (Seitenlicht)':''}`;
+    out.push(`${L.name}${L.on===false?' (aus)':''}: ${(FLASHES.find(f=>f[0]===L.flash)||[])[1]||''}, ${(MOD[L.mod]||{}).name}, ${stopsTxt(L.stops)}${L.gel?', '+lab(GELS,L.gel):''} – ${side}, ${Math.round(Math.hypot(L.x,L.y)*100)} cm entfernt, Höhe ${Math.round(L.h*100)} cm`)});
+  x.aids.forEach(A=>out.push(`${AID[A.k].name}: ${Math.round(Math.hypot(A.x,A.y)*100)} cm vom Produkt, Länge ${Math.round((A.len||.6)*100)} cm`));
+  out.push(`Produkt: ${lab(SHAPES,x.product.shape).split(' (')[0]}, ${x.product.w}×${x.product.d}×${x.product.h} cm, ${lab(MATS,x.product.mat)} · Hintergrund ${x.bg} in ${Math.round((x.bgDist||.7)*100)} cm`);
+  if(x.help.length)out.push('Hilfsmittel: '+x.help.join(', '));if(x.notes)out.push('Notizen: '+x.notes);return out.join('\n')}
+
+/* Ansichten */
+function renderSetups(){S.view='setups';const arr=[...S.setups].sort((a,b)=>b.updated-a.updated);
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Studio</h2><div class="meta"><span>Licht-Setups für Produktfotografie</span></div></div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
+   <button class="btn acc big" data-st="new">${ic('plus')} Neues Setup</button>
+   ${arr.length?arr.map(x=>{const p=x.photos[0];return `<button class="li" data-st="open" data-id="${x.id}"><span class="th" style="${p?`background-image:url(${url(p,'t')})`:''};--c:var(--gold)">${p?'':ic('flash')}</span>
+     <span class="tx"><b>${esc(x.name)}</b><small>${x.lights.length} Blitz${x.lights.length===1?'':'e'} · ${x.camera.fl} mm · f/${x.camera.f} · ${x.wb} K</small><small>${x.photos.length} Beispielbild${x.photos.length===1?'':'er'} · ${new Date(x.updated).toLocaleDateString('de-DE')}</small></span><span class="d"></span></button>`}).join('')
+   :`<div class="empty static">${ic('flash')}<b>Noch keine Setups</b><span>Plane deinen Aufbau mit Produkt, Kamera und Blitzen, speichere Einstellungen und Beispielbilder und baue ihn später identisch wieder auf.</span></div>`}`,true)}
+function stField(label,key,val,attrs=''){return `<label>${label}<input type="text" data-sk="${key}" value="${esc(val??'')}" ${attrs}></label>`}
+function stSel(label,key,list,val){return `<label>${label}<select data-sk="${key}">${list.map(o=>`<option value="${o[0]}" ${String(o[0])===String(val)?'selected':''}>${o[1]}</option>`).join('')}</select></label>`}
+function renderSetup(id){const x=setup(id);if(!x)return renderSetups();S.view='setup';S.st.id=id;const cam=x.camera,P=x.product;
+  showSheet(`<div class="hd"><div style="flex:1"><input class="stname" data-sk="name" value="${esc(x.name)}" aria-label="Name des Setups"></div><button class="ib" data-st="list" aria-label="Zurück">${ic('back')}</button></div>
+   <div class="f stf"><div class="stbar"><button class="btn sm" data-st="addL">${ic('plus')} Blitz</button><button class="btn sm" data-st="addA" data-k="refw">${ic('plus')} Reflektor</button><button class="btn sm" data-st="addA" data-k="flag">${ic('plus')} Abschatter</button>
+    <button class="btn sm ${S.st.heat?'cov':''}" data-st="heat">${ic('sun')} Licht</button></div>
+   <div class="stplan"><canvas id="stHeat"></canvas><svg id="stPlan" viewBox="0 0 360 270" preserveAspectRatio="none"><g id="stG"></g></svg></div>
+   <p class="ex" style="margin:4px 0 0">Elemente ziehen zum Verschieben · antippen und am Punkt drehen · Raster 50 cm · Helligkeit = Licht auf dem Boden, dunkle Flächen = Schatten</p>
+   <div id="stSelP"></div>
+   <h3>Kameravorschau (Simulation)</h3><div class="card" style="padding:8px"><canvas id="stPrev" style="width:100%;display:block;border-radius:10px"></canvas><div id="stRead"></div></div>
+   <section class="grp" style="margin-top:14px"><h4>Kamera & Weißabgleich</h4>
+    <div class="two">${stField('Kamera','camera.body',cam.body,'placeholder="z. B. Sony A7 IV"')}${stField('Objektiv','camera.lens',cam.lens,'placeholder="z. B. 90 mm Makro"')}</div>
+    <div class="two">${stField('Brennweite (mm)','camera.fl',cam.fl,'inputmode="numeric"')}${stSel('Blende','camera.f',[1.4,2,2.8,4,5.6,8,11,16,22,32].map(v=>[v,'f/'+String(v).replace('.',',')]),cam.f)}</div>
+    <div class="two">${stSel('Belichtungszeit','camera.ss',['1/60','1/80','1/100','1/125','1/160','1/200','1/250'].map(v=>[v,v+' s']),cam.ss)}${stSel('ISO','camera.iso',[50,64,100,200,400,800].map(v=>[v,v]),cam.iso)}</div>
+    <div class="two"><label>Weißabgleich (K)<input type="number" data-sk="wb" value="${x.wb}" min="2500" max="10000" step="100" inputmode="numeric"></label><label>Kamerahöhe (cm)<input type="number" data-sk="camera.hcm" value="${Math.round(cam.h*100)}" inputmode="numeric"></label></div></section>
+   <section class="grp"><h4>Blitze</h4>${x.lights.map((L,k)=>`<div class="lrow"><b>${esc(L.name)}</b><span>${(FLASHES.find(f=>f[0]===L.flash)||[])[1]||''} · ${(MOD[L.mod]||{}).name}</span>
+     <div class="pw"><button class="mini" data-st="pw" data-k="${k}" data-d="0.3333" aria-label="Leistung runter">−</button><b>${stopsTxt(L.stops)}</b><button class="mini" data-st="pw" data-k="${k}" data-d="-0.3333" aria-label="Leistung hoch">+</button></div></div>`).join('')}</section>
+   <section class="grp"><h4>Produkt & Hintergrund</h4>
+    <div class="two">${stSel('Form','product.shape',SHAPES,P.shape)}${stSel('Oberfläche','product.mat',MATS,P.mat)}</div>
+    <div class="three"><label>Breite (cm)<input type="number" data-sk="product.w" value="${P.w}" inputmode="decimal"></label><label>Tiefe (cm)<input type="number" data-sk="product.d" value="${P.d}" inputmode="decimal"></label><label>Höhe (cm)<input type="number" data-sk="product.h" value="${P.h}" inputmode="decimal"></label></div>
+    <div class="two"><label>Produktfarbe<input type="color" data-sk="product.col" value="${P.col}"></label><label>Hintergrundfarbe<input type="color" data-sk="bg" value="${x.bg}"></label></div>
+    <label>Abstand Hintergrund (cm)<input type="number" data-sk="bgcm" value="${Math.round((x.bgDist||.7)*100)}" inputmode="numeric"></label></section>
+   <section class="grp"><h4>Hilfsmittel</h4><div class="opts" data-multi="help">${HELP.map(h=>`<button type="button" data-v="${esc(h)}" aria-pressed="${x.help.includes(h)}">${esc(h)}</button>`).join('')}</div>
+    <label>Notizen<textarea data-sk="notes" placeholder="z. B. Tropfen mit Glycerin-Wasser, Etikett leicht nach links gedreht …">${esc(x.notes)}</textarea></label></section>
+   <section class="grp"><h4>Beispielbilder</h4><div class="stph">${x.photos.map((p,i)=>`<div><button data-st="lb" data-i="${i}"><img src="${url(p,'t')}" alt=""></button><button class="mini" data-st="phdel" data-i="${i}" aria-label="Bild löschen">${ic('x')}</button></div>`).join('')}</div>
+    <button class="btn" data-st="ph">${ic('cam')} Beispielbilder hinzufügen</button></section>
+   <h3>Aufbau zum Nachbauen</h3><div class="card prose" id="stDesc">${esc(stDescribe(x))}</div>
+   <div class="row2" style="margin-top:10px"><button class="btn" data-st="copy">${ic('copy')} Aufbau kopieren</button><button class="btn" data-st="dup">${ic('plus')} Duplizieren</button></div>
+   <div class="foot"><span></span><span><button class="lnk dng" data-st="del">${ic('trash')} Setup löschen</button></span></div></div>`,true);
+  stMount();stRenderSel();stDraw()}
+function stRenderSel(){const x=setup(S.st.id),el=$('#stSelP');if(!x||!el)return;const s=S.st.sel||'';let h='';
+  if(s[0]==='L'){const k=+s.slice(1),L=x.lights[k];if(L)h=`<div class="card stsel"><div class="sth2"><input data-sk="lights.${k}.name" value="${esc(L.name)}" aria-label="Name"><label class="chk"><input type="checkbox" data-sk="lights.${k}.on" ${L.on===false?'':'checked'}>an</label></div>
+    <div class="two">${stSel('Blitz','lights.'+k+'.flash',FLASHES,L.flash)}${stSel('Lichtformer','lights.'+k+'.mod',MODS.map(m=>[m.k,m.name]),L.mod)}</div>
+    <div class="two">${stSel('Leistung','lights.'+k+'.stops',Array.from({length:22},(_,i)=>[(i/3).toFixed(4),stopsTxt(i/3)]),(Math.round(L.stops*3)/3).toFixed(4))}${stSel('Farbfolie','lights.'+k+'.gel',GELS.map(g=>[g[0],g[1]]),L.gel)}</div>
+    <label>Höhe: <b id="lh${k}">${Math.round(L.h*100)} cm</b><input type="range" min="10" max="300" step="5" data-sk="lights.${k}.hcm" value="${Math.round(L.h*100)}"></label>
+    <div class="row2"><button class="btn sm" data-st="aim" data-k="${k}">${ic('sun')} Aufs Produkt ausrichten</button><button class="btn sm dng" data-st="delL" data-k="${k}">${ic('trash')} Entfernen</button></div></div>`}
+  else if(s[0]==='A'){const k=+s.slice(1),A=x.aids[k];if(A)h=`<div class="card stsel">${stSel('Art','aids.'+k+'.k',AIDS.map(a=>[a[0],a[1]]),A.k)}
+    <label>Länge: <b>${Math.round((A.len||.6)*100)} cm</b><input type="range" min="20" max="200" step="5" data-sk="aids.${k}.lencm" value="${Math.round((A.len||.6)*100)}"></label>
+    <div class="row2"><button class="btn sm dng" data-st="delA" data-k="${k}">${ic('trash')} Entfernen</button></div></div>`}
+  else if(s==='P')h=`<div class="card stsel"><b>Produkt</b><p class="ex">Größe, Form und Oberfläche stellst du unten unter „Produkt & Hintergrund“ ein.</p>${x.product.shape==='box'?`<label>Drehung: <b>${x.product.rot||0}°</b><input type="range" min="-90" max="90" data-sk="product.rot" value="${x.product.rot||0}"></label>`:''}</div>`;
+  else if(s==='C')h=`<div class="card stsel"><b>Kamera</b><p class="ex">Abstand zum Produkt: ${Math.round(Math.hypot(x.camera.x,x.camera.y)*100)} cm · Brennweite und Blende unten.</p></div>`;
+  el.innerHTML=h}
+function stSet(x,key,val){if(key==='camera.hcm'){x.camera.h=(+val||0)/100;return}if(key==='bgcm'){x.bgDist=(+val||70)/100;return}
+  const ks=key.split('.');let o=x;for(let i=0;i<ks.length-1;i++)o=o[ks[i]];let k=ks[ks.length-1];
+  if(k==='hcm'){o.h=(+val||0)/100;const l=$('#lh'+ks[1]);if(l)l.textContent=Math.round(o.h*100)+' cm';return}if(k==='lencm'){o.len=(+val||60)/100;return}
+  if(['w','d','h','fl','f','iso','wb','stops','rot'].includes(k))val=+val;o[k]=val}
+function stMount(){const svg=$('#stPlan'),box=svg.parentElement;let drag=null;
+  const stop=e=>e.stopPropagation();['touchstart','touchmove','touchend'].forEach(t=>box.addEventListener(t,stop,{passive:true}));
+  const toW=e=>{const r=svg.getBoundingClientRect();return [PLAN.x0+(e.clientX-r.left)/r.width*(PLAN.x1-PLAN.x0),PLAN.y0+(e.clientY-r.top)/r.height*(PLAN.y1-PLAN.y0)]};
+  const objOf=(x,s)=>s==='C'?x.camera:s==='P'?null:s[0]==='L'?x.lights[+s.slice(1)]:x.aids[+s.slice(1)];
+  svg.addEventListener('pointerdown',e=>{const x=setup(S.st.id),rt=e.target.closest('[data-rot]'),ob=e.target.closest('[data-obj]');
+    if(rt){drag={rot:rt.dataset.rot};svg.setPointerCapture(e.pointerId);return}
+    if(ob){const s=ob.dataset.obj;if(S.st.sel!==s){S.st.sel=s;stRenderSel()}const w=toW(e),o=objOf(x,s);drag={s,dx:o?o.x-w[0]:0,dy:o?o.y-w[1]:0,moved:false};svg.setPointerCapture(e.pointerId);stDraw(false);return}
+    S.st.sel='';stRenderSel();stDraw(false)});
+  svg.addEventListener('pointermove',e=>{if(!drag)return;const x=setup(S.st.id),w=toW(e);
+    if(drag.rot){const o=objOf(x,drag.rot);o.aim=false;o.ang=Math.round(Math.atan2(w[1]-o.y,w[0]-o.x)/rad);if(drag.rot[0]==='A')o.ang=Math.round(Math.atan2(w[1]-o.y,w[0]-o.x)/rad);stDraw();return}
+    const o=objOf(x,drag.s);if(!o)return;o.x=Math.max(PLAN.x0+.05,Math.min(PLAN.x1-.05,Math.round((w[0]+drag.dx)*100)/100));o.y=Math.max(PLAN.y0+.05,Math.min(PLAN.y1-.05,Math.round((w[1]+drag.dy)*100)/100));drag.moved=true;stDraw()});
+  const end=()=>{if(drag){drag=null;stSaveSoon();const d=$('#stDesc');const x=setup(S.st.id);if(d&&x)d.textContent=stDescribe(x)}};svg.addEventListener('pointerup',end);svg.addEventListener('pointercancel',end)}
+
+/* ---------- Studio: Ereignisse ---------- */
+Object.assign(IC,{flash:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>',copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>'});
+const stRerender=()=>{const sc=body.scrollTop;renderSetup(S.st.id);body.scrollTop=sc};
+body.addEventListener('click',async e=>{
+  if(S.view==='setup'){const hb=e.target.closest('[data-multi="help"] button');if(hb){const x=setup(S.st.id);x.help=[...body.querySelectorAll('[data-multi="help"] [aria-pressed=true]')].map(b=>b.dataset.v);stSaveSoon();$('#stDesc').textContent=stDescribe(x);return}}
+  const b=e.target.closest('[data-st]');if(!b)return;const a=b.dataset.st,x=setup(S.st.id),k=+b.dataset.k;
+  if(a==='list')return renderSetups();
+  if(a==='open'){S.st.sel='L0';return renderSetup(b.dataset.id)}
+  if(a==='new'){const n=setupNew();await saveSetup(n);S.st.sel='L0';return renderSetup(n.id)}
+  if(!x)return;
+  if(a==='addL'){const n=x.lights.length+1;x.lights.push({id:uid(),name:'Blitz '+n,x:n%2?-.7:.7,y:-.7,h:1.4,flash:'400',mod:'softbox',stops:3,gel:'',aim:true,ang:0});S.st.sel='L'+(x.lights.length-1);await saveSetup(x);return stRerender()}
+  if(a==='addA'){const kk=b.dataset.k;x.aids.push({id:uid(),k:kk,x:kk==='flag'?-.45:.45,y:.15,h:.4,len:.6,ang:kk==='flag'?0:180});S.st.sel='A'+(x.aids.length-1);await saveSetup(x);return stRerender()}
+  if(a==='heat'){S.st.heat=!S.st.heat;b.classList.toggle('cov',S.st.heat);const cv=$('#stHeat');if(cv){if(!S.st.heat)cv.getContext('2d').clearRect(0,0,cv.width,cv.height);cv.style.opacity=S.st.heat?1:0}return stDraw()}
+  if(a==='pw'){const L=x.lights[k];L.stops=Math.max(0,Math.min(7,Math.round((L.stops+(+b.dataset.d))*3)/3));await saveSetup(x);return stRerender()}
+  if(a==='aim'){x.lights[k].aim=true;await saveSetup(x);return stDraw()}
+  if(a==='delL'&&confirm(`${x.lights[k].name} entfernen?`)){x.lights.splice(k,1);S.st.sel='';await saveSetup(x);return stRerender()}
+  if(a==='delA'){x.aids.splice(k,1);S.st.sel='';await saveSetup(x);return stRerender()}
+  if(a==='ph')return $('#fSt').click();
+  if(a==='phdel'&&confirm('Beispielbild löschen?')){const p=x.photos.splice(+b.dataset.i,1)[0];if(p)resetUrl(p.id);await saveSetup(x);return stRerender()}
+  if(a==='lb')return openLB(x.photos,+b.dataset.i);
+  if(a==='copy'){const t=stDescribe(x);try{await navigator.clipboard.writeText(t);toast('Aufbau kopiert')}catch(err){toast('Kopieren nicht möglich')}return}
+  if(a==='dup'){const c=structuredClone(x);c.id=uid();c.name=x.name+' (Kopie)';c.created=c.updated=Date.now();c.photos=c.photos.map(p=>({...p,id:uid()}));await saveSetup(c);toast('Setup dupliziert');return renderSetup(c.id)}
+  if(a==='del'&&confirm(`Setup „${x.name}“ löschen?`)){await DB.del('setups',x.id);S.setups=S.setups.filter(q=>q!==x);return renderSetups()}
+});
+const stInput=(e,full)=>{if(S.view!=='setup')return;const el=e.target.closest('[data-sk]');if(!el)return;const x=setup(S.st.id);if(!x)return;
+  const key=el.dataset.sk,val=el.type==='checkbox'?el.checked:el.value;stSet(x,key,val);stSaveSoon();
+  if(key==='name')return;stDraw();const d=$('#stDesc');if(d)d.textContent=stDescribe(x);if(full)stRerender()};
+body.addEventListener('input',e=>{const el=e.target;if(el.tagName==='SELECT'||el.type==='checkbox'||el.type==='color')return;stInput(e,false)});
+body.addEventListener('change',e=>{const el=e.target;if(el.tagName==='SELECT'||el.type==='checkbox')return stInput(e,true);if(el.type==='color')return stInput(e,false)});
+$('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';const x=setup(S.st.id);if(!x||!files.length)return;busy(true);
+  try{for(const f of files){const {full,thumb}=await shrink(f);x.photos.push({id:uid(),blob:full,thumb,exif:await readExif(f),caption:'',created:Date.now()})}await saveSetup(x)}finally{busy(false)}stRerender()};
+addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
+
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v15';
+const APPV='v16';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -1655,7 +1939,7 @@ try{if(matchMedia('(display-mode: standalone)').matches||navigator.standalone)do
   mergePoses([]);
   try{await DB.open();S.spots=await DB.all('spots');for(const x of S.spots)if(migrate(x))DB.put('spots',x);for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
     for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);
-    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots')}
+    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups')}
   catch(e){toast('Lokaler Speicher nicht verfügbar (privater Modus?) – Daten werden nicht gespeichert',null,null,8000)}
   renderMarkers();
   // kein Willkommensbildschirm beim Start
