@@ -627,7 +627,7 @@ const DB={db:null,
     r.onupgradeneeded=()=>{const d=r.result,h=n=>d.objectStoreNames.contains(n);if(!h('shots'))d.createObjectStore('shots',{keyPath:'id'});if(!h('kv'))d.createObjectStore('kv',{keyPath:'k'});if(!h('spots'))d.createObjectStore('spots',{keyPath:'id'});if(!h('photos'))d.createObjectStore('photos',{keyPath:'id'}).createIndex('spot','spotId');if(!h('poses'))d.createObjectStore('poses',{keyPath:'id'});if(!h('shoots'))d.createObjectStore('shoots',{keyPath:'id'});if(!h('setups'))d.createObjectStore('setups',{keyPath:'id'})};
     r.onsuccess=()=>{this.db=r.result;res()};r.onerror=()=>rej(r.error)})},
   st(n,m='readonly'){return this.db.transaction(n,m).objectStore(n)},
-  all(n){return rq(this.st(n).getAll())},put(n,v){if(n!=='kv'||v.k==='gear')bumpChanges();return rq(this.st(n,'readwrite').put(v))},del(n,id){return rq(this.st(n,'readwrite').delete(id))}
+  all(n){return rq(this.st(n).getAll())},put(n,v,keep){if(!keep&&(n!=='kv'||v.k==='gear')){v.updated=Date.now();bumpChanges();tombSet(n+'/'+(n==='kv'?v.k:v.id),0);scheduleSync()}return rq(this.st(n,'readwrite').put(v))},del(n,id,keep){if(!keep){tombSet(n+'/'+id,Date.now());bumpChanges();scheduleSync()}return rq(this.st(n,'readwrite').delete(id))}
 };
 
 /* ---------- Zustand ---------- */
@@ -1046,10 +1046,11 @@ async function renderSettings(){S.view='settings';let est='';try{const e=await n
   let pers=false;try{pers=await navigator.storage.persisted()}catch(x){}
   const n=[...S.photos.values()].reduce((a,b)=>a+b.length,0);
   showSheet(`<div class="hd"><h2>Daten & Backup</h2><button class="ib" data-act="close" aria-label="Schließen"><svg class="i" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-   <p class="note">${S.spots.length} Spots · ${n} Referenzfotos${est?' · '+est:''}.<br>Alles liegt nur auf diesem Gerät. Mach regelmäßig ein Backup, z. B. in die Dateien-App oder aufs NAS.${pers?'':'<br><b>Speicher ist noch nicht als dauerhaft markiert.</b>'}</p>
+   <p class="note">${S.spots.length} Spots · ${n} Referenzfotos${est?' · '+est:''}.<br>${SY.on?'Deine Daten werden automatisch mit dem NAS synchronisiert.':'Alles liegt nur auf diesem Gerät. Richte unten den Sync mit dem NAS ein oder mach regelmäßig ein Backup.'}${pers?'':'<br><b>Speicher ist noch nicht als dauerhaft markiert.</b>'}</p>
    <div class="acts"><button class="btn pri" data-act="backup">Backup speichern (.json)</button><button class="btn" data-act="restore">Backup einlesen</button>
     <button class="btn" data-act="gpx">Spots als GPX</button><button class="btn" data-act="kml">Spots als KML</button>
     ${pers?'':'<button class="btn" data-act="persist">Speicher dauerhaft machen</button>'}<button class="btn" data-act="diag">Bildschirm-Diagnose</button></div>
+   ${syncSection()}
    <h3>Tipps</h3><p class="note">Auf dem iPhone: in Safari öffnen → Teilen → „Zum Home-Bildschirm“. Als App gestartet bleiben die Daten dauerhaft und Standort/Kamera funktionieren.<br><br>KML lässt sich in Google My Maps oder Google Earth importieren, GPX in Navi- und Wander-Apps. Ein Backup kannst du auf einem zweiten Gerät einlesen; vorhandene Spots werden zusammengeführt.</p>`,true)}
 const blobToData=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
 async function deliver(blob,name){const file=new File([blob],name,{type:blob.type});
@@ -1945,7 +1946,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v17';
+const APPV='v18';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -2140,12 +2141,63 @@ function backupReminder(){const last=ls.get('lastBackup',0),chg=ls.get('chg',0),
   if(!chg)return;if(last&&days<7&&chg<25)return;
   toast(last?`Letzte Sicherung vor ${days} Tag${days===1?'':'en'} – jetzt sichern?`:'Noch keine Sicherung – jetzt sichern?','Sichern',()=>backup(),10000)}
 
+/* ---------- Sync mit dem NAS ---------- */
+const SYNC_STORES=['spots','photos','poses','shoots','setups','shots','kv'];
+const SY={busy:false,again:false,t:null,msg:'',get url(){return String(ls.get('syncUrl','')||'').trim().replace(/\/+$/,'')},get tok(){return String(ls.get('syncTok','')||'').trim()},get on(){return !!(this.url&&this.tok)}};
+function tombSet(k,v){const t=ls.get('tomb',{});if(v)t[k]=v;else delete t[k];ls.set('tomb',t)}
+async function syApi(path,opt={}){let r;try{r=await fetch(SY.url+path,{...opt,cache:'no-store',headers:{...(opt.headers||{}),Authorization:'Bearer '+SY.tok}})}
+  catch(e){throw new Error('NAS nicht erreichbar – Adresse, Internet oder Zertifikat prüfen')}
+  if(!r.ok)throw new Error(r.status===401?'Token passt nicht':r.status===413?'Datei zu groß für den Server':'NAS antwortet mit Fehler '+r.status);return r}
+function sySer(v,owner,field,blobs){if(v instanceof Blob){const key=`${owner}.${field}.${v.size}`.replace(/[^A-Za-z0-9_.-]/g,'_');blobs.set(key,v);return {$b:key}}
+  if(Array.isArray(v))return v.map((x,i)=>sySer(x,owner,field+i,blobs));
+  if(v&&typeof v==='object'&&!(v instanceof Date)){const o={},oid=v.id||owner;for(const k of Object.keys(v))o[k]=sySer(v[k],oid,k,blobs);return o}return v}
+async function syDeser(v){if(Array.isArray(v))return Promise.all(v.map(syDeser));
+  if(v&&typeof v==='object'){if(v.$b)return await (await syApi('/blob/'+v.$b)).blob();const o={};for(const k of Object.keys(v))o[k]=await syDeser(v[k]);return o}return v}
+function syStatus(){if(!SY.on)return 'Noch nicht eingerichtet.';const l=ls.get('syncLast',0);
+  return (SY.msg?SY.msg+'<br>':'')+(l?`Zuletzt synchronisiert: ${new Date(l).toLocaleString('de-DE',{dateStyle:'short',timeStyle:'short'})}`:'Noch nie synchronisiert.')}
+function syShow(m){SY.msg=m;const el=$('#syMsg');if(el)el.innerHTML=syStatus()}
+function scheduleSync(ms=15000){if(!SY.on)return;clearTimeout(SY.t);SY.t=setTimeout(()=>syncNow(false),ms)}
+async function syncNow(manual){if(!SY.on)return;if(SY.busy){SY.again=true;return}SY.busy=true;clearTimeout(SY.t);SY.t=null;syShow('Synchronisiere …');let up=0,down=0;
+  try{const m=await (await syApi('/manifest')).json(),have=new Set(m.blobs||[]),recs=m.recs||{};
+    const local=new Map();
+    for(const st of SYNC_STORES)for(const r of await DB.all(st)){if(st==='kv'&&r.k!=='gear')continue;local.set(st+'/'+(st==='kv'?r.k:r.id),{st,id:st==='kv'?r.k:r.id,u:r.updated||r.created||1,r})}
+    const tomb=ls.get('tomb',{});for(const [k,u] of Object.entries(tomb))if(!local.has(k)){const [st,id]=k.split('/');local.set(k,{st,id,u,del:true})}
+    for(const [k,L] of local){const R=recs[k];if(R&&R.u>=L.u)continue;
+      if(L.del){await syApi(`/rec/${L.st}/${L.id}`,{method:'PUT',body:JSON.stringify({u:L.u,del:true})});up++;continue}
+      const blobs=new Map(),data=sySer(L.r,L.id,'',blobs);
+      for(const [bk,b] of blobs)if(!have.has(bk)){await syApi('/blob/'+bk,{method:'PUT',body:b});have.add(bk)}
+      await syApi(`/rec/${L.st}/${L.id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({u:L.u,data})});up++}
+    for(const [k,R] of Object.entries(recs)){const L=local.get(k);if(L&&L.u>=R.u)continue;const i=k.indexOf('/'),st=k.slice(0,i),id=k.slice(i+1);if(!SYNC_STORES.includes(st))continue;
+      if(R.del){if(L&&!L.del){await DB.del(st,id,true);down++}continue}
+      const rec=await syDeser(await (await syApi(`/rec/${st}/${id}`)).json());rec.updated=R.u;await DB.put(st,rec,true);tombSet(k,0);down++}
+    ls.set('syncLast',Date.now());ls.set('lastBackup',Date.now());ls.set('chg',0);
+    if(down)await reloadAll();
+    syShow(up||down?`Fertig: ${up} hochgeladen, ${down} vom NAS übernommen.`:'Alles aktuell.');
+    if(manual||down)toast(down?`Sync: ${down} Änderung${down===1?'':'en'} vom NAS übernommen`:up?`Sync: ${up} Änderung${up===1?'':'en'} gesichert`:'Sync: alles aktuell')}
+  catch(e){syShow('Fehler: '+e.message);if(manual)toast('Sync fehlgeschlagen: '+e.message,null,null,6000)}
+  finally{SY.busy=false;if(SY.again){SY.again=false;scheduleSync(2000)}}}
+async function reloadAll(){S.spots=await DB.all('spots');S.photos=new Map();for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
+  for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');await loadGear();
+  for(const u of S.urls.values())URL.revokeObjectURL(u);S.urls.clear();renderMarkers();
+  if(!sheet.hidden){const v=S.view;if(v==='lib')renderLib();else if(v==='setups')renderSetups();else if(v==='shoots'&&typeof renderShoots==='function')renderShoots()}}
+function syncSection(){return `<h3>Sync mit dem NAS</h3><div class="f"><label>Adresse des Sync-Servers<input type="url" id="syUrl" value="${esc(SY.url)}" placeholder="https://zweistil-sync.deinname.synology.me" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
+  <label>Token<input type="password" id="syTok" value="${esc(SY.tok)}" autocomplete="off" placeholder="aus der docker-compose.yml"></label></div>
+  <p class="note" id="syMsg">${syStatus()}</p><div class="acts"><button class="btn pri" data-act="sysave">Speichern & verbinden</button>${SY.on?'<button class="btn" data-act="synow">Jetzt synchronisieren</button><button class="btn" data-act="syoff">Sync ausschalten</button>':''}</div>`}
+body.addEventListener('click',async e=>{const b=e.target.closest('[data-act=sysave],[data-act=synow],[data-act=syoff]');if(!b)return;const a=b.dataset.act;
+  if(a==='syoff'){ls.set('syncUrl','');ls.set('syncTok','');SY.msg='';return renderSettings()}
+  if(a==='sysave'){let u=$('#syUrl').value.trim();if(u&&!/^https?:\/\//.test(u))u='https://'+u;ls.set('syncUrl',u);ls.set('syncTok',$('#syTok').value.trim());if(!SY.on)return toast('Adresse und Token eintragen');
+    syShow('Verbinde …');try{const r=await (await syApi('/ping')).json();syShow(`Verbunden – ${r.records} Einträge auf dem NAS.`)}catch(err){return syShow('Fehler: '+err.message)}
+    await syncNow(true);return renderSettings()}
+  if(a==='synow'){await syncNow(true)}});
+document.addEventListener('visibilitychange',()=>{if(!SY.on)return;if(document.visibilityState==='hidden'){if(SY.t)syncNow(false)}else if(Date.now()-ls.get('syncLast',0)>120000)scheduleSync(1500)});
+addEventListener('online',()=>scheduleSync(2000));
+
 /* ---------- Start ---------- */
 (async()=>{
   mergePoses([]);
   try{await DB.open();S.spots=await DB.all('spots');for(const x of S.spots)if(migrate(x))DB.put('spots',x);for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
     for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);
-    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');await loadGear();setTimeout(backupReminder,2500)}
+    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');await loadGear();if(SY.on)scheduleSync(2500);else setTimeout(backupReminder,2500)}
   catch(e){toast('Lokaler Speicher nicht verfügbar (privater Modus?) – Daten werden nicht gespeichert',null,null,8000)}
   renderMarkers();
   // kein Willkommensbildschirm beim Start
