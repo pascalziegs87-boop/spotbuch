@@ -596,7 +596,7 @@ body.radar .fabs{bottom:calc(var(--tbh) + 92px)}.qgrid .qe{font-size:22px;line-h
   <button data-add="photos"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="m21 17-5-5-8 7"/></svg><span>Aus Fotos anlegen<small>Position aus den GPS-Daten der Bilder</small></span></button>
 </div>
 <div class="menu" id="layerMenu" hidden></div>
-<div class="radbar" id="radbar" hidden><button class="ib" id="radPlay" aria-label="Abspielen"></button><div class="radmid"><input type="range" id="radRange" min="0" max="12" step="1" aria-label="Zeitpunkt"><div class="radlab"><b id="radTime">Jetzt</b><span>DWD-Regenradar · <i class="rl1"></i>leicht <i class="rl2"></i>mittel <i class="rl3"></i>stark</span></div></div><button class="ib" id="radClose" aria-label="Regenradar ausblenden"></button></div>
+<div class="radbar" id="radbar" hidden><button class="ib" id="radPlay" aria-label="Abspielen"></button><div class="radmid"><input type="range" id="radRange" min="0" max="6" step="1" aria-label="Zeitpunkt"><div class="radlab"><b id="radTime">Jetzt</b><span>DWD-Regenradar · <i class="rl1"></i>leicht <i class="rl2"></i>mittel <i class="rl3"></i>stark</span></div></div><button class="ib" id="radClose" aria-label="Regenradar ausblenden"></button></div>
 
 <div id="planner" hidden></div>
 <div id="cross" hidden><div class="x"></div>
@@ -2671,16 +2671,19 @@ document.addEventListener('click',e=>{const g=e.target.closest('[data-gnew]');if
 
 /* ---------- Regenradar (DWD) ---------- */
 const RAD={on:false,frames:[],layers:[],i:0,timer:null};window.RAD=RAD;
-function radTimes(){const step=5*60e3,now=Date.now(),ref=Math.floor((now-10*60e3)/step)*step;RAD.ref=ref;const out=[];for(let k=-4;k<=8;k++)out.push(ref+k*15*60e3);return out}
-function radLayer(t){return L.tileLayer.wms('https://maps.dwd.de/geoserver/dwd/wms',{layers:'dwd:Niederschlagsradar',format:'image/png',transparent:true,version:'1.3.0',opacity:0,time:new Date(t).toISOString().replace('.000',''),pane:'radarPane',attribution:'Radar © DWD',maxZoom:19})}
+function radTimes(){const step=5*60e3,now=Date.now(),ref=Math.floor((now-10*60e3)/step)*step;RAD.ref=ref;const out=[];for(let k=-2;k<=4;k++)out.push(ref+k*30*60e3);return out}
+const RB={w:5.0,e:16.0,s:46.6,n:55.6},m3x=l=>l*20037508.34/180,m3y=l=>Math.log(Math.tan((90+l)*Math.PI/360))/(Math.PI/180)*20037508.34/180;
+function radLayer(t){const bb=[m3x(RB.w),m3y(RB.s),m3x(RB.e),m3y(RB.n)].map(v=>v.toFixed(0)).join(','),W=1100,H=Math.round(W*(m3y(RB.n)-m3y(RB.s))/(m3x(RB.e)-m3x(RB.w)));
+  const u=`https://maps.dwd.de/geoserver/dwd/wms?service=WMS&request=GetMap&layers=dwd:Niederschlagsradar&styles=&format=image/png&transparent=true&version=1.3.0&width=${W}&height=${H}&crs=EPSG:3857&bbox=${bb}&time=${new Date(t).toISOString().replace('.000','')}`;
+  return L.imageOverlay(u,[[RB.s,RB.w],[RB.n,RB.e]],{opacity:0,pane:'radarPane',attribution:'Radar © DWD',interactive:false})}
 function radShow(i){RAD.i=i;RAD.layers.forEach((l,k)=>l.setOpacity(k===i?.72:0));const t=RAD.frames[i],d=Math.round((t-RAD.ref)/60e3),hh=new Date(t).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
-  $('#radTime').textContent=d===0?`Jetzt · ${hh}`:d<0?`vor ${-d} Min · ${hh}`:`Vorhersage +${d} Min · ${hh}`;$('#radRange').value=i;$('#radbar').classList.toggle('fc',d>0)}
+  $('#radTime').textContent=(d===0?`Jetzt · ${hh}`:d<0?`vor ${-d} Min · ${hh}`:`Vorhersage +${d} Min · ${hh}`)+(RAD.ok&&!RAD.ok[i]?' · lädt …':'');$('#radRange').value=i;$('#radbar').classList.toggle('fc',d>0)}
 function radStop(){clearInterval(RAD.timer);RAD.timer=null;$('#radPlay').innerHTML=ic('play')}
 function radPlay(){if(RAD.timer)return radStop();$('#radPlay').innerHTML=ic('pause');RAD.timer=setInterval(()=>radShow((RAD.i+1)%RAD.frames.length),900)}
 function radarToggle(force){const on=force!=null?force:!RAD.on;if(on===RAD.on)return;RAD.on=on;
   if(on){if(!map.getPane('radarPane')){const p=map.createPane('radarPane');p.style.zIndex=350;p.style.pointerEvents='none'}
-    if(!sheet.hidden)closeSheet();RAD.frames=radTimes();RAD.layers=RAD.frames.map(t=>radLayer(t).addTo(map));if(map.getZoom()>11)map.setZoom(10);
-    $('#radbar').hidden=false;document.body.classList.add('radar');radShow(4);radStop()}
+    if(!sheet.hidden)closeSheet();RAD.frames=radTimes();RAD.ok=RAD.frames.map(()=>false);RAD.layers=RAD.frames.map(t=>radLayer(t));const order=[2,3,1,4,0,5,6];let n=0;const next=()=>{if(!RAD.on||n>=order.length)return;const k=order[n++],l=RAD.layers[k];l.once('load',()=>{RAD.ok[k]=true;if(RAD.i===k)radShow(k);next()});l.once('error',next);l.addTo(map)};next();if(map.getZoom()>11)map.setZoom(10);
+    $('#radbar').hidden=false;document.body.classList.add('radar');radShow(2);radStop()}
   else{radStop();RAD.layers.forEach(l=>map.removeLayer(l));RAD.layers=[];$('#radbar').hidden=true;document.body.classList.remove('radar')}
   setLayer(ls.get('layer','osm'))}
 $('#radRange').addEventListener('input',e=>{radStop();radShow(+e.target.value)});
