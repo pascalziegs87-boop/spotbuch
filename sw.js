@@ -1,9 +1,9 @@
 // Zweistil Fotografie Service Worker: App offline verfügbar + besuchte Kartenkacheln zwischenspeichern
-const SHELL_CACHE = 'spotbuch-shell-v18';
+const SHELL_CACHE = 'spotbuch-shell-v19';
 const TILE_CACHE = 'spotbuch-tiles-v1';
 const MAX_TILES = 4000;
 const SHELL = [
-  './', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png',
+  './', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png', './logo.png',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
 ];
