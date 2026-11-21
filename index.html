@@ -510,6 +510,7 @@ h3 .sum{font-weight:500;color:var(--mute);margin-left:6px}h3 .sum.over{color:#c2
 .wr.on input[type=text]{text-decoration:line-through;color:var(--mute)}.wr.ct{flex-wrap:wrap}.wr.ct input[type=text]{flex:1 1 40%}.wr.ct input[type=tel]{flex:1 1 60%}
 a.mini{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:var(--ink)}
 .tdw{display:block;color:var(--mute);font-size:12px}
+.wr.pl{flex-wrap:wrap}.wr.pl select{flex:1;margin:0;min-width:0}.wr.pl input[type=text]{flex:1 1 100%}.mapb{width:auto!important;padding:0 10px;gap:4px;font-size:13px;font-weight:600;display:inline-flex;align-items:center}
 </style>
 </head>
 <body>
@@ -1963,7 +1964,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v20';
+const APPV='v21';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -2219,6 +2220,10 @@ const SSTAT=[['anfrage','Anfrage'],['fix','Termin fix'],['bearbeitung','Bearbeit
 const STCOL={anfrage:'#8a919c',angebot:'#5b8def',vertrag:'#4f7fd9',anzahlung:'#3f9d6a',fix:'#3f9d6a',vorbereitung:'#3f9d6a',bearbeitung:'#d39b2a',geliefert:'#9aa0a8',abgesagt:'#c0c4ca'};
 const shootStatus=x=>x.status||(x.date?(x.date<todayISO()?'bearbeitung':'fix'):'anfrage');
 const DONE=new Set(['geliefert','abgesagt']);
+const WPL=[['standesamt','Standesamt'],['kirche','Kirche'],['trauung','Freie Trauung'],['location','Location / Feier'],['ready','Getting Ready'],['shooting','Paarshooting'],['hotel','Hotel'],['sonst','Sonstiges']];
+function wedPlaces(x){if(!x.places){x.places=[];if(x.ceremony)x.places.push({type:'standesamt',name:x.ceremony,addr:''});if(x.venue)x.places.push({type:'location',name:x.venue,addr:''})}return x.places}
+const wedVenue=x=>{const p=wedPlaces(x),l=p.find(q=>q.type==='location'&&(q.name||q.addr))||p.find(q=>q.name||q.addr);return l?(l.name||l.addr):''};
+const mapsUrl=q=>'https://maps.apple.com/?'+(q.addr?'daddr='+encodeURIComponent([q.name,q.addr].filter(Boolean).join(', ')):'q='+encodeURIComponent(q.name||''));
 const WTL=[['10:00','Getting Ready Braut'],['11:00','Getting Ready Bräutigam'],['12:30','First Look'],['14:00','Trauung'],['14:45','Sektempfang & Gratulation'],['15:30','Gruppenfotos'],['16:00','Paarshooting'],['18:00','Abendessen & Reden'],['20:00','Eröffnungstanz'],['21:00','Party']];
 const WTODO=['Vorgespräch terminieren','Angebot senden','Vertrag senden','Anzahlung prüfen','Ablaufplan vom Paar anfordern','Location besichtigen / Spots planen','Liste Gruppenfotos abstimmen','Kennenlernshooting planen','Akkus laden, Karten leeren','Rohdaten doppelt sichern','Sneak Peek senden','Galerie liefern','Restzahlung prüfen','Bewertung anfragen'];
 const WGRP=['Brautpaar mit Eltern der Braut','Brautpaar mit Eltern des Bräutigams','Brautpaar mit beiden Familien','Brautpaar mit Geschwistern','Brautpaar mit Großeltern','Brautpaar mit Trauzeugen','Brautpaar mit Freunden','Alle Gäste'];
@@ -2228,7 +2233,7 @@ const eur=n=>n===''||n==null||isNaN(+n)?'':(+n).toLocaleString('de-DE',{style:'c
 const stChip=(k,list)=>`<i class="stc" style="--c:${STCOL[k]||'#8a919c'}">${esc(lab(list,k))}</i>`;
 const LOGO=v=>`<h2>${v}</h2><div class="meta"><span>Zweistil Fotografie</span></div>`;
 function orgItems(){const s=S.shoots.map(x=>({k:'s',id:x.id,title:x.name,date:x.date,time:x.time,st:shootStatus(x),list:SSTAT,sub:[lab(STYPES,x.type),(spot((x.spots||[])[0])||{}).name].filter(Boolean).join(' · '),open:0,wed:x.wedId}));
-  const w=S.weds.map(x=>({k:'w',id:x.id,title:x.couple||'Hochzeit',date:x.date,time:x.time,st:x.status||'anfrage',list:WSTAT,sub:['Hochzeit',x.venue].filter(Boolean).join(' · '),open:(x.todos||[]).filter(t=>!t.done).length}));
+  const w=S.weds.map(x=>({k:'w',id:x.id,title:x.couple||'Hochzeit',date:x.date,time:x.time,st:x.status||'anfrage',list:WSTAT,sub:['Hochzeit',wedVenue(x)].filter(Boolean).join(' · '),open:(x.todos||[]).filter(t=>!t.done).length}));
   return [...w,...s]}
 function orgRow(it){const d=it.date?new Date(it.date+'T12:00'):null;
   return `<button class="li orow" data-og="${it.k==='w'?'wed':'shoot'}" data-id="${it.id}"><span class="dbox ${it.k==='w'?'w':''}">${d?`<b>${d.getDate()}</b><small>${d.toLocaleDateString('de-DE',{month:'short'}).replace('.','')}</small>`:'<b>?</b><small>offen</small>'}</span>
@@ -2267,6 +2272,8 @@ function renderWed(id){const x=wed(id);if(!x)return renderOrga();S.view='wed';S.
   const td=(x.todos||[]).map((r,i)=>`<div class="wr ${r.done?'on':''}"><input type="checkbox" data-wl="todos.${i}.done" ${r.done?'checked':''} aria-label="Erledigt"><input type="text" data-wl="todos.${i}.t" value="${esc(r.t||'')}" placeholder="Aufgabe"><input type="date" class="due" data-wl="todos.${i}.due" value="${esc(r.due||'')}" aria-label="Fällig am"><button type="button" class="mini" data-wa="del" data-l="todos" data-i="${i}" aria-label="Entfernen">${ic('x')}</button></div>`).join('');
   const gp=(x.groups||[]).map((r,i)=>`<div class="wr ${r.done?'on':''}"><input type="checkbox" data-wl="groups.${i}.done" ${r.done?'checked':''} aria-label="Fotografiert"><input type="text" data-wl="groups.${i}.t" value="${esc(r.t||'')}" placeholder="Gruppe"><button type="button" class="mini" data-wa="del" data-l="groups" data-i="${i}" aria-label="Entfernen">${ic('x')}</button></div>`).join('');
   const ct=(x.contacts||[]).map((r,i)=>`<div class="wr ct"><input type="text" data-wl="contacts.${i}.role" value="${esc(r.role||'')}" placeholder="Rolle, z. B. Trauzeugin"><input type="text" data-wl="contacts.${i}.name" value="${esc(r.name||'')}" placeholder="Name"><input type="tel" data-wl="contacts.${i}.tel" value="${esc(r.tel||'')}" placeholder="Telefon">${r.tel?`<a class="mini" href="tel:${esc(r.tel.replace(/[^\d+]/g,''))}" aria-label="Anrufen">${ic('phone')}</a>`:''}<button type="button" class="mini" data-wa="del" data-l="contacts" data-i="${i}" aria-label="Entfernen">${ic('x')}</button></div>`).join('');
+  const pl=wedPlaces(x).map((r,i)=>`<div class="wr pl"><select data-wl="places.${i}.type" aria-label="Art">${WPL.map(o=>`<option value="${o[0]}" ${r.type===o[0]?'selected':''}>${o[1]}</option>`).join('')}</select><button type="button" class="mini mapb" data-wa="map" data-l="places" data-i="${i}" aria-label="In Apple Karten öffnen">${ic('route')} Karten</button><button type="button" class="mini" data-wa="del" data-l="places" data-i="${i}" aria-label="Entfernen">${ic('x')}</button>
+    <input type="text" data-wl="places.${i}.name" value="${esc(r.name||'')}" placeholder="Name, z. B. Gut Berghof"><input type="text" data-wl="places.${i}.addr" value="${esc(r.addr||'')}" placeholder="Straße Nr., PLZ Ort" autocomplete="street-address"></div>`).join('');
   const dn=(x.todos||[]).filter(r=>r.done).length,gn=(x.groups||[]).filter(r=>r.done).length;
   showSheet(`<div class="f stf" id="wdf"><div class="hd"><div style="flex:1"><input class="stname" data-wk="couple" value="${esc(x.couple||'')}" placeholder="Brautpaar, z. B. Lisa & Tom"><div class="meta"><span>${x.date?fmtD(x.date)+' · '+cd(x.date):'Noch kein Datum'}</span></div></div><button class="ib" data-og="back" aria-label="Zurück">${ic('back')}</button></div>
    <div class="opts wst" data-wst>${WSTAT.map(s=>`<button type="button" data-v="${s[0]}" aria-pressed="${(x.status||'anfrage')===s[0]}" style="--c:${STCOL[s[0]]}">${s[1]}</button>`).join('')}</div>
@@ -2274,11 +2281,11 @@ function renderWed(id){const x=wed(id);if(!x)return renderOrga();S.view='wed';S.
    ${light||x.price?`<div class="card kvs">${light}${x.price?`<div class="kv"><span>Honorar</span><b>${eur(x.price)}${x.deposit?` · Anzahlung ${eur(x.deposit)} ${x.depPaid?'✓':'offen'}`:''} · Rest ${x.restPaid?'✓ bezahlt':eur((+x.price||0)-(+x.deposit||0))+' offen'}</b></div>`:''}</div>`:''}
    ${s0&&x.date&&x.date>=t?`<h3>Wetter am Hochzeitstag</h3><div class="card wx" id="wxWed"></div>`:''}
    <section class="grp"><h4>Eckdaten</h4><div class="two">${wF('Datum','date',x.date,'date')}${wF('Trauung','time',x.time!=null&&x.time!==''?hm(x.time):'','time')}</div>
-    ${wF('Location / Feier','venue',x.venue,'text','z. B. Gut Berghof, Lüdenscheid')}${wF('Trauung (Ort)','ceremony',x.ceremony,'text','Standesamt, Kirche, freie Trauung …')}
     <div class="two">${wF('Paket','pkg',x.pkg,'text','z. B. Ganztags')}${wF('Stunden','hours',x.hours,'number','')}</div>
     <div class="two">${wF('Honorar (€)','price',x.price,'number','')}${wF('Anzahlung (€)','deposit',x.deposit,'number','')}</div>
     <label class="chk"><input type="checkbox" data-wk="depPaid" ${x.depPaid?'checked':''}>Anzahlung eingegangen</label><label class="chk"><input type="checkbox" data-wk="restPaid" ${x.restPaid?'checked':''}>Restzahlung eingegangen</label>
     ${S.spots.length?`<div class="lab">Spots für Fotos & Licht<div class="opts" data-wspots>${[...S.spots].sort((a,b)=>((x.spots||[]).includes(b.id)-(x.spots||[]).includes(a.id))||a.name.localeCompare(b.name,'de')).map(s=>`<button type="button" data-v="${s.id}" aria-pressed="${(x.spots||[]).includes(s.id)}">${esc(s.name)}</button>`).join('')}</div></div>`:''}</section>
+   <h3>Orte</h3>${wList(x,'places',pl,'Ort','Standesamt, Kirche & Location anlegen')}
    <h3>Tagesablauf</h3>${wList(x,'timeline',tl,'Programmpunkt','Standard-Ablauf einfügen')}
    <h3>Aufgaben ${(x.todos||[]).length?`<span class="sum">${dn} von ${x.todos.length} erledigt</span>`:''}</h3>${wList(x,'todos',td,'Aufgabe','Standard-Checkliste einfügen')}
    <h3>Gruppenfotos ${(x.groups||[]).length?`<span class="sum">${gn} von ${x.groups.length}</span>`:''}</h3>${wList(x,'groups',gp,'Gruppe','Standard-Gruppen einfügen')}
@@ -2292,8 +2299,8 @@ function wedIcs(x){const pad=n=>String(n).padStart(2,'0'),d=x.date.replace(/-/g,
   let a,b;if(tms.length){const st=Math.min(...tms),dur=(+x.hours||10)*60,s=new Date(x.date+'T00:00');s.setMinutes(st);const en=new Date(s.getTime()+dur*6e4);
     const f=z=>`${z.getFullYear()}${pad(z.getMonth()+1)}${pad(z.getDate())}T${pad(z.getHours())}${pad(z.getMinutes())}00`;a='DTSTART:'+f(s);b='DTEND:'+f(en)}
   else{const n=new Date(x.date+'T12:00');n.setDate(n.getDate()+1);a='DTSTART;VALUE=DATE:'+d;b='DTEND;VALUE=DATE:'+n.toISOString().slice(0,10).replace(/-/g,'')}
-  const desc=[(x.timeline||[]).map(r=>`${r.t||''} ${r.title||''}`.trim()).join('\n'),x.ceremony&&'Trauung: '+x.ceremony,(x.contacts||[]).map(c=>[c.role,c.name,c.tel].filter(Boolean).join(': ')).join('\n')].filter(Boolean).join('\n\n');
-  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Zweistil Fotografie//DE','BEGIN:VEVENT','UID:'+x.id+'@zweistil','DTSTAMP:'+now,a,b,'SUMMARY:'+e('Hochzeit '+(x.couple||'')),'LOCATION:'+e(x.venue),'DESCRIPTION:'+e(desc),'END:VEVENT','END:VCALENDAR'].join('\r\n')}
+  const desc=[(x.timeline||[]).map(r=>`${r.t||''} ${r.title||''}`.trim()).join('\n'),wedPlaces(x).filter(q=>q.name||q.addr).map(q=>`${lab(WPL,q.type)}: ${[q.name,q.addr].filter(Boolean).join(', ')}`).join('\n'),(x.contacts||[]).map(c=>[c.role,c.name,c.tel].filter(Boolean).join(': ')).join('\n')].filter(Boolean).join('\n\n');
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Zweistil Fotografie//DE','BEGIN:VEVENT','UID:'+x.id+'@zweistil','DTSTAMP:'+now,a,b,'SUMMARY:'+e('Hochzeit '+(x.couple||'')),'LOCATION:'+e((()=>{const p=wedPlaces(x),l=p.find(q=>q.type==='location'&&(q.name||q.addr))||p.find(q=>q.name||q.addr);return l?[l.name,l.addr].filter(Boolean).join(', '):''})()),'DESCRIPTION:'+e(desc),'END:VEVENT','END:VCALENDAR'].join('\r\n')}
 const wRe=()=>{const sc=body.scrollTop;renderWed(S.wedId);body.scrollTop=sc};
 body.addEventListener('click',async e=>{
   const ot=e.target.closest('[data-otd]');if(ot){const w=wed(ot.dataset.otd);if(w){w.todos[+ot.dataset.i].done=true;await saveWed(w);toast('Erledigt');setTimeout(()=>S.view==='orga'&&renderOrga(),350)}return}
@@ -2301,8 +2308,10 @@ body.addEventListener('click',async e=>{
     const sp=e.target.closest('[data-wspots] button');if(sp){const x=wed(S.wedId);x.spots=[...body.querySelectorAll('[data-wspots] [aria-pressed=true]')].map(b=>b.dataset.v);await saveWed(x);return}
     const wa=e.target.closest('[data-wa]');if(wa){const x=wed(S.wedId),l=wa.dataset.l;x[l]=x[l]||[];
       if(wa.dataset.wa==='del')x[l].splice(+wa.dataset.i,1);
+      else if(wa.dataset.wa==='map'){const q=x.places[+wa.dataset.i];if(!q||!(q.name||q.addr))return toast('Erst Name oder Adresse eintragen');window.open(mapsUrl(q),'_blank');return}
+      else if(wa.dataset.wa==='tpl'&&l==='places')x.places=['standesamt','kirche','location'].map(type=>({type,name:'',addr:''}));
       else if(wa.dataset.wa==='tpl')x[l]=l==='timeline'?WTL.map(([t,title])=>({t,title})):(l==='todos'?WTODO:WGRP).map(t=>({t,done:false}));
-      else x[l].push(l==='timeline'?{t:'',title:''}:l==='contacts'?{role:'',name:'',tel:''}:{t:'',done:false});
+      else x[l].push(l==='timeline'?{t:'',title:''}:l==='contacts'?{role:'',name:'',tel:''}:l==='places'?{type:'location',name:'',addr:''}:{t:'',done:false});
       await saveWed(x);wRe();if(wa.dataset.wa==='add'){const ins=body.querySelectorAll(`[data-wl^="${l}.${x[l].length-1}."]`);const f=[...ins].find(i=>i.type==='text')||ins[0];if(f)f.focus()}return}}
   const b=e.target.closest('[data-og]');if(!b)return;const a=b.dataset.og;
   if(a==='segov'||a==='back')return renderOrga();if(a==='segsh')return renderShoots();if(a==='segwd')return renderWeds();
