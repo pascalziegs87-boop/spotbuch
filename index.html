@@ -761,7 +761,11 @@ const meDist=s=>S.me?dist(S.me.lat,S.me.lng,s.lat,s.lng):null;
 
 /* ---------- Sheet ---------- */
 const sheet=$('#sheet'),body=$('#sheetBody');
-function showSheet(html,full=false){body.innerHTML=html;sheet.hidden=false;sheet.classList.toggle('full',full);body.scrollTop=0;if(typeof syncTabs==='function')syncTabs()}
+const resetWin=()=>{if(window.scrollY||document.documentElement.scrollTop||document.body.scrollTop){window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0}};
+document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(!a||!a.matches('input,textarea,select'))resetWin()},150));
+if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(visualViewport.height>innerHeight*.8)setTimeout(resetWin,50)});
+addEventListener('scroll',()=>{const a=document.activeElement;if(!a||!a.matches('input,textarea,select'))resetWin()},{passive:true});
+function showSheet(html,full=false){body.innerHTML=html;sheet.hidden=false;resetWin();sheet.classList.toggle('full',full);body.scrollTop=0;if(typeof syncTabs==='function')syncTabs()}
 function closeSheet(){simLayer.clearLayers();if(simTimer){clearInterval(simTimer);simTimer=null}
   if(S.wiz){const ws=spot(S.wiz.id);collectForm(ws);S.wiz=null;if(ws.name==='Neuer Spot'&&!phOf(ws.id).length){S.draft=ws.id;discardDraft();return}
     S.draft=null;if(ws.name==='Neuer Spot')ws.name='Unbenannter Spot';saveSpot(ws);openSpot(ws.id);return}
@@ -1971,7 +1975,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v22';
+const APPV='v23';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -2325,7 +2329,7 @@ body.addEventListener('click',async e=>{
   if(a==='segov'||a==='back')return renderOrga();if(a==='segsh')return renderShoots();if(a==='segwd')return renderWeds();
   if(a==='wed')return renderWed(b.dataset.id);if(a==='shoot')return renderShoot(b.dataset.id);
   if(a==='newshoot')return renderShootEdit(null);
-  if(a==='newwed'){const x={id:uid(),couple:'',date:'',time:'',status:'anfrage',venue:'',ceremony:'',spots:[],timeline:[],todos:[],groups:[],contacts:[],notes:'',created:Date.now()};await saveWed(x);renderWed(x.id);const n=$('[data-wk=couple]');if(n)n.focus();return}
+  if(a==='newwed'){const x={id:uid(),couple:'',date:'',time:'',status:'anfrage',venue:'',ceremony:'',spots:[],timeline:[],todos:[],groups:[],contacts:[],notes:'',created:Date.now()};await saveWed(x);return renderWed(x.id)}
   const x=wed(S.wedId);if(!x)return;
   if(a==='wics')return deliver(new Blob([wedIcs(x)],{type:'text/calendar'}),`Hochzeit ${x.couple||''}.ics`.replace(/[\/\\:&]/g,'-'));
   if(a==='wsun'){const s0=spot((x.spots||[])[0]);if(!s0)return;if(x.date)S.date=x.date;S.sel=s0.id;renderMarkers();map.setView([s0.lat,s0.lng],Math.max(map.getZoom(),16));S.simMin=x.time!==''&&x.time!=null?x.time:simDefault(s0);S.simFor=planKey(s0);return openPlanner()}
