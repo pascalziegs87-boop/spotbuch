@@ -75,8 +75,8 @@ svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke
 #cross .bar{pointer-events:auto;position:absolute;left:12px;right:12px;bottom:calc(var(--sb) + 18px);background:var(--panel);border-radius:16px;box-shadow:var(--shadow);padding:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 #cross .bar p{flex:1 1 180px;margin:0 4px;font-weight:500}
 /* Sheet */
-#sheet{position:fixed;left:0;right:0;bottom:0;z-index:700;background:var(--panel);border-radius:20px 20px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.2);max-height:72vh;display:flex;flex-direction:column;transition:transform .25s ease}
-#sheet.full{max-height:calc(100vh - var(--st) - 20px)}
+#sheet{position:fixed;left:0;right:0;bottom:0;z-index:700;background:var(--panel);border-radius:20px 20px 0 0;box-shadow:0 -10px 30px rgba(0,0,0,.2);max-height:calc(var(--vh,100vh)*.72);display:flex;flex-direction:column;transition:transform .25s ease}
+#sheet.full{max-height:calc(var(--vh,100vh) - var(--st) - 20px)}
 #sheet[hidden]{display:flex;transform:translateY(110%);pointer-events:none}
 .grab{flex:none;height:22px;display:grid;place-items:center;border:0;background:none;width:100%}
 .grab:before{content:"";width:40px;height:5px;border-radius:3px;background:var(--line)}
@@ -402,7 +402,7 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
 #tabs button[aria-current=page] span:last-child{font-weight:700}
 #tabs svg.i{width:22px;height:22px}
 #sheet{bottom:var(--tbh)}
-#sheet.full{max-height:calc(100vh - var(--st) - var(--tbh) - 16px)}
+#sheet.full{max-height:calc(var(--vh,100vh) - var(--st) - var(--tbh) - 16px)}
 #sheetBody{padding-bottom:20px}
 .fabs{bottom:calc(var(--tbh) + 14px)}
 .menu{bottom:calc(var(--tbh) + 88px)}
@@ -761,6 +761,7 @@ const meDist=s=>S.me?dist(S.me.lat,S.me.lng,s.lat,s.lng):null;
 
 /* ---------- Sheet ---------- */
 const sheet=$('#sheet'),body=$('#sheetBody');
+const setVh=()=>{const h=Math.min(innerHeight,document.documentElement.clientHeight||innerHeight);document.documentElement.style.setProperty('--vh',h+'px')};setVh();addEventListener('resize',setVh);addEventListener('orientationchange',()=>setTimeout(setVh,300));
 const resetWin=()=>{if(window.scrollY||document.documentElement.scrollTop||document.body.scrollTop){window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0}};
 document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(!a||!a.matches('input,textarea,select'))resetWin()},150));
 if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(visualViewport.height>innerHeight*.8)setTimeout(resetWin,50)});
@@ -1975,7 +1976,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v23';
+const APPV='v24';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
