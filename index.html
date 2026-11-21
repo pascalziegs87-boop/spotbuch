@@ -2029,8 +2029,9 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const VERSION='2.6.0',APPV='v'+VERSION;
+const VERSION='2.6.1',APPV='v'+VERSION;
 const CHANGELOG=[
+ ['2.6.1','Startbildschirm etwas länger sichtbar'],
  ['2.6.0','Zahnrad für Einstellungen, Versionsnummer, Spruch auf dem Startbildschirm'],
  ['2.5.0','Sync mit dem NAS, Hinweise „Zu beachten“, Zahl am App-Symbol, Kalender-Erinnerungen'],
  ['2.4.0','Hochzeitsmessen mit Kontakterfassung, Posen-Leseansicht, eigene Posen statt Skizzen'],
@@ -2592,7 +2593,7 @@ async function swDelete(r){if(!r)return;swOpen=null;const k=r.dataset.swk,id=r.d
 
 /* ---------- Startbildschirm ---------- */
 (()=>{const sp=$('#splash');if(!sp)return;const v=$('#splV');if(v)v.textContent='Version '+VERSION;const t0=Date.now(),hide=()=>{if(sp.classList.contains('out'))return;sp.classList.add('out');setTimeout(()=>sp.remove(),600)};
-  sp.addEventListener('click',hide);window.hideSplash=()=>setTimeout(hide,Math.max(0,1300-(Date.now()-t0)));setTimeout(hide,3500)})();
+  sp.addEventListener('click',hide);window.hideSplash=()=>setTimeout(hide,Math.max(0,2000-(Date.now()-t0)));setTimeout(hide,4000)})();
 
 /* ---------- Digitale Visitenkarte ---------- */
 const CARD={ig:'zweistil_people_fotografie',web:'zweistilfotografie.com',tel:'+4915226602602',telTxt:'0152 26602602'};
