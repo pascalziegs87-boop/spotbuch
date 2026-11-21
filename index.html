@@ -525,6 +525,11 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 .tlb{flex:1;min-width:0;background:var(--panel);border-radius:14px;padding:10px 12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}.tlb b{font-size:16px}.tlb p{margin:6px 0 0;font-size:15px;line-height:1.4}.tlb a{color:var(--pin);font-weight:600}
 .tlp{display:flex;align-items:center;gap:6px;margin-top:4px;color:var(--mute);font-size:14px}.tlp .i{width:16px;height:16px;flex:0 0 16px}.tlp span{flex:1;min-width:0}.tlp .mapb{padding:0 8px}
 .prose a{color:var(--pin);font-weight:600}
+.chs{display:flex;flex-direction:column;gap:8px}.chs .btn{justify-content:flex-start}
+.tlt.cam{background:#1b1d21}.tsh{display:block;width:100%;text-align:left;border:0;font:inherit;color:inherit;cursor:pointer}.tsh p{color:var(--mute);font-size:14px}
+.tref{display:flex;gap:4px;margin-top:8px}.tref img{width:52px;height:52px;object-fit:cover;border-radius:8px}
+.refg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.rf{position:relative}.rf>button:first-child{display:block;width:100%;padding:0;border:0;background:none}.rf img{display:block;width:100%;aspect-ratio:1;object-fit:cover;border-radius:10px}
+.rfx{position:absolute!important;top:4px;right:4px;background:rgba(0,0,0,.55)!important;color:#fff!important;width:26px!important;height:26px!important;border-radius:13px!important}
 </style>
 </head>
 <body>
@@ -579,6 +584,7 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 <input type="file" id="fPose" accept="image/*" hidden>
 <input type="file" id="fSt" accept="image/*" multiple hidden>
 <input type="file" id="fShots" accept="image/*" multiple hidden>
+<input type="file" id="fRefs" accept="image/*" multiple hidden>
 <div id="toast" role="status"><span id="toastT"></span><button id="toastB" hidden></button></div>
 <div class="busy" id="busy" hidden>Bilder werden verarbeitet …</div>
 <input type="file" id="fPhotos" accept="image/*" multiple hidden>
@@ -1094,7 +1100,7 @@ async function backup(){busy(true);try{const photos=[];for(const list of S.photo
   const poses=[];for(const r of await DB.all('poses')){const {blob,thumb,orig,...m}=r;poses.push({...m,data:blob?await blobToData(blob):null,thumbData:thumb?await blobToData(thumb):null})}
   const setups=[];for(const x of S.setups){const ph=[];for(const p of x.photos||[]){const {blob,thumb,...m}=p;ph.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}setups.push({...x,photos:ph})}
   const shots=[];for(const x of S.shots){const {blob,thumb,...m}=x;shots.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}
-  const json=JSON.stringify({app:'spotbuch',version:5,exported:new Date().toISOString(),spots:S.spots,photos,poses,shoots:S.shoots,setups,shots,gear:S.gear,weddings:S.weds});
+  const json=JSON.stringify({app:'spotbuch',version:5,exported:new Date().toISOString(),spots:S.spots,photos,poses,shoots:await Promise.all(S.shoots.map(async x=>x.refs&&x.refs.length?{...x,refs:await Promise.all(x.refs.map(async r=>({id:r.id,created:r.created,data:await blobToData(r.blob),thumbData:await blobToData(r.thumb||r.blob)})))}:x)),setups,shots,gear:S.gear,weddings:S.weds});
   await deliver(new Blob([json],{type:'application/json'}),`zweistil-backup-${stamp()}.json`);ls.set('lastBackup',Date.now());ls.set('chg',0)}finally{busy(false)}}
 async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(await file.text());if(d.app!=='spotbuch')throw new Error('Kein Backup dieser App');
   for(const s of d.spots||[]){migrate(s);const ex=spot(s.id);if(!ex||(s.updated||0)>(ex.updated||0)){await DB.put('spots',s);if(ex)Object.assign(ex,s);else S.spots.push(s);ns++}}
@@ -1104,7 +1110,7 @@ async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(awa
     if(!S.photos.has(rec.spotId))S.photos.set(rec.spotId,[]);S.photos.get(rec.spotId).push(rec);np++}
   let nsh=0;for(const r of d.poses||[]){const {data,thumbData,...m}=r;await DB.put('poses',{...m,blob:data?await (await fetch(data)).blob():null,thumb:thumbData?await (await fetch(thumbData)).blob():null})}
   if(d.poses&&d.poses.length)mergePoses(await DB.all('poses'));
-  for(const x of d.shoots||[]){const ex=shoot(x.id);if(!ex||(x.updated||0)>(ex.updated||0)){await DB.put('shoots',x);if(ex)Object.assign(ex,x);else S.shoots.push(x);nsh++}}
+  for(const x of d.shoots||[]){if(x.refs)x.refs=await Promise.all(x.refs.map(async r=>r.data?{id:r.id,created:r.created,blob:await (await fetch(r.data)).blob(),thumb:await (await fetch(r.thumbData||r.data)).blob()}:r));const ex=shoot(x.id);if(!ex||(x.updated||0)>(ex.updated||0)){await DB.put('shoots',x);if(ex)Object.assign(ex,x);else S.shoots.push(x);nsh++}}
   for(const x of d.setups||[]){const ex=setup(x.id);if(ex&&(x.updated||0)<=(ex.updated||0))continue;const ph=[];for(const p of x.photos||[]){const {data,thumbData,...m}=p;ph.push({...m,blob:await (await fetch(data)).blob(),thumb:await (await fetch(thumbData||data)).blob()})}
     const rec={...x,photos:ph};await DB.put('setups',rec);if(ex)Object.assign(ex,rec);else S.setups.push(rec);nsh++}
   for(const x of d.shots||[]){const ex=shot(x.id);if(ex&&(x.updated||0)<=(ex.updated||0))continue;const {data,thumbData,...m}=x;const rec={...m,blob:await (await fetch(data)).blob(),thumb:await (await fetch(thumbData||data)).blob()};await DB.put('shots',rec);if(ex)Object.assign(ex,rec);else S.shots.push(rec);nsh++}
@@ -1498,12 +1504,13 @@ function renderShootEdit(id,pre={}){S.view='shootEdit';const x=shoot(id)||{type:
   const sp=[...S.spots].sort((a,b)=>(x.spots.includes(b.id)-x.spots.includes(a.id))||a.name.localeCompare(b.name,'de'));
   showSheet(`<form class="f" id="sf" data-id="${id||''}" autocomplete="off"><div class="hd"><h2>${id?'Shooting bearbeiten':'Neues Shooting'}</h2></div>
    <section class="grp"><label>Name<input type="text" name="name" value="${esc(x.name)}" placeholder="z. B. Paarshooting Lisa & Tom"></label>
-    <div class="lab">Art<div class="opts" data-single="type">${STYPES.map(t=>`<button type="button" data-v="${t[0]}" aria-pressed="${x.type===t[0]}">${t[1]}</button>`).join('')}</div></div>
+    ${x.wedDay?'':`<div class="lab">Art<div class="opts" data-single="type">${STYPES.map(t=>`<button type="button" data-v="${t[0]}" aria-pressed="${x.type===t[0]}">${t[1]}</button>`).join('')}</div></div>`}
     <div class="two"><label>Datum<input type="date" name="date" value="${x.date||''}"></label><label>Start<input type="time" name="time" value="${hm(x.time)}"></label></div>
     <label>Dauer<select name="duration">${[30,45,60,75,90,120,150,180,240,300,480].map(m=>`<option value="${m}" ${(+x.duration||60)===m?'selected':''}>${fmtDur(m)}</option>`).join('')}</select></label>
-    <label>Kunden<input type="text" name="clients" value="${esc(x.clients)}" placeholder="Namen, Telefon …"></label>
-    <div class="lab">Stand<div class="opts" data-single="status">${SSTAT.map(t=>`<button type="button" data-v="${t[0]}" aria-pressed="${shootStatus(x)===t[0]}">${t[1]}</button>`).join('')}</div></div></section>
-   <section class="grp"><h4>Spot</h4>${S.spots.length?`<div class="opts" data-multi="spots">${sp.map(s=>`<button type="button" data-v="${s.id}" aria-pressed="${x.spots.includes(s.id)}">${esc(s.name)}</button>`).join('')}</div>`:'<p class="ex">Noch keine Spots angelegt – du kannst später einen zuordnen.</p>'}</section>
+    ${x.wedDay?`<input type="hidden" name="clients" value="${esc(x.clients)}">`:`<label>Kunden<input type="text" name="clients" value="${esc(x.clients)}" placeholder="Namen, Telefon …"></label>`}
+    ${x.wedDay?'':`<div class="lab">Stand<div class="opts" data-single="status">${SSTAT.map(t=>`<button type="button" data-v="${t[0]}" aria-pressed="${shootStatus(x)===t[0]}">${t[1]}</button>`).join('')}</div></div>`}</section>
+   ${x.wedId&&wed(x.wedId)?`<section class="grp"><h4>Ort aus der Hochzeit</h4><select name="wpl"><option value="">– kein Ort –</option>${wedPlaces(wed(x.wedId)).filter(q=>q.name||q.addr).map(q=>`<option value="${q.id}" ${x.wpl===q.id?'selected':''}>${esc(lab(WPL,q.type)+': '+(q.name||q.addr))}</option>`).join('')}</select></section>`:''}
+   <section class="grp"><h4>Spot${x.wedId?' (optional, für Licht & Wetter)':''}</h4>${S.spots.length?`<div class="opts" data-multi="spots">${sp.map(s=>`<button type="button" data-v="${s.id}" aria-pressed="${x.spots.includes(s.id)}">${esc(s.name)}</button>`).join('')}</div>`:'<p class="ex">Noch keine Spots angelegt – du kannst später einen zuordnen.</p>'}</section>
    <section class="grp"><label>Notizen<textarea name="notes" placeholder="Wünsche, Outfit, Ablauf …">${esc(x.notes)}</textarea></label></section>
    <div class="sticky"><button type="button" class="btn" data-sh="${id?'open':'list'}" data-id="${id||''}">Abbrechen</button><button class="btn acc" type="submit">${id?'Speichern':'Weiter zu den Posen'}</button></div></form>`,true)}
 async function submitShoot(f){const id=f.dataset.id,v=n=>f.querySelector(`[name=${n}]`).value.trim();
@@ -1511,7 +1518,7 @@ async function submitShoot(f){const id=f.dataset.id,v=n=>f.querySelector(`[name=
   x.type=(f.querySelector('[data-single=type] [aria-pressed=true]')||{dataset:{v:'paar'}}).dataset.v;
   x.name=v('name')||lab(STYPES,x.type)+(v('date')?' '+new Date(v('date')+'T12:00').toLocaleDateString('de-DE'):'');
   x.date=v('date');const t=v('time');x.time=t?(+t.slice(0,2))*60+(+t.slice(3,5)):'';x.clients=v('clients');x.notes=v('notes');x.duration=+v('duration')||60;
-  const sg=f.querySelector('[data-single=status] [aria-pressed=true]');if(sg)x.status=sg.dataset.v;
+  const sg=f.querySelector('[data-single=status] [aria-pressed=true]');if(sg)x.status=sg.dataset.v;const wp=f.querySelector('[name=wpl]');if(wp)x.wpl=wp.value;
   const g=f.querySelector('[data-multi=spots]');x.spots=g?[...g.querySelectorAll('[aria-pressed=true]')].map(b=>b.dataset.v):(x.spots||[]);
   await saveShoot(x);if(isNew){S.pickTypes=relTypes(x.type);renderPosePick(x.id)}else renderShoot(x.id)}
 
@@ -1534,12 +1541,15 @@ function renderShoot(id){const x=shoot(id);if(!x)return renderShoots();S.view='s
     return `<div class="shot ${t.done?'done':''}">${tm}<div class="stx2"><button class="sth" data-sh="runat" data-i="${i}">${poseImg(p)}</button><div class="stx"><b>${esc(p.title)}</b><span>${esc(p.guide||'')}</span>
       <button class="okt ${t.done?'on':''}" data-sh="toggle" data-i="${i}">${ic('check')} ${t.done?'Erledigt':'Abhaken'}</button></div></div>${ctl}</div>`};
   showSheet(`<div class="hd"><div style="flex:1"><h2>${esc(x.name)}</h2><div class="meta"><span class="tag">${esc(lab(STYPES,x.type))}</span><span>${fmtD(x.date)}</span>${stChip(shootStatus(x),SSTAT)}</div></div>
-    <button class="ib" data-sh="list" aria-label="Zurück zu den Shootings">${ic('back')}</button></div>
+    ${x.wedId&&wed(x.wedId)?`<button class="ib" data-og="wed" data-id="${x.wedId}" aria-label="Zurück zur Hochzeit">${ic('back')}</button>`:`<button class="ib" data-sh="list" aria-label="Zurück zu den Shootings">${ic('back')}</button>`}</div>
    <div class="qa"><button class="q pri" data-sh="run" ${n?'':'disabled'}>${ic('play')}<span>${d&&d<n?'Fortsetzen':'Starten'}</span></button>
     <button class="q" data-sh="ics">${ic('cal')}<span>Kalender</span></button><button class="q" data-sh="sun" ${s0?'':'disabled'}>${ic('sun')}<span>Licht</span></button><button class="q" data-sh="mood">${ic('img')}<span>Moodboard</span></button><button class="q" data-sh="edit">${ic('edit')}<span>Bearbeiten</span></button></div>
    ${n?`<div class="prog2"><i style="width:${d/n*100}%"></i></div><p class="ex" style="margin:4px 0 0">${d} von ${n} Posen erledigt</p>`:''}
    <div class="card kvs"><div class="kv"><span>Zeit</span><b>${hasT?`${hm(x.time)}–${hm((+x.time+dur)%1440)} Uhr · ${fmtDur(dur)}`:'Noch keine Uhrzeit'}</b></div>
     ${x.clients?`<div class="kv"><span>Kunden</span><b>${esc(x.clients)}</b></div>`:''}${x.wedId&&wed(x.wedId)?`<div class="kv"><span>Hochzeit</span><b><button class="lnk" data-og="wed" data-id="${x.wedId}">💍 ${esc(wed(x.wedId).couple||'Hochzeit')}</button></b></div>`:''}${light}</div>
+   ${(()=>{const w=x.wedId&&wed(x.wedId),q=w&&wedPlaces(w).find(p=>p.id===x.wpl);return q?`<div class="card rl" style="margin-top:10px"><div class="rp"><div><small>Ort · ${esc(lab(WPL,q.type))}</small><b>${esc(q.name||q.addr)}</b>${q.name&&q.addr?`<span>${esc(q.addr)}</span>`:''}</div><button class="mini mapb" data-mapq="${esc(JSON.stringify({name:q.name||'',addr:q.addr||''}))}">${ic('route')} Karten</button></div></div>`:''})()}
+   <h3>Ideen-Fotos ${(x.refs||[]).length?`<span class="sum">${x.refs.length}</span>`:''}</h3>${(x.refs||[]).length?`<div class="refg">${x.refs.map((r,i)=>`<div class="rf"><button data-rf="open" data-i="${i}"><img src="${url(r,'t')}" alt="Ideen-Foto ${i+1}"></button><button class="mini rfx" data-rf="del" data-i="${i}" aria-label="Foto entfernen">${ic('x')}</button></div>`).join('')}</div>`:'<p class="ex">Screenshots oder Beispielbilder als Gedankenstütze – z. B. aus Pinterest oder Instagram.</p>'}
+   <button class="btn" data-rf="add" style="margin-top:8px">${ic('plus')} Fotos hinzufügen</button>
    ${s0&&x.date?`<h3>Wetter am Shooting-Tag</h3><div class="card wx" id="wxShoot"></div>`:''}
    ${sp.length?`<h3>Spot</h3>${sp.map(s=>{const p=cover(s);return `<button class="li" data-open="${s.id}"><span class="th" style="${p?`background-image:url(${url(p,'t')})`:''};--c:${envOf(s).color}">${p?'':ic('pin')}</span><span class="tx"><b>${esc(s.name)}</b><small>${esc(envNames(s).join(', '))}${s.parking?' · Parkplatz hinterlegt':''}</small></span><span class="d">${fmtDist(meDist(s))}</span></button>`}).join('')}`:`<p class="ex">Kein Spot zugeordnet – unter „Bearbeiten“ auswählen.</p>`}
    <h3>Ablauf ${x.items.length?`<span class="sum ${planned>dur?'over':''}">${fmtDur(planned)} von ${fmtDur(dur)} verplant</span>`:''}</h3>
@@ -1983,7 +1993,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v25';
+const APPV='v26';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -2251,7 +2261,7 @@ const cd=d=>{if(!d)return '';const n=days(d);return n===0?'heute':n===1?'morgen'
 const eur=n=>n===''||n==null||isNaN(+n)?'':(+n).toLocaleString('de-DE',{style:'currency',currency:'EUR',maximumFractionDigits:0});
 const stChip=(k,list)=>`<i class="stc" style="--c:${STCOL[k]||'#8a919c'}">${esc(lab(list,k))}</i>`;
 const LOGO=v=>`<h2>${v}</h2><div class="meta"><span>Zweistil Fotografie</span></div>`;
-function orgItems(){const s=S.shoots.map(x=>({k:'s',id:x.id,title:x.name,date:x.date,time:x.time,st:shootStatus(x),list:SSTAT,sub:[lab(STYPES,x.type),(spot((x.spots||[])[0])||{}).name].filter(Boolean).join(' · '),open:0,wed:x.wedId}));
+function orgItems(){const s=S.shoots.filter(x=>!x.wedDay).map(x=>({k:'s',id:x.id,title:x.name,date:x.date,time:x.time,st:shootStatus(x),list:SSTAT,sub:[lab(STYPES,x.type),(spot((x.spots||[])[0])||{}).name].filter(Boolean).join(' · '),open:0,wed:x.wedId}));
   const w=S.weds.map(x=>({k:'w',id:x.id,title:x.couple||'Hochzeit',date:x.date,time:x.time,st:x.status||'anfrage',list:WSTAT,sub:['Hochzeit',wedVenue(x)].filter(Boolean).join(' · '),open:(x.todos||[]).filter(t=>!t.done).length}));
   return [...w,...s]}
 function orgRow(it){const d=it.date?new Date(it.date+'T12:00'):null;
@@ -2289,25 +2299,43 @@ const tlPlace=(x,r)=>{if(r.pl&&r.pl!=='own'){const q=wedPlaces(x).find(p=>p.id==
 const placeTxt=q=>[q.name,q.addr].filter(Boolean).join(', ');
 function renderWed(id){const x=wed(id);if(!x)return renderOrga();S.view='wed';S.wedId=id;const t=todayISO();
   const sp=(x.spots||[]).map(spot).filter(Boolean),s0=sp[0],linked=S.shoots.filter(s=>s.wedId===x.id);
-  const places=wedPlaces(x).filter(q=>q.name||q.addr),tl=(x.timeline||[]).filter(r=>r.t||r.title||r.note).slice().sort((a,b)=>(a.t||'99').localeCompare(b.t||'99'));
+  const places=wedPlaces(x).filter(q=>q.name||q.addr),tl=[...(x.timeline||[]).filter(r=>r.t||r.title||r.note),...linked.filter(s=>s.wedDay).map(s=>({sh:s,t:s.time!==''&&s.time!=null?hm(s.time):''}))].sort((a,b)=>(a.t||'99').localeCompare(b.t||'99'));
   const todos=(x.todos||[]).filter(r=>r.t),groups=(x.groups||[]).filter(r=>r.t),contacts=(x.contacts||[]).filter(r=>r.name||r.tel||r.role);
   const kv=[];if(x.time!==''&&x.time!=null)kv.push(['Trauung',hm(x.time)+' Uhr']);if(x.pkg||x.hours)kv.push(['Paket',[x.pkg,x.hours?x.hours+' Std.':''].filter(Boolean).join(' · ')]);
   if(x.price)kv.push(['Honorar',`${eur(x.price)}${x.deposit?` · Anzahlung ${eur(x.deposit)} ${x.depPaid?'✓':'offen'}`:''} · Rest ${x.restPaid?'✓ bezahlt':eur((+x.price||0)-(+x.deposit||0))+' offen'}`]);
   if(s0&&x.date){const tt=Sun.times(new Date(x.date+'T12:00'),s0.lat,s0.lng);kv.push(['Licht',`Goldene Stunde ${fmtT(tt.goldA)}–${fmtT(tt.blueA)} · Sonnenuntergang ${fmtT(tt.set)}`])}
-  const empty=!kv.length&&!places.length&&!tl.length&&!todos.length&&!groups.length&&!contacts.length&&!x.notes;
+  const empty=!kv.length&&!places.length&&!tl.length&&!linked.length&&!todos.length&&!groups.length&&!contacts.length&&!x.notes;
   showSheet(`<div class="hd"><div style="flex:1"><h2>${esc(x.couple||'Hochzeit ohne Namen')}</h2><div class="meta"><span>${x.date?fmtD(x.date)+' · '+cd(x.date):'Noch kein Datum'}</span>${stChip(x.status||'anfrage',WSTAT)}</div></div><button class="ib" data-og="back" aria-label="Zurück">${ic('back')}</button></div>
    <div class="qa"><button class="q pri" data-og="wedit">${ic('edit')}<span>Bearbeiten</span></button><button class="q" data-og="wics" ${x.date?'':'disabled'}>${ic('cal')}<span>Kalender</span></button><button class="q" data-og="wshoot">${ic('plus')}<span>Shooting</span></button>${s0?`<button class="q" data-og="wsun">${ic('sun')}<span>Licht</span></button>`:''}</div>
    ${empty?`<div class="empty static">${ic('edit')}<b>Noch nichts eingetragen</b><span>Tippe auf „Bearbeiten“ und trage Datum, Orte, Ablauf, Kontakte und Aufgaben ein. Hier siehst du danach alles übersichtlich.</span></div>`:''}
    ${kv.length?`<div class="card kvs">${kv.map(([k,v])=>`<div class="kv"><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>`:''}
    ${s0&&x.date&&x.date>=t?`<h3>Wetter am Hochzeitstag</h3><div class="card wx" id="wxWed"></div>`:''}
    ${places.length?`<h3>Orte</h3><div class="card rl">${places.map(q=>`<div class="rp"><div><small>${esc(lab(WPL,q.type))}</small><b>${esc(q.name||q.addr)}</b>${q.name&&q.addr?`<span>${esc(q.addr)}</span>`:''}</div><button class="mini mapb" data-wmap="${q.id}">${ic('route')} Karten</button></div>`).join('')}</div>`:''}
-   ${tl.length?`<h3>Ablauf & Begleitung</h3><div class="tlv">${tl.map(r=>{const q=tlPlace(x,r);return `<div class="tlr"><div class="tlt">${esc(r.t||'–')}</div><div class="tlb"><b>${esc(r.title||'')}</b>${q?`<div class="tlp">${ic('pin')}<span>${esc(placeTxt(q))}</span><button class="mini mapb" data-wmapq="${esc(JSON.stringify({name:q.name||'',addr:q.addr||''}))}">${ic('route')}</button></div>`:''}${r.note?`<p>${telify(r.note)}</p>`:''}</div></div>`}).join('')}</div>`:''}
+   ${tl.length?`<h3>Ablauf & Begleitung</h3><div class="tlv">${tl.map(r=>{if(r.sh){const s=r.sh,q=wedPlaces(x).find(p=>p.id===s.wpl),np=s.items.filter(i=>i.kind!=='block').length,nr=(s.refs||[]).length;
+     return `<div class="tlr"><div class="tlt cam">${esc(r.t||'–')}</div><button class="tlb tsh" data-og="shoot" data-id="${s.id}"><b>📷 ${esc(s.name)}</b>${q?`<div class="tlp">${ic('pin')}<span>${esc(placeTxt(q))}</span></div>`:''}<p>${[np?np+' Pose'+(np===1?'':'n'):'',nr?nr+' Ideen-Foto'+(nr===1?'':'s'):'',fmtDur(+s.duration||60)].filter(Boolean).join(' · ')} ›</p>${(s.refs||[]).length?`<span class="tref">${s.refs.slice(0,4).map(f=>`<img src="${url(f,'t')}" alt="">`).join('')}</span>`:''}</button></div>`}
+     const q=tlPlace(x,r);return `<div class="tlr"><div class="tlt">${esc(r.t||'–')}</div><div class="tlb"><b>${esc(r.title||'')}</b>${q?`<div class="tlp">${ic('pin')}<span>${esc(placeTxt(q))}</span><button class="mini mapb" data-wmapq="${esc(JSON.stringify({name:q.name||'',addr:q.addr||''}))}">${ic('route')}</button></div>`:''}${r.note?`<p>${telify(r.note)}</p>`:''}</div></div>`}).join('')}</div>`:''}
    ${contacts.length?`<h3>Kontakte</h3><div class="card rl">${contacts.map(c=>`<div class="rp"><div><small>${esc(c.role||'Kontakt')}</small><b>${esc(c.name||c.tel)}</b>${c.name&&c.tel?`<span>${esc(c.tel)}</span>`:''}</div>${c.tel?`<a class="mini mapb" href="tel:${esc(c.tel.replace(/[^\d+]/g,''))}">${ic('phone')} Anrufen</a>`:''}</div>`).join('')}</div>`:''}
    ${todos.length?`<h3>Aufgaben <span class="sum">${todos.filter(r=>r.done).length} von ${todos.length} erledigt</span></h3><div class="card pack">${(x.todos||[]).map((r,i)=>r.t?`<label class="pk ${r.done?'on':''}"><input type="checkbox" data-wl="todos.${i}.done" ${r.done?'checked':''}><span>${esc(r.t)}${r.due?`<small class="tdw">bis ${new Date(r.due+'T12:00').toLocaleDateString('de-DE',{day:'numeric',month:'short'})}</small>`:''}</span></label>`:'').join('')}</div>`:''}
    ${groups.length?`<h3>Gruppenfotos <span class="sum">${groups.filter(r=>r.done).length} von ${groups.length}</span></h3><div class="card pack">${(x.groups||[]).map((r,i)=>r.t?`<label class="pk ${r.done?'on':''}"><input type="checkbox" data-wl="groups.${i}.done" ${r.done?'checked':''}><span>${esc(r.t)}</span></label>`:'').join('')}</div>`:''}
-   ${linked.length?`<h3>Shootings dazu</h3>${linked.map(s=>orgRow(orgItems().find(i=>i.k==='s'&&i.id===s.id))).join('')}`:''}
+   ${linked.filter(s=>!s.wedDay).length?`<h3>Weitere Shootings</h3>${linked.filter(s=>!s.wedDay).map(s=>orgRow(orgItems().find(i=>i.k==='s'&&i.id===s.id))).join('')}`:''}
    ${x.notes?`<h3>Notizen</h3><div class="card prose">${telify(x.notes)}</div>`:''}`,true);
   if(s0&&x.date&&x.date>=t)fillWeather($('#wxWed'),s0.lat,s0.lng,x.date,x.time,(+x.hours||8)*60)}
+const WSH=[['bp','Brautpaarshooting','16:00','location',/paar/i],['fl','First Look','12:30','location',/first/i],['gr','Getting Ready','10:00','ready',/ready/i],['gp','Gruppenfotos','15:30','location',/gruppe/i]];
+function renderWedShootChoice(){const x=wed(S.wedId);if(!x)return;S.view='wedShoot';
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Shooting planen</h2><div class="meta"><span>${esc(x.couple||'Hochzeit')}</span></div></div><button class="ib" data-og="wed" data-id="${x.id}" aria-label="Zurück">${ic('back')}</button></div>
+   <h3>Am Hochzeitstag${x.date?' · '+fmtD(x.date):''}</h3><p class="ex">Mit Uhrzeit, Ort aus der Hochzeit, Posen und Ideen-Fotos – erscheint im Ablauf der Hochzeit.</p>
+   <div class="chs">${WSH.map(o=>`<button class="btn big" data-og="wsnew" data-k="${o[0]}">📷 ${o[1]}</button>`).join('')}</div>
+   <h3>An einem anderen Tag</h3><button class="btn big" data-og="wsother">Kennenlern- oder After-Wedding-Shooting</button>`,true)}
+async function newWedDayShoot(x,k){const o=WSH.find(q=>q[0]===k),tlm=(x.timeline||[]).find(r=>r.t&&o[4].test(r.title||'')),t=(tlm&&tlm.t)||o[2],P=wedPlaces(x),pl=(tlm&&tlm.pl&&tlm.pl!=='own'?P.find(q=>q.id===tlm.pl):null)||P.find(q=>q.type===o[3]&&(q.name||q.addr))||P.find(q=>q.type==='location'&&(q.name||q.addr));
+  const s={id:uid(),items:[],created:Date.now(),type:'paar',name:o[1]+(x.couple?' '+x.couple:''),date:x.date||'',time:+t.slice(0,2)*60+ +t.slice(3,5),duration:60,spots:[...(x.spots||[])],clients:x.couple||'',notes:'',wedId:x.id,wedDay:true,wpl:pl?pl.id:'',refs:[],status:'fix'};
+  await saveShoot(s);return renderShootEdit(s.id)}
+body.addEventListener('click',async e=>{const m=e.target.closest('[data-mapq]');if(m){window.open(mapsUrl(JSON.parse(m.dataset.mapq)),'_blank');return}
+  const r=e.target.closest('[data-rf]');if(!r||S.view!=='shoot')return;const x=shoot(S.shootId);if(!x)return;const a=r.dataset.rf;
+  if(a==='add')return $('#fRefs').click();
+  if(a==='open')return openLB(x.refs.map(f=>({...f,exif:{},caption:x.name})),+r.dataset.i);
+  if(a==='del'&&confirm('Foto entfernen?')){const f=x.refs.splice(+r.dataset.i,1)[0];if(f)resetUrl(f.id);await saveShoot(x);const sc=body.scrollTop;renderShoot(x.id);body.scrollTop=sc}});
+$('#fRefs').onchange=async e=>{const fs=[...e.target.files];e.target.value='';const x=shoot(S.shootId);if(!x||!fs.length)return;busy(true);try{x.refs=x.refs||[];for(const f of fs){const {full,thumb}=await shrink(f);x.refs.push({id:uid(),blob:full,thumb,created:Date.now()})}await saveShoot(x)}finally{busy(false)}
+  toast(`${fs.length} Foto${fs.length===1?'':'s'} hinzugefügt`);const sc=body.scrollTop;renderShoot(x.id);body.scrollTop=sc};
 function renderWedEdit(id){const x=wed(id);if(!x)return renderOrga();S.view='wedEdit';S.wedId=id;const P=wedPlaces(x);
   const plOpts=r=>`<option value="">– kein Ort –</option>${P.map(q=>`<option value="${q.id}" ${r.pl===q.id?'selected':''}>${esc(lab(WPL,q.type)+(q.name?': '+q.name:''))}</option>`).join('')}<option value="own" ${r.pl==='own'||(!r.pl&&r.addr)?'selected':''}>Andere Adresse …</option>`;
   const tl=(x.timeline||[]).map((r,i)=>`<div class="tle"><div class="wr"><input type="time" data-wl="timeline.${i}.t" value="${esc(r.t||'')}" aria-label="Uhrzeit"><input type="text" data-wl="timeline.${i}.title" value="${esc(r.title||'')}" placeholder="z. B. Getting Ready Braut"><button type="button" class="mini" data-wa="del" data-l="timeline" data-i="${i}" aria-label="Entfernen">${ic('x')}</button></div>
@@ -2364,7 +2392,9 @@ body.addEventListener('click',async e=>{
   const x=wed(S.wedId);if(!x)return;
   if(a==='wics')return deliver(new Blob([wedIcs(x)],{type:'text/calendar'}),`Hochzeit ${x.couple||''}.ics`.replace(/[\/\\:&]/g,'-'));
   if(a==='wsun'){const s0=spot((x.spots||[])[0]);if(!s0)return;if(x.date)S.date=x.date;S.sel=s0.id;renderMarkers();map.setView([s0.lat,s0.lng],Math.max(map.getZoom(),16));S.simMin=x.time!==''&&x.time!=null?x.time:simDefault(s0);S.simFor=planKey(s0);return openPlanner()}
-  if(a==='wshoot'){const s={id:uid(),items:[],created:Date.now(),type:'paar',name:'Paarshooting '+(x.couple||''),date:'',time:'',duration:90,spots:[...(x.spots||[])],clients:x.couple||'',notes:'',wedId:x.id,status:'anfrage'};await saveShoot(s);return renderShootEdit(s.id)}
+  if(a==='wshoot')return renderWedShootChoice();
+  if(a==='wsnew')return newWedDayShoot(x,b.dataset.k);
+  if(a==='wsother'){const s={id:uid(),items:[],created:Date.now(),type:'paar',name:'Paarshooting '+(x.couple||''),date:'',time:'',duration:90,spots:[...(x.spots||[])],clients:x.couple||'',notes:'',wedId:x.id,status:'anfrage'};await saveShoot(s);return renderShootEdit(s.id)}
   if(a==='wdel'&&confirm(`Hochzeit „${x.couple||'ohne Namen'}“ löschen?`)){await DB.del('weddings',x.id);S.weds=S.weds.filter(q=>q!==x);for(const s of S.shoots)if(s.wedId===x.id){delete s.wedId;await saveShoot(s)}return renderOrga()}});
 const wInput=async e=>{if(S.view!=='wed'&&S.view!=='wedEdit')return;const el=e.target.closest('[data-wk],[data-wl]');if(!el)return;const x=wed(S.wedId);if(!x)return;
   const v=el.type==='checkbox'?el.checked:el.value;
