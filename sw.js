@@ -1,5 +1,5 @@
 // Zweistil Fotografie Service Worker: App offline verfügbar + besuchte Kartenkacheln zwischenspeichern
-const SHELL_CACHE = 'spotbuch-shell-v29';
+const SHELL_CACHE = 'spotbuch-shell-v30';
 const TILE_CACHE = 'spotbuch-tiles-v1';
 const MAX_TILES = 4000;
 const SHELL = [
@@ -56,7 +56,7 @@ self.addEventListener('fetch', e => {
 
   if (url.origin === location.origin || url.hostname === 'unpkg.com' || url.hostname.endsWith('fonts.googleapis.com') || url.hostname.endsWith('fonts.gstatic.com')) {
     // App-Dateien: Netz zuerst (damit Updates ankommen), offline aus dem Cache
-    e.respondWith(fetch(req).then(res => {
+    e.respondWith(fetch(url.origin === location.origin ? new Request(req, { cache: 'no-cache' }) : req).then(res => {
       if (res.ok) { const copy = res.clone(); caches.open(SHELL_CACHE).then(c => c.put(req, copy)); }
       return res;
     }).catch(() => caches.match(req).then(r => r || caches.match('./index.html'))));

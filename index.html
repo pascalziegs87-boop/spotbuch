@@ -2008,7 +2008,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v29';
+const APPV='v30';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -2568,7 +2568,9 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-act=card]')){e.
   renderMarkers();
   // kein Willkommensbildschirm beim Start
   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist()}catch(e){}
-  if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js').catch(()=>{});
+  if('serviceWorker' in navigator&&location.protocol==='https:')navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')r.update().catch(()=>{})})}).catch(()=>{});
+  const chkUpd=async()=>{try{const t=await (await fetch('index.html?v='+Date.now(),{cache:'no-store'})).text(),m=t.match(/APPV='(v\d+)'/);if(m&&m[1]!==APPV)toast('Neue Version verfügbar','Jetzt laden',()=>location.reload(),15000)}catch(e){}};
+  setTimeout(chkUpd,4000);document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')setTimeout(chkUpd,1500)});
   if(navigator.permissions)navigator.permissions.query({name:'geolocation'}).then(r=>{if(r.state==='granted')locate(false).catch(()=>{})}).catch(()=>{});
 })();
 }
