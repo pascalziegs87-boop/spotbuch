@@ -2638,7 +2638,7 @@ body.addEventListener('click',e=>{if(e.target.closest('[data-hset]')){$('#btnMen
 
 
 /* ---------- Karte drehen & Orte suchen ---------- */
-(()=>{const nb=$('#btnNorth'),sv=$('#northSvg');if(!nb||!map.setBearing)return;
+window.__map=map;(()=>{const nb=$('#btnNorth'),sv=$('#northSvg');if(!nb||!map.setBearing)return;
   const upd=()=>{const b=map.getBearing?map.getBearing():0;nb.hidden=Math.abs(b)<1&&Math.abs(b-360)>=1;sv.style.transform=`rotate(${-b}deg)`};
   map.on('rotate',upd);nb.onclick=()=>{map.setBearing(0);upd()};upd()})();
 let geoT,geoMk=null;const geoBox=$('#geo');
