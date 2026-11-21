@@ -537,6 +537,10 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 @keyframes spl{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
 .bcard{background:#1b1d21;border-radius:22px;padding:22px 20px 16px;display:flex;flex-direction:column;align-items:center;gap:14px;margin:4px 0 12px}
 .bclogo{width:150px;height:auto}.bcqr{width:min(70vw,250px);background:#fff;border-radius:16px;padding:10px}.bcqr svg{display:block;width:100%;height:auto}.bccap{color:#d6d3cc;margin:0;font-size:14px}
+.dbox.fm{background:#e4ecf7}@media (prefers-color-scheme:dark){.dbox.fm{background:#2a3340}}
+.ldf{padding:12px;display:flex;flex-direction:column;gap:8px}.ldf input{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:11px 12px;font-size:16px;margin:0;min-width:0;-webkit-appearance:none;appearance:none;min-height:46px}
+.ldl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute)}.rp.ld{align-items:flex-start}.rp.ld .mapb{margin-top:2px}
+.seg button{font-size:14px}
 </style>
 </head>
 <body>
@@ -666,8 +670,8 @@ const Sun=(()=>{
 /* ---------- IndexedDB ---------- */
 const rq=r=>new Promise((res,rej)=>{r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)});
 const DB={db:null,
-  open(){return new Promise((res,rej)=>{const r=indexedDB.open('spotbuch',5);
-    r.onupgradeneeded=()=>{const d=r.result,h=n=>d.objectStoreNames.contains(n);if(!h('shots'))d.createObjectStore('shots',{keyPath:'id'});if(!h('weddings'))d.createObjectStore('weddings',{keyPath:'id'});if(!h('kv'))d.createObjectStore('kv',{keyPath:'k'});if(!h('spots'))d.createObjectStore('spots',{keyPath:'id'});if(!h('photos'))d.createObjectStore('photos',{keyPath:'id'}).createIndex('spot','spotId');if(!h('poses'))d.createObjectStore('poses',{keyPath:'id'});if(!h('shoots'))d.createObjectStore('shoots',{keyPath:'id'});if(!h('setups'))d.createObjectStore('setups',{keyPath:'id'})};
+  open(){return new Promise((res,rej)=>{const r=indexedDB.open('spotbuch',6);
+    r.onupgradeneeded=()=>{const d=r.result,h=n=>d.objectStoreNames.contains(n);if(!h('shots'))d.createObjectStore('shots',{keyPath:'id'});if(!h('weddings'))d.createObjectStore('weddings',{keyPath:'id'});if(!h('fairs'))d.createObjectStore('fairs',{keyPath:'id'});if(!h('kv'))d.createObjectStore('kv',{keyPath:'k'});if(!h('spots'))d.createObjectStore('spots',{keyPath:'id'});if(!h('photos'))d.createObjectStore('photos',{keyPath:'id'}).createIndex('spot','spotId');if(!h('poses'))d.createObjectStore('poses',{keyPath:'id'});if(!h('shoots'))d.createObjectStore('shoots',{keyPath:'id'});if(!h('setups'))d.createObjectStore('setups',{keyPath:'id'})};
     r.onsuccess=()=>{this.db=r.result;res()};r.onerror=()=>rej(r.error)})},
   st(n,m='readonly'){return this.db.transaction(n,m).objectStore(n)},
   all(n){return rq(this.st(n).getAll())},put(n,v,keep){if(!keep&&(n!=='kv'||v.k==='gear')){v.updated=Date.now();bumpChanges();tombSet(n+'/'+(n==='kv'?v.k:v.id),0);scheduleSync()}return rq(this.st(n,'readwrite').put(v))},del(n,id,keep){if(!keep){tombSet(n+'/'+id,Date.now());bumpChanges();scheduleSync()}return rq(this.st(n,'readwrite').delete(id))}
@@ -1110,7 +1114,7 @@ async function backup(){busy(true);try{const photos=[];for(const list of S.photo
   const poses=[];for(const r of await DB.all('poses')){const {blob,thumb,orig,...m}=r;poses.push({...m,data:blob?await blobToData(blob):null,thumbData:thumb?await blobToData(thumb):null})}
   const setups=[];for(const x of S.setups){const ph=[];for(const p of x.photos||[]){const {blob,thumb,...m}=p;ph.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}setups.push({...x,photos:ph})}
   const shots=[];for(const x of S.shots){const {blob,thumb,...m}=x;shots.push({...m,data:await blobToData(blob),thumbData:await blobToData(thumb||blob)})}
-  const json=JSON.stringify({app:'spotbuch',version:5,exported:new Date().toISOString(),spots:S.spots,photos,poses,shoots:await Promise.all(S.shoots.map(async x=>x.refs&&x.refs.length?{...x,refs:await Promise.all(x.refs.map(async r=>({id:r.id,created:r.created,data:await blobToData(r.blob),thumbData:await blobToData(r.thumb||r.blob)})))}:x)),setups,shots,gear:S.gear,weddings:S.weds});
+  const json=JSON.stringify({app:'spotbuch',version:5,exported:new Date().toISOString(),spots:S.spots,photos,poses,shoots:await Promise.all(S.shoots.map(async x=>x.refs&&x.refs.length?{...x,refs:await Promise.all(x.refs.map(async r=>({id:r.id,created:r.created,data:await blobToData(r.blob),thumbData:await blobToData(r.thumb||r.blob)})))}:x)),setups,shots,gear:S.gear,weddings:S.weds,fairs:S.fairs});
   await deliver(new Blob([json],{type:'application/json'}),`zweistil-backup-${stamp()}.json`);ls.set('lastBackup',Date.now());ls.set('chg',0)}finally{busy(false)}}
 async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(await file.text());if(d.app!=='spotbuch')throw new Error('Kein Backup dieser App');
   for(const s of d.spots||[]){migrate(s);const ex=spot(s.id);if(!ex||(s.updated||0)>(ex.updated||0)){await DB.put('spots',s);if(ex)Object.assign(ex,s);else S.spots.push(s);ns++}}
@@ -1124,6 +1128,7 @@ async function restore(file){busy(true);let ns=0,np=0;try{const d=JSON.parse(awa
   for(const x of d.setups||[]){const ex=setup(x.id);if(ex&&(x.updated||0)<=(ex.updated||0))continue;const ph=[];for(const p of x.photos||[]){const {data,thumbData,...m}=p;ph.push({...m,blob:await (await fetch(data)).blob(),thumb:await (await fetch(thumbData||data)).blob()})}
     const rec={...x,photos:ph};await DB.put('setups',rec);if(ex)Object.assign(ex,rec);else S.setups.push(rec);nsh++}
   for(const x of d.shots||[]){const ex=shot(x.id);if(ex&&(x.updated||0)<=(ex.updated||0))continue;const {data,thumbData,...m}=x;const rec={...m,blob:await (await fetch(data)).blob(),thumb:await (await fetch(thumbData||data)).blob()};await DB.put('shots',rec);if(ex)Object.assign(ex,rec);else S.shots.push(rec);nsh++}
+  for(const x of d.fairs||[]){const ex=fair(x.id);if(ex&&(x.updated||0)<=(ex.updated||0))continue;await DB.put('fairs',x,true);if(ex)Object.assign(ex,x);else S.fairs.push(x);nsh++}
   for(const x of d.weddings||[]){const ex=wed(x.id);if(ex&&(x.updated||0)<=(ex.updated||0))continue;await DB.put('weddings',x,true);if(ex)Object.assign(ex,x);else S.weds.push(x);nsh++}
   if(d.gear){S.gear=d.gear;await DB.put('kv',{k:'gear',v:S.gear})}
   renderMarkers();if(S.view==='welcome'||S.view==='settings'){sheet.hidden=true;S.view=null}toast(`${ns} Spots, ${np} Fotos${nsh?`, ${nsh} Shootings`:''} übernommen`)}catch(e){toast('Backup konnte nicht gelesen werden: '+e.message)}finally{busy(false)}}
@@ -2003,7 +2008,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v28';
+const APPV='v29';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -2199,7 +2204,7 @@ function backupReminder(){const last=ls.get('lastBackup',0),chg=ls.get('chg',0),
   toast(last?`Letzte Sicherung vor ${days} Tag${days===1?'':'en'} – jetzt sichern?`:'Noch keine Sicherung – jetzt sichern?','Sichern',()=>backup(),10000)}
 
 /* ---------- Sync mit dem NAS ---------- */
-const SYNC_STORES=['spots','photos','poses','shoots','setups','shots','weddings','kv'];
+const SYNC_STORES=['spots','photos','poses','shoots','setups','shots','weddings','fairs','kv'];
 const SY={busy:false,again:false,t:null,msg:'',get url(){return String(ls.get('syncUrl','')||'').trim().replace(/\/+$/,'')},get tok(){return String(ls.get('syncTok','')||'').trim()},get on(){return !!(this.url&&this.tok)}};
 function tombSet(k,v){const t=ls.get('tomb',{});if(v)t[k]=v;else delete t[k];ls.set('tomb',t)}
 async function syApi(path,opt={}){let r;try{r=await fetch(SY.url+path,{...opt,cache:'no-store',headers:{...(opt.headers||{}),Authorization:'Bearer '+SY.tok}})}
@@ -2234,9 +2239,9 @@ async function syncNow(manual){if(!SY.on)return;if(SY.busy){SY.again=true;return
   catch(e){syShow('Fehler: '+e.message);if(manual)toast('Sync fehlgeschlagen: '+e.message,null,null,6000)}
   finally{SY.busy=false;if(SY.again){SY.again=false;scheduleSync(2000)}}}
 async function reloadAll(){S.spots=await DB.all('spots');S.photos=new Map();for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
-  for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');S.weds=await DB.all('weddings');await loadGear();
+  for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');S.weds=await DB.all('weddings');S.fairs=await DB.all('fairs');await loadGear();
   for(const u of S.urls.values())URL.revokeObjectURL(u);S.urls.clear();renderMarkers();
-  if(!sheet.hidden){const v=S.view;if(v==='lib')renderLib();else if(v==='setups')renderSetups();else if(v==='shoots')renderShoots();else if(v==='orga')renderOrga();else if(v==='weds')renderWeds();else if(v==='wed')renderWed(S.wedId)}}
+  if(!sheet.hidden){const v=S.view;if(v==='lib')renderLib();else if(v==='setups')renderSetups();else if(v==='shoots')renderShoots();else if(v==='orga')renderOrga();else if(v==='weds')renderWeds();else if(v==='wed')renderWed(S.wedId);else if(v==='fairs')renderFairs();else if(v==='fair')renderFair(S.fairId)}}
 function syncSection(){return `<h3>Sync mit dem NAS</h3><div class="f"><label>Adresse des Sync-Servers<input type="url" id="syUrl" value="${esc(SY.url)}" placeholder="https://zweistil-sync.deinname.synology.me" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
   <label>Token<input type="password" id="syTok" value="${esc(SY.tok)}" autocomplete="off" placeholder="aus der docker-compose.yml"></label></div>
   <p class="note" id="syMsg">${syStatus()}</p><div class="acts"><button class="btn pri" data-act="sysave">Speichern & verbinden</button>${SY.on?'<button class="btn" data-act="synow">Jetzt synchronisieren</button><button class="btn" data-act="syoff">Sync ausschalten</button>':''}</div>`}
@@ -2275,14 +2280,15 @@ function orgItems(){const s=S.shoots.filter(x=>!x.wedDay).map(x=>({k:'s',id:x.id
   const w=S.weds.map(x=>({k:'w',id:x.id,title:x.couple||'Hochzeit',date:x.date,time:x.time,st:x.status||'anfrage',list:WSTAT,sub:['Hochzeit',wedVenue(x)].filter(Boolean).join(' · '),open:(x.todos||[]).filter(t=>!t.done).length}));
   return [...w,...s]}
 function orgRow(it){const d=it.date?new Date(it.date+'T12:00'):null;
-  return swr(it.k,it.id,`<button class="li orow" data-og="${it.k==='w'?'wed':'shoot'}" data-id="${it.id}"><span class="dbox ${it.k==='w'?'w':''}">${d?`<b>${d.getDate()}</b><small>${d.toLocaleDateString('de-DE',{month:'short'}).replace('.','')}</small>`:'<b>?</b><small>offen</small>'}</span>
-   <span class="tx"><b>${it.k==='w'?'💍 ':''}${esc(it.title)}</b><small>${esc(it.sub)}${it.time!=null&&it.time!==''?' · '+hm(it.time):''}</small><small>${d?cd(it.date)+(d.getFullYear()!==new Date().getFullYear()?' · '+d.getFullYear():''):'Noch kein Termin'}${it.open?` · ${it.open} offene Aufgabe${it.open===1?'':'n'}`:''}</small></span>${stChip(it.st,it.list)}</button>`)}
-function orgSeg(cur){return `<div class="seg" role="group" aria-label="Orga-Bereich"><button data-og="segov" aria-pressed="${cur==='ov'}">Übersicht</button><button data-og="segsh" aria-pressed="${cur==='sh'}">Shootings</button><button data-og="segwd" aria-pressed="${cur==='wd'}">Hochzeiten</button></div>`}
-function renderOrga(){S.view='orga';const t=todayISO(),all=orgItems(),live=all.filter(i=>i.st!=='abgesagt');
+  return swr(it.k,it.id,`<button class="li orow" data-og="${it.k==='w'?'wed':it.k==='f'?'fair':'shoot'}" data-id="${it.id}"><span class="dbox ${it.k==='w'?'w':it.k==='f'?'fm':''}">${d?`<b>${d.getDate()}</b><small>${d.toLocaleDateString('de-DE',{month:'short'}).replace('.','')}</small>`:'<b>?</b><small>offen</small>'}</span>
+   <span class="tx"><b>${it.k==='w'?'💍 ':it.k==='f'?'🎪 ':''}${esc(it.title)}</b><small>${esc(it.sub)}${it.time!=null&&it.time!==''?' · '+hm(it.time):''}</small><small>${d?cd(it.date)+(d.getFullYear()!==new Date().getFullYear()?' · '+d.getFullYear():''):'Noch kein Termin'}${it.open?` · ${it.open} offene Aufgabe${it.open===1?'':'n'}`:''}</small></span>${stChip(it.st,it.list)}</button>`)}
+function orgSeg(cur){return `<div class="seg" role="group" aria-label="Orga-Bereich"><button data-og="segov" aria-pressed="${cur==='ov'}">Übersicht</button><button data-og="segsh" aria-pressed="${cur==='sh'}">Shootings</button><button data-og="segwd" aria-pressed="${cur==='wd'}">Hochzeiten</button><button data-og="segms" aria-pressed="${cur==='ms'}">Messen</button></div>`}
+function renderOrga(){S.view='orga';const t=todayISO(),all=[...orgItems(),...fairItems()],live=all.filter(i=>i.st!=='abgesagt');
   const next=live.filter(i=>i.date&&i.date>=t).sort((a,b)=>a.date.localeCompare(b.date)||(+a.time||0)-(+b.time||0));
   const undated=live.filter(i=>!i.date&&!DONE.has(i.st));
-  const deliver=live.filter(i=>i.date&&i.date<t&&!DONE.has(i.st)).sort((a,b)=>a.date.localeCompare(b.date));
+  const deliver=live.filter(i=>i.k!=='f'&&i.date&&i.date<t&&!DONE.has(i.st)).sort((a,b)=>a.date.localeCompare(b.date));
   const todos=[];for(const w of S.weds)if(w.status!=='abgesagt')(w.todos||[]).forEach((td,i)=>{if(!td.done)todos.push({w,td,i})});
+  for(const f of S.fairs)if(f.status!=='abgesagt')(f.todos||[]).forEach((td,i)=>{if(td.t&&!td.done)todos.push({w:{id:f.id,couple:'🎪 '+(f.name||'Messe'),date:f.date,fair:1},td,i})});
   todos.sort((a,b)=>(a.td.due||'9999').localeCompare(b.td.due||'9999')||(a.w.date||'9999').localeCompare(b.w.date||'9999'));
   const y=new Date().getFullYear(),wy=S.weds.filter(w=>w.date&&+w.date.slice(0,4)===y&&w.status!=='abgesagt').length,wn=S.weds.filter(w=>w.date&&+w.date.slice(0,4)===y+1&&w.status!=='abgesagt').length,m30=next.filter(i=>days(i.date)<=30).length;
   showSheet(`<div class="hd"><div style="flex:1">${LOGO('Orga')}</div><button class="ib" data-act="card" aria-label="Visitenkarte">${ic('qr')}</button><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
@@ -2292,7 +2298,7 @@ function renderOrga(){S.view='orga';const t=todayISO(),all=orgItems(),live=all.f
    <h3>Nächste Termine</h3>${next.length?next.slice(0,12).map(orgRow).join(''):'<p class="ex">Keine Termine geplant.</p>'}
    ${undated.length?`<h3>Ohne Termin <span class="sum">${undated.length}</span></h3>${undated.map(orgRow).join('')}`:''}
    ${deliver.length?`<h3>Noch zu liefern <span class="sum over">${deliver.length}</span></h3>${deliver.map(orgRow).join('')}`:''}
-   ${todos.length?`<h3>Offene Aufgaben <span class="sum">${todos.length}</span></h3><div class="card pack">${todos.slice(0,8).map(({w,td,i})=>`<label class="pk"><input type="checkbox" data-otd="${w.id}" data-i="${i}"><span>${esc(td.t)}<small class="tdw">${esc(w.couple||'Hochzeit')}${td.due?' · bis '+new Date(td.due+'T12:00').toLocaleDateString('de-DE',{day:'numeric',month:'short'}):''}</small></span></label>`).join('')}</div>`:''}`,true)}
+   ${todos.length?`<h3>Offene Aufgaben <span class="sum">${todos.length}</span></h3><div class="card pack">${todos.slice(0,8).map(({w,td,i})=>`<label class="pk"><input type="checkbox" ${w.fair?'data-otf':'data-otd'}="${w.id}" data-i="${i}"><span>${esc(td.t)}<small class="tdw">${esc(w.couple||'Hochzeit')}${td.due?' · bis '+new Date(td.due+'T12:00').toLocaleDateString('de-DE',{day:'numeric',month:'short'}):''}</small></span></label>`).join('')}</div>`:''}`,true)}
 function renderWeds(){S.view='weds';const arr=[...S.weds].sort((a,b)=>(a.date||'0000').localeCompare(b.date||'0000'));const nod=arr.filter(w=>!w.date),years=[...new Set(arr.filter(w=>w.date).map(w=>w.date.slice(0,4)))].sort().reverse();
   const it=x=>orgItems().find(i=>i.k==='w'&&i.id===x.id);
   showSheet(`<div class="hd"><div style="flex:1">${LOGO('Hochzeiten')}</div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>${orgSeg('wd')}
@@ -2395,7 +2401,7 @@ body.addEventListener('click',async e=>{
       else x[l].push(l==='timeline'?{t:'',title:'',pl:'',addr:'',note:''}:l==='contacts'?{role:'',name:'',tel:''}:l==='places'?{id:uid(),type:'location',name:'',addr:''}:{t:'',done:false});
       await saveWed(x);wRe();if(wa.dataset.wa==='add'){const ins=body.querySelectorAll(`[data-wl^="${l}.${x[l].length-1}."]`);const f=[...ins].find(i=>i.type==='text')||ins[0];if(f)f.focus()}return}}
   const b=e.target.closest('[data-og]');if(!b)return;const a=b.dataset.og;
-  if(a==='segov'||a==='back')return renderOrga();if(a==='segsh')return renderShoots();if(a==='segwd')return renderWeds();
+  if(a==='segov'||a==='back')return renderOrga();if(a==='segsh')return renderShoots();if(a==='segwd')return renderWeds();if(a==='segms')return renderFairs();if(a==='fair')return renderFair(b.dataset.id);
   if(a==='wed')return renderWed(b.dataset.id);if(a==='wedit')return renderWedEdit(S.wedId);if(a==='wdone')return renderWed(S.wedId);if(a==='shoot')return renderShoot(b.dataset.id);
   if(a==='newshoot')return renderShootEdit(null);
   if(a==='newwed'){const x={id:uid(),couple:'',date:'',time:'',status:'anfrage',venue:'',ceremony:'',spots:[],timeline:[],todos:[],groups:[],contacts:[],notes:'',created:Date.now()};await saveWed(x);return renderWedEdit(x.id)}
@@ -2415,6 +2421,90 @@ body.addEventListener('change',wInput);
 let wT;body.addEventListener('input',e=>{if(S.view==='wedEdit'&&e.target.matches('input[type=text],input[type=tel],textarea')){clearTimeout(wT);wT=setTimeout(()=>wInput(e),400)}});
 
 
+/* ---------- Hochzeitsmessen ---------- */
+S.fairs=[];
+const fair=id=>S.fairs.find(x=>x.id===id);
+async function saveFair(x){await DB.put('fairs',x);if(!S.fairs.includes(x))S.fairs.push(x)}
+const FSTAT=[['idee','Überlegen'],['angemeldet','Angemeldet'],['bezahlt','Bezahlt'],['erledigt','Erledigt'],['abgesagt','Abgesagt']];
+Object.assign(STCOL,{idee:'#8a919c',angemeldet:'#5b8def',bezahlt:'#3f9d6a',erledigt:'#9aa0a8'});DONE.add('erledigt');
+const FPACK=['Roll-up / Banner','Musteralben','Prints & Bilderrahmen','Flyer & Preislisten','Visitenkarten / QR-Aufsteller','Tablet oder Laptop mit Slideshow','Verlängerungskabel & Mehrfachstecker','Tischdecke & Deko','Gewinnspiel-Karten & Box','Kugelschreiber','Süßigkeiten für den Tisch','Wasser & Snacks','Klebeband, Kabelbinder, Schere'];
+const FTODO=['Anmeldung absenden','Standgebühr überweisen','Messe-Angebot festlegen','Flyer & Preislisten drucken','Slideshow vorbereiten','Social-Media-Post zur Messe','Kontakte nachfassen (innerhalb 48 h)'];
+const fRange=x=>!x.date?'Noch kein Datum':fmtD(x.date)+(x.date2&&x.date2!==x.date?' – '+fmtD(x.date2):'');
+function fairItems(){return S.fairs.map(x=>({k:'f',id:x.id,title:x.name||'Hochzeitsmesse',date:x.date,time:'',st:x.status||'idee',list:FSTAT,sub:['Hochzeitsmesse',(x.place||{}).name].filter(Boolean).join(' · ')+(x.from?' · '+x.from+(x.to?'–'+x.to:'')+' Uhr':''),open:(x.todos||[]).filter(t=>t.t&&!t.done).length}))}
+function renderFairs(){S.view='fairs';const t=todayISO(),arr=[...S.fairs].sort((a,b)=>(a.date||'9999').localeCompare(b.date||'9999')),up=arr.filter(x=>!x.date||x.date>=t),past=arr.filter(x=>x.date&&x.date<t).reverse();
+  const it=x=>fairItems().find(i=>i.id===x.id),leads=past.reduce((a,x)=>a+(x.leads||[]).length,0),booked=past.reduce((a,x)=>a+(x.leads||[]).filter(l=>l.wedId).length,0);
+  showSheet(`<div class="hd"><div style="flex:1">${LOGO('Hochzeitsmessen')}</div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>${orgSeg('ms')}
+   <button class="btn acc big" data-fg="new">${ic('plus')} Neue Messe</button>
+   ${!arr.length?`<div class="empty static">${ic('list')}<b>Noch keine Messe</b><span>Trag Hochzeitsmessen mit Ort, Stand, Gebühr, Packliste und Aufgaben ein. Auf der Messe erfasst du Kontakte direkt und machst später mit einem Tipp eine Hochzeit daraus.</span></div>`:''}
+   ${up.length?`<h3>Geplant</h3>${up.map(x=>orgRow(it(x))).join('')}`:''}
+   ${past.length?`<h3>Vergangen <span class="sum">${leads} Kontakte · ${booked} gebucht</span></h3>${past.map(x=>orgRow(it(x))).join('')}`:''}`,true)}
+function renderFair(id){const x=fair(id);if(!x)return renderFairs();S.view='fair';S.fairId=id;const pl=x.place||{},c=x.contact||{},L=x.leads||[],bk=L.filter(l=>l.wedId).length;
+  const kv=[];if(x.from||x.to)kv.push(['Zeit',[x.from,x.to].filter(Boolean).join('–')+' Uhr'+(x.build?` · Aufbau ab ${x.build} Uhr`:'')]);else if(x.build)kv.push(['Aufbau',`ab ${x.build} Uhr`]);
+  if(x.booth)kv.push(['Stand',x.booth]);if(x.fee)kv.push(['Standgebühr',eur(x.fee)+(x.feePaid?' · bezahlt ✓':' · offen')]);
+  if(L.length)kv.push(['Ergebnis',`${L.length} Kontakt${L.length===1?'':'e'} · ${bk} gebucht${x.fee&&bk?` · ${eur(x.fee/bk)} pro Buchung`:''}`]);
+  const chk=(key,list)=>(x[key]||[]).map((r,i)=>r.t?`<label class="pk ${r.done?'on':''}"><input type="checkbox" data-fl="${key}.${i}.done" ${r.done?'checked':''}><span>${esc(r.t)}</span></label>`:'').join('');
+  const nT=(x.todos||[]).filter(r=>r.t),nP=(x.pack||[]).filter(r=>r.t);
+  showSheet(`<div class="hd"><div style="flex:1"><h2>${esc(x.name||'Hochzeitsmesse')}</h2><div class="meta"><span>${fRange(x)}${x.date?' · '+cd(x.date):''}</span>${stChip(x.status||'idee',FSTAT)}</div></div><button class="ib" data-fg="back" aria-label="Zurück">${ic('back')}</button></div>
+   <div class="qa"><button class="q pri" data-fg="edit">${ic('edit')}<span>Bearbeiten</span></button><button class="q" data-fg="ics" ${x.date?'':'disabled'}>${ic('cal')}<span>Kalender</span></button><button class="q" data-act="card">${ic('qr')}<span>Visitenkarte</span></button></div>
+   ${kv.length?`<div class="card kvs">${kv.map(([k,v])=>`<div class="kv"><span>${k}</span><b>${esc(v)}</b></div>`).join('')}</div>`:''}
+   ${pl.name||pl.addr||c.name||c.tel?`<div class="card rl" style="margin-top:10px">${pl.name||pl.addr?`<div class="rp"><div><small>Ort</small><b>${esc(pl.name||pl.addr)}</b>${pl.name&&pl.addr?`<span>${esc(pl.addr)}</span>`:''}</div><button class="mini mapb" data-mapq="${esc(JSON.stringify({name:pl.name||'',addr:pl.addr||''}))}">${ic('route')} Karten</button></div>`:''}
+    ${c.name||c.tel?`<div class="rp"><div><small>Veranstalter</small><b>${esc(c.name||c.tel)}</b>${c.name&&c.tel?`<span>${esc(c.tel)}</span>`:''}${c.mail?`<span>${esc(c.mail)}</span>`:''}</div>${c.tel?`<a class="mini mapb" href="tel:${esc(c.tel.replace(/[^\d+]/g,''))}">${ic('phone')} Anrufen</a>`:''}</div>`:''}</div>`:''}
+   <h3>Kontakte auf der Messe ${L.length?`<span class="sum">${L.length}</span>`:''}</h3>
+   <div class="card ldf"><input type="text" id="ldN" placeholder="Brautpaar / Name"><label class="ldl">Hochzeitsdatum (falls bekannt)<input type="date" id="ldD"></label><input type="text" id="ldC" placeholder="Telefon oder E-Mail"><input type="text" id="ldX" placeholder="Notiz, z. B. Location, Budget, Wunsch"><button class="btn acc" data-fg="lead">${ic('plus')} Kontakt speichern</button></div>
+   ${L.length?`<div class="card rl">${L.map((l,i)=>`<div class="rp ld"><div><b>${esc(l.name||'Ohne Namen')}</b><span>${[l.wdate?'Hochzeit '+fmtD(l.wdate):'',l.contact].filter(Boolean).map(esc).join(' · ')}</span>${l.note?`<span>${esc(l.note)}</span>`:''}</div>${l.wedId&&wed(l.wedId)?`<button class="mini mapb" data-og="wed" data-id="${l.wedId}">💍 Öffnen</button>`:`<button class="mini mapb" data-fg="towed" data-i="${i}">→ Hochzeit</button>`}<button class="mini" data-fg="ldel" data-i="${i}" aria-label="Kontakt entfernen">${ic('x')}</button></div>`).join('')}</div>`:''}
+   ${nT.length?`<h3>Aufgaben <span class="sum">${nT.filter(r=>r.done).length} von ${nT.length}</span></h3><div class="card pack">${chk('todos')}</div>`:''}
+   ${nP.length?`<h3>Packliste <span class="sum">${nP.filter(r=>r.done).length} von ${nP.length} eingepackt</span></h3><div class="card pack">${chk('pack')}</div>`:''}
+   ${x.notes?`<h3>Notizen</h3><div class="card prose">${telify(x.notes)}</div>`:''}`,true)}
+function renderFairEdit(id){const x=fair(id);if(!x)return renderFairs();S.view='fairEdit';S.fairId=id;const pl=x.place||{},c=x.contact||{};
+  const F=(label,key,val,type='text',ph='')=>`<label>${label}<input type="${type}" data-fk="${key}" value="${esc(val??'')}" placeholder="${esc(ph)}" ${type==='number'?'inputmode="decimal"':''}></label>`;
+  const lst=key=>(x[key]||[]).map((r,i)=>`<div class="wr ${r.done?'on':''}"><input type="checkbox" data-fl="${key}.${i}.done" ${r.done?'checked':''} aria-label="Erledigt"><input type="text" data-fl="${key}.${i}.t" value="${esc(r.t||'')}" placeholder="${key==='pack'?'Was muss mit?':'Aufgabe'}"><button type="button" class="mini" data-fa="del" data-l="${key}" data-i="${i}" aria-label="Entfernen">${ic('x')}</button></div>`).join('');
+  const sec=(title,key,add,tpl)=>`<section class="grp"><h4>${title}</h4>${lst(key)}<div class="row2" style="margin-top:8px"><button type="button" class="btn sm" data-fa="add" data-l="${key}">${ic('plus')} ${add}</button>${!(x[key]||[]).length?`<button type="button" class="btn sm" data-fa="tpl" data-l="${key}">${tpl}</button>`:''}</div></section>`;
+  showSheet(`<div class="f stf"><div class="hd"><div style="flex:1"><h2>Messe bearbeiten</h2></div><button class="btn acc sm" data-fg="done">Fertig</button></div>
+   <section class="grp"><h4>Messe & Status</h4>${F('Name','name',x.name,'text','z. B. Hochzeitsmesse Lüdenscheid')}
+    <div class="lab">Status</div><div class="opts wst" data-fst>${FSTAT.map(s=>`<button type="button" data-v="${s[0]}" aria-pressed="${(x.status||'idee')===s[0]}" style="--c:${STCOL[s[0]]}">${s[1]}</button>`).join('')}</div></section>
+   <section class="grp"><h4>Termin</h4><div class="two">${F('Erster Tag','date',x.date,'date')}${F('Letzter Tag','date2',x.date2,'date')}</div>
+    <div class="three">${F('Aufbau ab','build',x.build,'time')}${F('Öffnung','from',x.from,'time')}${F('Ende','to',x.to,'time')}</div></section>
+   <section class="grp"><h4>Ort & Stand</h4>${F('Ort','place.name',pl.name,'text','z. B. Schützenhalle')}${F('Adresse','place.addr',pl.addr,'text','Straße Nr., PLZ Ort')}
+    <div class="two">${F('Stand','booth',x.booth,'text','Nr. / Größe')}${F('Standgebühr (€)','fee',x.fee,'number')}</div>
+    <label class="chk"><input type="checkbox" data-fk="feePaid" ${x.feePaid?'checked':''}>Standgebühr bezahlt</label></section>
+   <section class="grp"><h4>Veranstalter</h4>${F('Name','contact.name',c.name,'text')}<div class="two">${F('Telefon','contact.tel',c.tel,'tel')}${F('E-Mail','contact.mail',c.mail,'email')}</div></section>
+   ${sec('Aufgaben','todos','Aufgabe','Standard-Aufgaben einfügen')}
+   ${sec('Packliste','pack','Teil','Standard-Packliste einfügen')}
+   <section class="grp"><h4>Notizen</h4><label><textarea data-fk="notes" rows="4" placeholder="Angebot zur Messe, Erfahrungen, nächstes Jahr anders …">${esc(x.notes||'')}</textarea></label></section>
+   <button class="btn acc big" data-fg="done">Fertig</button></div>`,true);
+  const pb=body.querySelector('[data-fst] [aria-pressed=true]');if(pb)pb.parentNode.scrollLeft=Math.max(0,pb.offsetLeft-60)}
+function fairIcs(x){const pad=n=>String(n).padStart(2,'0'),e=s=>String(s||'').replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n'),now=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',pl=x.place||{};
+  const days=[];if(x.date){const d=new Date(x.date+'T12:00'),end=new Date((x.date2||x.date)+'T12:00');for(;d<=end&&days.length<7;d.setDate(d.getDate()+1))days.push(d.toISOString().slice(0,10))}
+  const st=x.build||x.from,ev=days.map((d,i)=>{const ds=d.replace(/-/g,'');let a,b;if(st&&x.to){a='DTSTART:'+ds+'T'+st.replace(':','')+'00';b='DTEND:'+ds+'T'+x.to.replace(':','')+'00'}else{const n=new Date(d+'T12:00');n.setDate(n.getDate()+1);a='DTSTART;VALUE=DATE:'+ds;b='DTEND;VALUE=DATE:'+n.toISOString().slice(0,10).replace(/-/g,'')}
+    return ['BEGIN:VEVENT','UID:'+x.id+'-'+i+'@zweistil','DTSTAMP:'+now,a,b,'SUMMARY:'+e(x.name||'Hochzeitsmesse'),'LOCATION:'+e([pl.name,pl.addr].filter(Boolean).join(', ')),'DESCRIPTION:'+e([x.booth&&'Stand: '+x.booth,x.build&&'Aufbau ab '+x.build+' Uhr',x.notes].filter(Boolean).join('\n')),'END:VEVENT'].join('\r\n')});
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Zweistil Fotografie//DE',...ev,'END:VCALENDAR'].join('\r\n')}
+const fRe=()=>{const sc=body.scrollTop;(S.view==='fairEdit'?renderFairEdit:renderFair)(S.fairId);body.scrollTop=sc};
+body.addEventListener('click',async e=>{
+  const ot=e.target.closest('[data-otf]');if(ot){const f=fair(ot.dataset.otf);if(f){f.todos[+ot.dataset.i].done=true;await saveFair(f);toast('Erledigt');setTimeout(()=>S.view==='orga'&&renderOrga(),350)}return}
+  if(S.view==='fairEdit'){const sb=e.target.closest('[data-fst] button');if(sb){const x=fair(S.fairId);x.status=sb.dataset.v;await saveFair(x);return fRe()}
+    const fa=e.target.closest('[data-fa]');if(fa){const x=fair(S.fairId),l=fa.dataset.l;x[l]=x[l]||[];
+      if(fa.dataset.fa==='del')x[l].splice(+fa.dataset.i,1);else if(fa.dataset.fa==='tpl')x[l]=(l==='pack'?FPACK:FTODO).map(t=>({t,done:false}));else x[l].push({t:'',done:false});
+      await saveFair(x);fRe();if(fa.dataset.fa==='add'){const f=body.querySelector(`[data-fl="${l}.${x[l].length-1}.t"]`);if(f)f.focus()}return}}
+  const b=e.target.closest('[data-fg]');if(!b)return;const a=b.dataset.fg;
+  if(a==='new'){const x={id:uid(),name:'',status:'idee',date:'',date2:'',place:{},contact:{},todos:[],pack:[],leads:[],notes:'',created:Date.now()};await saveFair(x);return renderFairEdit(x.id)}
+  if(a==='back')return renderFairs();
+  const x=fair(S.fairId);if(!x)return;
+  if(a==='edit')return renderFairEdit(x.id);if(a==='done')return renderFair(x.id);
+  if(a==='ics')return deliver(new Blob([fairIcs(x)],{type:'text/calendar'}),`${x.name||'Hochzeitsmesse'}.ics`.replace(/[\/\\:&]/g,'-'));
+  if(a==='lead'){const n=$('#ldN').value.trim(),c=$('#ldC').value.trim(),d=$('#ldD').value,no=$('#ldX').value.trim();if(!n&&!c)return toast('Name oder Kontakt eintragen');
+    x.leads=x.leads||[];x.leads.unshift({id:uid(),name:n,contact:c,wdate:d,note:no,at:Date.now()});await saveFair(x);toast('Kontakt gespeichert');return fRe()}
+  if(a==='ldel'&&confirm('Kontakt entfernen?')){x.leads.splice(+b.dataset.i,1);await saveFair(x);return fRe()}
+  if(a==='towed'){const l=x.leads[+b.dataset.i];const w={id:uid(),couple:l.name||'',date:l.wdate||'',time:'',status:'anfrage',spots:[],places:[],timeline:[],todos:[],groups:[],contacts:l.contact?[{role:'Brautpaar',name:l.name||'',tel:l.contact}]:[],notes:[`Kontakt von der Messe „${x.name||'Hochzeitsmesse'}“${x.date?' am '+fmtD(x.date):''}.`,l.note].filter(Boolean).join('\n'),created:Date.now()};
+    await saveWed(w);l.wedId=w.id;await saveFair(x);toast('Hochzeit als Anfrage angelegt');return renderWed(w.id)}});
+const fInput=async e=>{if(S.view!=='fair'&&S.view!=='fairEdit')return;const el=e.target.closest('[data-fk],[data-fl]');if(!el)return;const x=fair(S.fairId);if(!x)return;
+  const v=el.type==='checkbox'?el.checked:el.value;
+  if(el.dataset.fk){const [k,sub]=el.dataset.fk.split('.');if(sub){x[k]=x[k]||{};x[k][sub]=v}else x[k]=k==='fee'?(v===''?'':+String(v).replace(',','.')):v}
+  else{const [l,i,f]=el.dataset.fl.split('.');x[l][+i][f]=v;if(f==='done'){const row=el.closest('.wr,.pk');if(row)row.classList.toggle('on',v)}}
+  await saveFair(x);if(e.type==='change'&&S.view==='fair'&&el.type==='checkbox')fRe()};
+body.addEventListener('change',fInput);
+let fT;body.addEventListener('input',e=>{if(S.view==='fairEdit'&&e.target.matches('input[type=text],input[type=tel],input[type=email],input[type=number],textarea')){clearTimeout(fT);fT=setTimeout(()=>fInput(e),400)}});
+body.addEventListener('keydown',e=>{if(e.key==='Enter'&&['ldN','ldC','ldX'].includes(e.target.id)){e.preventDefault();const b=body.querySelector('[data-fg=lead]');if(b)b.click()}});
+
 /* ---------- Wischen zum Löschen ---------- */
 const swr=(k,id,html)=>`<div class="swr" data-swk="${k}" data-swid="${id}"><button type="button" class="swdel" data-swdel tabindex="-1">${ic('trash')}<span>Löschen</span></button><div class="swc">${html}</div></div>`;
 const SWW=92;let swS=null,swOpen=null,swBlock=0;
@@ -2430,10 +2520,12 @@ body.addEventListener('touchend',()=>{if(!swS)return;const {r,on,dx,base}=swS;sw
 body.addEventListener('click',e=>{if(Date.now()-swBlock<350&&e.target.closest('.swr')){e.stopImmediatePropagation();e.preventDefault();return}
   const d=e.target.closest('[data-swdel]');if(d){e.stopImmediatePropagation();swDelete(d.closest('.swr'));return}
   if(swOpen&&!e.target.closest('.swr.open')){swClose();e.stopImmediatePropagation();e.preventDefault()}},true);
-function swRerender(){const sc=body.scrollTop,v=S.view;if(v==='orga')renderOrga();else if(v==='shoots')renderShoots();else if(v==='weds')renderWeds();else if(v==='wed')renderWed(S.wedId);body.scrollTop=sc}
+function swRerender(){const sc=body.scrollTop,v=S.view;if(v==='orga')renderOrga();else if(v==='shoots')renderShoots();else if(v==='weds')renderWeds();else if(v==='wed')renderWed(S.wedId);else if(v==='fairs')renderFairs();body.scrollTop=sc}
 async function swDelete(r){if(!r)return;swOpen=null;const k=r.dataset.swk,id=r.dataset.swid;
   if(k==='s'){const x=shoot(id);if(!x)return;await DB.del('shoots',id);S.shoots=S.shoots.filter(q=>q!==x);swRerender();
     toast(`„${x.name}“ gelöscht`,'Rückgängig',async()=>{await saveShoot(x);swRerender()},6000)}
+  else if(k==='f'){const x=fair(id);if(!x)return;await DB.del('fairs',id);S.fairs=S.fairs.filter(q=>q!==x);swRerender();
+    toast(`Messe „${x.name||'ohne Namen'}“ gelöscht`,'Rückgängig',async()=>{await saveFair(x);swRerender()},6000)}
   else{const x=wed(id);if(!x)return;await DB.del('weddings',id);S.weds=S.weds.filter(q=>q!==x);swRerender();
     toast(`Hochzeit „${x.couple||'ohne Namen'}“ gelöscht`,'Rückgängig',async()=>{await saveWed(x);swRerender()},6000)}}
 
@@ -2471,7 +2563,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-act=card]')){e.
   mergePoses([]);
   try{await DB.open();S.spots=await DB.all('spots');for(const x of S.spots)if(migrate(x))DB.put('spots',x);for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
     for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);
-    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');S.weds=await DB.all('weddings');await loadGear();if(SY.on)scheduleSync(2500);else setTimeout(backupReminder,2500);window.hideSplash&&hideSplash()}
+    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');S.weds=await DB.all('weddings');S.fairs=await DB.all('fairs');await loadGear();if(SY.on)scheduleSync(2500);else setTimeout(backupReminder,2500);window.hideSplash&&hideSplash()}
   catch(e){toast('Lokaler Speicher nicht verfügbar (privater Modus?) – Daten werden nicht gespeichert',null,null,8000)}
   renderMarkers();
   // kein Willkommensbildschirm beim Start
