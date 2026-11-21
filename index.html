@@ -121,7 +121,7 @@ dt{color:var(--mute);font-size:14px}dd{margin:0;white-space:pre-wrap;overflow-wr
 /* Formular */
 .f{display:grid;gap:14px}
 .f label{display:grid;gap:5px;font-size:14px;font-weight:600}
-.f input[type=text],.f input[type=number],.f select,.f textarea,.f input[type=search]{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:11px 12px;font-size:16px;font-weight:400}
+.f input[type=text],.f input[type=number],.f select,.f textarea,.f input[type=search],.f input[type=date],.f input[type=time],.f input[type=tel],.f input[type=url],.f input[type=password],.f input[type=email]{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:11px 12px;font-size:16px;font-weight:400}
 .f textarea{min-height:84px;resize:vertical}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px}
 .opts{display:flex;flex-wrap:wrap;gap:6px}
@@ -511,6 +511,13 @@ h3 .sum{font-weight:500;color:var(--mute);margin-left:6px}h3 .sum.over{color:#c2
 a.mini{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:var(--ink)}
 .tdw{display:block;color:var(--mute);font-size:12px}
 .wr.pl{flex-wrap:wrap}.wr.pl select{flex:1;margin:0;min-width:0}.wr.pl input[type=text]{flex:1 1 100%}.mapb{width:auto!important;padding:0 10px;gap:4px;font-size:13px;font-weight:600;display:inline-flex;align-items:center}
+/* iOS: Datum/Zeit-Felder nicht breiter als die Spalte, kein Auto-Zoom */
+.f input[type=date],.f input[type=time]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:46px;text-align:left}
+.f input::-webkit-date-and-time-value{text-align:left}
+.two>*,.three>*,.wr>*{min-width:0}
+#sheetBody{overflow-x:hidden}
+.wr input{font-size:16px!important}.wr input.due{flex:0 0 132px}.wr input[type=time]{flex:0 0 96px}
+.wst{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;margin:6px -18px 8px;padding:0 18px 4px;scrollbar-width:none}.wst::-webkit-scrollbar{display:none}.wst button{flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -1964,7 +1971,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v21';
+const APPV='v22';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -2293,6 +2300,7 @@ function renderWed(id){const x=wed(id);if(!x)return renderOrga();S.view='wed';S.
    <h3>Shootings dazu</h3>${linked.map(s=>orgRow(orgItems().find(i=>i.k==='s'&&i.id===s.id))).join('')||'<p class="ex">z. B. Kennenlern- oder After-Wedding-Shooting.</p>'}
    <section class="grp" style="margin-top:12px"><label>Notizen<textarea data-wk="notes" placeholder="Wünsche, Besonderheiten, No-Gos …">${esc(x.notes||'')}</textarea></label></section>
    <div class="foot"><span></span><span><button class="lnk dng" data-og="wdel">${ic('trash')} Hochzeit löschen</button></span></div></div>`,true);
+  const pb=body.querySelector('[data-wst] [aria-pressed=true]');if(pb)pb.parentNode.scrollLeft=Math.max(0,pb.offsetLeft-60);
   if(s0&&x.date&&x.date>=t)fillWeather($('#wxWed'),s0.lat,s0.lng,x.date,x.time,(+x.hours||8)*60)}
 function wedIcs(x){const pad=n=>String(n).padStart(2,'0'),d=x.date.replace(/-/g,''),now=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',e=s=>String(s||'').replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n');
   const tms=(x.timeline||[]).filter(r=>r.t).map(r=>+r.t.slice(0,2)*60+ +r.t.slice(3,5));if(x.time!==''&&x.time!=null)tms.push(+x.time);
