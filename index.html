@@ -541,6 +541,8 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 .ldf{padding:12px;display:flex;flex-direction:column;gap:8px}.ldf input{width:100%;border:1px solid var(--line);background:var(--bg);border-radius:12px;padding:11px 12px;font-size:16px;margin:0;min-width:0;-webkit-appearance:none;appearance:none;min-height:46px}
 .ldl{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute)}.rp.ld{align-items:flex-start}.rp.ld .mapb{margin-top:2px}
 .seg button{font-size:14px}
+.pvimg{display:block;width:100%;border:0;padding:0;background:var(--soft);border-radius:16px;overflow:hidden;margin:6px 0 10px}.pvimg img,.pvimg svg{display:block;width:100%;max-height:58vh;object-fit:contain}
+.pvt{font-size:16px;line-height:1.5}
 </style>
 </head>
 <body>
@@ -1598,7 +1600,7 @@ async function exportIcs(x){if(!x.date){toast('Bitte zuerst ein Datum eintragen'
 
 /* Posen auswählen */
 function typeChips(sel,attr){return `<div class="envrow">${STYPES.filter(t=>t[0]!=='sonst').map(t=>`<button ${attr}="${t[0]}" aria-pressed="${sel.includes(t[0])}">${t[1]}</button>`).join('')}<button ${attr}="mine" aria-pressed="${sel.includes('mine')}">Eigene</button></div>`}
-const filterPoses=sel=>{const mine=sel.includes('mine'),ts=sel.filter(t=>t!=='mine');return poseList(ts.length?ts:null).filter(p=>!mine||!p.builtin||p.blob)};
+const filterPoses=sel=>{const ts=sel.filter(t=>t!=='mine');return poseList(ts.length?ts:null).filter(p=>!p.builtin||p.blob)};
 function renderPosePick(id){const x=shoot(id);S.view='posePick';S.shootId=id;S.pickTypes=S.pickTypes||relTypes(x.type);const inS=new Set(x.items.map(i=>i.pose));
   const list=filterPoses(S.pickTypes);
   showSheet(`<div class="hd"><div style="flex:1"><h2>Posen auswählen</h2><div class="meta"><span>${x.items.length} im Shooting · tippen zum Hinzufügen</span></div></div></div>
@@ -1609,11 +1611,19 @@ function renderPosePick(id){const x=shoot(id);S.view='posePick';S.shootId=id;S.p
 
 /* Bibliothek & Pose bearbeiten */
 function renderPoseLib(){S.view='poseLib';S.libTypes=S.libTypes||[];const list=filterPoses(S.libTypes);
-  showSheet(`<div class="hd"><div style="flex:1"><h2>Posen-Bibliothek</h2><div class="meta"><span>${list.length} Posen · Skizzen nach und nach durch eigene Fotos ersetzen</span></div></div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Posen-Bibliothek</h2><div class="meta"><span>${list.length} Pose${list.length===1?'':'n'}</span></div></div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
    ${typeChips(S.libTypes,'data-lt')}
-   <div class="pgrid">${list.map(p=>`<button class="pc" data-sh="editpose" data-p="${p.id}"><span class="pim">${poseImg(p)}</span><b>${esc(p.title)}</b>${p.blob?'<em>Eigenes Foto</em>':'<em class="sk2">Skizze</em>'}</button>`).join('')}
+   ${list.length?'':`<div class="empty static">${ic('img')}<b>Noch keine Posen</b><span>Lege eigene Posen mit Beispielfoto an – oder schick Claude deine Lieblingsfotos und spiel die fertige Datei über ⋮ → „Backup wiederherstellen“ ein.</span></div>`}
+   <div class="pgrid">${list.map(p=>`<button class="pc" data-sh="viewpose" data-p="${p.id}"><span class="pim">${poseImg(p)}</span><b>${esc(p.title)}</b></button>`).join('')}
     <button class="pc add" data-sh="newpose"><span class="pim">${Sketch.svg('custom')}</span><b>Eigene Pose anlegen</b></button></div>
-   ${[...S.poses.values()].some(p=>p.hidden)?`<button class="lnk" data-sh="unhide" style="margin-top:12px">Ausgeblendete Standard-Posen wieder anzeigen</button>`:''}`,true)}
+   `,true)}
+function renderPoseView(pid){const p=S.poses.get(pid);if(!p)return renderPoseLib();S.view='poseView';S.poseId=pid;
+  showSheet(`<div class="hd"><div style="flex:1"><h2>${esc(p.title)}</h2><div class="meta">${(p.types||[]).map(t=>`<span class="tag">${esc(lab(STYPES,t))}</span>`).join('')}</div></div><button class="ib" data-sh="pvback" aria-label="Zurück zur Bibliothek">${ic('back')}</button></div>
+   <button class="pvimg" data-sh="pvlb">${poseImg(p,true)}</button>
+   <div class="qa"><button class="q pri" data-sh="pvedit">${ic('edit')}<span>Bearbeiten</span></button></div>
+   ${p.guide?`<h3>So sagst du es dem Paar</h3><div class="card prose pvt">${esc(p.guide).replace(/\n/g,'<br>')}</div>`:''}
+   ${p.tips?`<h3>Tipps für euch</h3><div class="card prose pvt">${esc(p.tips).replace(/\n/g,'<br>')}</div>`:''}
+   ${!p.guide&&!p.tips?'<p class="ex">Noch keine Anleitung – über „Bearbeiten“ ergänzen.</p>':''}`,true)}
 function renderPoseEdit(pid,back){S.view='poseEdit';S.poseBack=back||S.poseBack;const p=pid?S.poses.get(pid):{id:'',title:'',types:S.pickTypes&&S.pickTypes.length?S.pickTypes.filter(t=>t!=='mine'):['paar'],guide:'',tips:'',sk:'custom'};
   showSheet(`<form class="f" id="pf" data-id="${pid||''}" autocomplete="off"><div class="hd"><h2>${pid?'Pose bearbeiten':'Neue Pose'}</h2></div>
    <div class="pprev">${poseImg(p,true)}</div>
@@ -1627,7 +1637,7 @@ function renderPoseEdit(pid,back){S.view='poseEdit';S.poseBack=back||S.poseBack;
 function collectPose(f,p){const v=n=>f.querySelector(`[name=${n}]`).value.trim();p.title=v('title')||p.title||'Eigene Pose';p.guide=v('guide');p.tips=v('tips');
 
   const t=[...f.querySelectorAll('[data-multi=types] [aria-pressed=true]')].map(b=>b.dataset.v);p.types=t.length?t:(p.types&&p.types.length?p.types:['paar'])}
-function poseBack(){const b=S.poseBack;if(b&&b.startsWith('pick:'))renderPosePick(b.slice(5));else renderPoseLib()}
+function poseBack(){const b=S.poseBack;if(b&&b.startsWith('pick:'))renderPosePick(b.slice(5));else if(b&&b.startsWith('view:')&&S.poses.has(b.slice(5)))renderPoseView(b.slice(5));else renderPoseLib()}
 
 /* Zuschneiden */
 const CROP_AR=[['5:4','Kachel 5:4',5/4],['4:5','Hoch 4:5',4/5],['1:1','Quadrat',1],['3:2','Quer 3:2',3/2],['orig','Original',0]];
@@ -1717,6 +1727,10 @@ body.addEventListener('click',async e=>{
     b.classList.toggle('on',k<0);const m=body.querySelector('.hd .meta span');if(m)m.textContent=`${x.items.length} im Shooting · tippen zum Hinzufügen`;return}
   if(a==='newpose')return renderPoseEdit(null,S.view==='posePick'?'pick:'+S.shootId:'lib');
   if(a==='editpose')return renderPoseEdit(b.dataset.p,'lib');
+  if(a==='viewpose')return renderPoseView(b.dataset.p);
+  if(a==='pvback')return renderPoseLib();
+  if(a==='pvedit')return renderPoseEdit(S.poseId,'view:'+S.poseId);
+  if(a==='pvlb'){const q=S.poses.get(S.poseId);if(q&&q.blob)openLB([{...q,exif:{},caption:q.title}],0);return}
   if(a==='poseback')return poseBack();
   if(a==='posephoto'){pendingPose=true;return $('#fPose').click()}
   const f=$('#pf'),pid=f&&f.dataset.id,p=pid&&S.poses.get(pid);
@@ -1755,7 +1769,7 @@ $('#run').addEventListener('click',e=>{const R=$('#run');if(R.classList.contains
 document.addEventListener('visibilitychange',async()=>{if(!$('#run').hidden&&document.visibilityState==='visible'&&navigator.wakeLock){try{run.lock=await navigator.wakeLock.request('screen')}catch(e){}}});
 
 /* ---------- Menüleiste unten ---------- */
-function syncTabs(){const v=sheet.hidden?null:S.view,t=!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'||v==='settings'?'map':v==='setups'||v==='setup'||v==='lib'||v==='shot'?'studio':v==='gear'||v==='mood'?'shoots':v==='list'?'spots':v==='poseLib'||(v==='poseEdit'||v==='poseCrop')&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
+function syncTabs(){const v=sheet.hidden?null:S.view,t=!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'||v==='settings'?'map':v==='setups'||v==='setup'||v==='lib'||v==='shot'?'studio':v==='gear'||v==='mood'?'shoots':v==='list'?'spots':v==='poseLib'||v==='poseView'||(v==='poseEdit'||v==='poseCrop')&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
   document.querySelectorAll('#tabs [data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===t?'page':'false'))}
 new MutationObserver(syncTabs).observe(sheet,{attributes:true,attributeFilter:['hidden']});
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const t=b.dataset.tab;
@@ -2008,7 +2022,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v30';
+const APPV='v31';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
