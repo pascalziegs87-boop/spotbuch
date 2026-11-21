@@ -532,9 +532,15 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 .rfx{position:absolute!important;top:4px;right:4px;background:rgba(0,0,0,.55)!important;color:#fff!important;width:26px!important;height:26px!important;border-radius:13px!important}
 .swr{position:relative;overflow:hidden}.swr:not(.open):not(.act) .swdel{visibility:hidden}.swr .swc{position:relative;z-index:1;background:var(--panel);will-change:transform}
 .swdel{position:absolute;right:0;top:0;bottom:0;width:92px;border:0;background:#d9432f;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font:600 13px/1 inherit;z-index:0}.swdel .i{width:20px;height:20px}
+#splash{position:fixed;inset:0;z-index:5000;background:#1b1d21;display:flex;align-items:center;justify-content:center;transition:opacity .5s ease}
+#splash img{width:min(56vw,260px);height:auto;animation:spl 1.1s ease both}#splash.out{opacity:0;pointer-events:none}
+@keyframes spl{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
+.bcard{background:#1b1d21;border-radius:22px;padding:22px 20px 16px;display:flex;flex-direction:column;align-items:center;gap:14px;margin:4px 0 12px}
+.bclogo{width:150px;height:auto}.bcqr{width:min(70vw,250px);background:#fff;border-radius:16px;padding:10px}.bcqr svg{display:block;width:100%;height:auto}.bccap{color:#d6d3cc;margin:0;font-size:14px}
 </style>
 </head>
 <body>
+<div id="splash" aria-hidden="true"><img src="logo.png" alt=""></div>
 <div id="map" aria-label="Karte"></div>
 
 <header class="top">
@@ -594,6 +600,7 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 <input type="file" id="fBackup" accept=".json,application/json" hidden>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="qrcode.js"></script>
 <script>
 {
 /* ---------- Konstanten ---------- */
@@ -1091,6 +1098,7 @@ async function renderSettings(){S.view='settings';let est='';try{const e=await n
    <div class="acts"><button class="btn pri" data-act="backup">Backup speichern (.json)</button><button class="btn" data-act="restore">Backup einlesen</button>
     <button class="btn" data-act="gpx">Spots als GPX</button><button class="btn" data-act="kml">Spots als KML</button>
     ${pers?'':'<button class="btn" data-act="persist">Speicher dauerhaft machen</button>'}<button class="btn" data-act="diag">Bildschirm-Diagnose</button></div>
+   <h3>Visitenkarte</h3><div class="acts"><button class="btn" data-act="card">${ic('qr')} Digitale Visitenkarte zeigen</button></div>
    ${syncSection()}
    <h3>Tipps</h3><p class="note">Auf dem iPhone: in Safari öffnen → Teilen → „Zum Home-Bildschirm“. Als App gestartet bleiben die Daten dauerhaft und Standort/Kamera funktionieren.<br><br>KML lässt sich in Google My Maps oder Google Earth importieren, GPX in Navi- und Wander-Apps. Ein Backup kannst du auf einem zweiten Gerät einlesen; vorhandene Spots werden zusammengeführt.</p>`,true)}
 const blobToData=b=>new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)});
@@ -1995,7 +2003,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v27';
+const APPV='v28';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -2242,7 +2250,7 @@ document.addEventListener('visibilitychange',()=>{if(!SY.on)return;if(document.v
 addEventListener('online',()=>scheduleSync(2000));
 
 /* ---------- Orga: Shootings & Hochzeiten ---------- */
-Object.assign(IC,{phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'});
+Object.assign(IC,{qr:'<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2zM16 16h2v2h-2z"/>',phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'});
 S.weds=[];
 const wed=id=>S.weds.find(x=>x.id===id);
 async function saveWed(x){await DB.put('weddings',x);if(!S.weds.includes(x))S.weds.push(x)}
@@ -2277,7 +2285,7 @@ function renderOrga(){S.view='orga';const t=todayISO(),all=orgItems(),live=all.f
   const todos=[];for(const w of S.weds)if(w.status!=='abgesagt')(w.todos||[]).forEach((td,i)=>{if(!td.done)todos.push({w,td,i})});
   todos.sort((a,b)=>(a.td.due||'9999').localeCompare(b.td.due||'9999')||(a.w.date||'9999').localeCompare(b.w.date||'9999'));
   const y=new Date().getFullYear(),wy=S.weds.filter(w=>w.date&&+w.date.slice(0,4)===y&&w.status!=='abgesagt').length,wn=S.weds.filter(w=>w.date&&+w.date.slice(0,4)===y+1&&w.status!=='abgesagt').length,m30=next.filter(i=>days(i.date)<=30).length;
-  showSheet(`<div class="hd"><div style="flex:1">${LOGO('Orga')}</div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
+  showSheet(`<div class="hd"><div style="flex:1">${LOGO('Orga')}</div><button class="ib" data-act="card" aria-label="Visitenkarte">${ic('qr')}</button><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
    ${orgSeg('ov')}
    <div class="tiles"><div><b>${wy}</b><small>Hochzeiten ${y}</small></div><div><b>${wn}</b><small>Hochzeiten ${y+1}</small></div><div><b>${m30}</b><small>Termine in 30 Tagen</small></div></div>
    <div class="row2"><button class="btn acc" data-og="newwed">${ic('plus')} Hochzeit</button><button class="btn" data-og="newshoot">${ic('plus')} Shooting</button></div>
@@ -2428,12 +2436,42 @@ async function swDelete(r){if(!r)return;swOpen=null;const k=r.dataset.swk,id=r.d
     toast(`„${x.name}“ gelöscht`,'Rückgängig',async()=>{await saveShoot(x);swRerender()},6000)}
   else{const x=wed(id);if(!x)return;await DB.del('weddings',id);S.weds=S.weds.filter(q=>q!==x);swRerender();
     toast(`Hochzeit „${x.couple||'ohne Namen'}“ gelöscht`,'Rückgängig',async()=>{await saveWed(x);swRerender()},6000)}}
+
+/* ---------- Startbildschirm ---------- */
+(()=>{const sp=$('#splash');if(!sp)return;const t0=Date.now(),hide=()=>{if(sp.classList.contains('out'))return;sp.classList.add('out');setTimeout(()=>sp.remove(),600)};
+  sp.addEventListener('click',hide);window.hideSplash=()=>setTimeout(hide,Math.max(0,1300-(Date.now()-t0)));setTimeout(hide,3500)})();
+
+/* ---------- Digitale Visitenkarte ---------- */
+const CARD={ig:'zweistil_people_fotografie',web:'zweistilfotografie.com',tel:'+4915226602602',telTxt:'0152 26602602'};
+const CARD_URL={ig:`https://www.instagram.com/${CARD.ig}/`,web:`https://${CARD.web}`};
+const vcard=()=>['BEGIN:VCARD','VERSION:3.0','N:;Zweistil Fotografie;;;','FN:Zweistil Fotografie','ORG:Zweistil Fotografie','TEL;TYPE=CELL:'+CARD.tel,'URL:'+CARD_URL.web,'X-SOCIALPROFILE;TYPE=instagram:'+CARD_URL.ig,'END:VCARD'].join('\r\n');
+function qrSvg(text,lvl='M'){const q=qrcode(0,lvl);q.addData(unescape(encodeURIComponent(text)));q.make();const n=q.getModuleCount(),m=2;let d='';
+  for(let r=0;r<n;r++)for(let c=0;c<n;c++)if(q.isDark(r,c))d+=`M${c+m} ${r+m}h1v1h-1z`;
+  return `<svg viewBox="0 0 ${n+2*m} ${n+2*m}" shape-rendering="crispEdges" role="img" aria-label="QR-Code"><rect width="100%" height="100%" fill="#fff"/><path d="${d}" fill="#1b1d21"/></svg>`}
+S.cardQ=S.cardQ||'ig';
+function renderCard(){S.view='card';const q=S.cardQ,txt=q==='ig'?CARD_URL.ig:q==='web'?CARD_URL.web:vcard();
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Visitenkarte</h2></div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
+   <div class="bcard"><img src="logo.png" alt="Zweistil Fotografie" class="bclogo">
+    <div class="bcqr">${qrSvg(txt,q==='vc'?'L':'M')}</div><p class="bccap">${q==='ig'?'Scannen für Instagram':q==='web'?'Scannen für unsere Website':'Scannen, um den Kontakt zu speichern'}</p></div>
+   <div class="seg" role="group" aria-label="QR-Code für"><button data-card="ig" aria-pressed="${q==='ig'}">Instagram</button><button data-card="web" aria-pressed="${q==='web'}">Website</button><button data-card="vc" aria-pressed="${q==='vc'}">Kontakt</button></div>
+   <div class="card rl" style="margin-top:12px">
+    <div class="rp"><div><small>Instagram</small><b>@${CARD.ig}</b></div><a class="mini mapb" href="${CARD_URL.ig}" target="_blank" rel="noopener">Öffnen</a></div>
+    <div class="rp"><div><small>Website</small><b>${CARD.web}</b></div><a class="mini mapb" href="${CARD_URL.web}" target="_blank" rel="noopener">Öffnen</a></div>
+    <div class="rp"><div><small>Telefon</small><b>${CARD.telTxt}</b></div><a class="mini mapb" href="tel:${CARD.tel}">${ic('phone')} Anrufen</a></div></div>
+   <div class="row2" style="margin-top:12px"><button class="btn acc" data-card="share">${ic('share')} Teilen</button><button class="btn" data-card="vcf">Kontakt als Datei</button></div>
+   <p class="ex">Tipp: Bildschirm hell drehen und den QR-Code direkt vom iPhone scannen lassen.</p>`,true)}
+body.addEventListener('click',async e=>{const b=e.target.closest('[data-card]');if(!b)return;const a=b.dataset.card;
+  if(a==='ig'||a==='web'||a==='vc'){S.cardQ=a;return renderCard()}
+  if(a==='vcf')return deliver(new Blob([vcard()],{type:'text/vcard'}),'Zweistil Fotografie.vcf');
+  if(a==='share'){const text=`Zweistil Fotografie\nInstagram: @${CARD.ig}\n${CARD_URL.web}\nTel. ${CARD.telTxt}`;
+    if(navigator.share){try{await navigator.share({title:'Zweistil Fotografie',text,url:CARD_URL.web})}catch(err){}}else{try{await navigator.clipboard.writeText(text);toast('Kontaktdaten kopiert')}catch(err){}}}});
+document.addEventListener('click',e=>{if(e.target.closest('[data-act=card]')){e.preventDefault();renderCard()}});
 /* ---------- Start ---------- */
 (async()=>{
   mergePoses([]);
   try{await DB.open();S.spots=await DB.all('spots');for(const x of S.spots)if(migrate(x))DB.put('spots',x);for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
     for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);
-    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');S.weds=await DB.all('weddings');await loadGear();if(SY.on)scheduleSync(2500);else setTimeout(backupReminder,2500)}
+    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');S.weds=await DB.all('weddings');await loadGear();if(SY.on)scheduleSync(2500);else setTimeout(backupReminder,2500);window.hideSplash&&hideSplash()}
   catch(e){toast('Lokaler Speicher nicht verfügbar (privater Modus?) – Daten werden nicht gespeichert',null,null,8000)}
   renderMarkers();
   // kein Willkommensbildschirm beim Start
