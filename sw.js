@@ -1,5 +1,5 @@
 // Zweistil Fotografie Service Worker: App offline verfügbar + besuchte Kartenkacheln zwischenspeichern
-const SHELL_CACHE = 'spotbuch-shell-v26';
+const SHELL_CACHE = 'spotbuch-shell-v27';
 const TILE_CACHE = 'spotbuch-tiles-v1';
 const MAX_TILES = 4000;
 const SHELL = [
