@@ -2025,7 +2025,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v32';
+const APPV='v33';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -2260,11 +2260,11 @@ async function reloadAll(){S.spots=await DB.all('spots');S.photos=new Map();for(
   for(const u of S.urls.values())URL.revokeObjectURL(u);S.urls.clear();renderMarkers();
   if(!sheet.hidden){const v=S.view;if(v==='lib')renderLib();else if(v==='setups')renderSetups();else if(v==='shoots')renderShoots();else if(v==='orga')renderOrga();else if(v==='weds')renderWeds();else if(v==='wed')renderWed(S.wedId);else if(v==='fairs')renderFairs();else if(v==='fair')renderFair(S.fairId)}}
 function syncSection(){return `<h3>Sync mit dem NAS</h3><div class="f"><label>Adresse des Sync-Servers<input type="url" id="syUrl" value="${esc(SY.url)}" placeholder="https://zweistil-sync.deinname.synology.me" autocapitalize="off" autocorrect="off" spellcheck="false"></label>
-  <label>Token<input type="password" id="syTok" value="${esc(SY.tok)}" autocomplete="off" placeholder="aus der docker-compose.yml"></label></div>
+  <label>Token<input type="text" id="syTok" value="${esc(SY.tok)}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Token einfügen" style="font-family:ui-monospace,Menlo,monospace;font-size:14px"></label></div>
   <p class="note" id="syMsg">${syStatus()}</p><div class="acts"><button class="btn pri" data-act="sysave">Speichern & verbinden</button>${SY.on?'<button class="btn" data-act="synow">Jetzt synchronisieren</button><button class="btn" data-act="syoff">Sync ausschalten</button>':''}</div>`}
 body.addEventListener('click',async e=>{const b=e.target.closest('[data-act=sysave],[data-act=synow],[data-act=syoff]');if(!b)return;const a=b.dataset.act;
   if(a==='syoff'){ls.set('syncUrl','');ls.set('syncTok','');SY.msg='';return renderSettings()}
-  if(a==='sysave'){let u=$('#syUrl').value.trim();if(u&&!/^https?:\/\//.test(u))u='https://'+u;ls.set('syncUrl',u);ls.set('syncTok',$('#syTok').value.trim());if(!SY.on)return toast('Adresse und Token eintragen');
+  if(a==='sysave'){let u=$('#syUrl').value.trim();if(u&&!/^https?:\/\//.test(u))u='https://'+u;ls.set('syncUrl',u);ls.set('syncTok',$('#syTok').value.replace(/^Bearer\s+/i,'').replace(/[\s`'"„“”]/g,''));if(!SY.on)return toast('Adresse und Token eintragen');
     syShow('Verbinde …');try{const r=await (await syApi('/ping')).json();syShow(`Verbunden – ${r.records} Einträge auf dem NAS.`)}catch(err){return syShow('Fehler: '+err.message)}
     await syncNow(true);return renderSettings()}
   if(a==='synow'){await syncNow(true)}});
