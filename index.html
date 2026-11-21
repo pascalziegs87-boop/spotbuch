@@ -543,6 +543,9 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 .seg button{font-size:14px}
 .pvimg{display:block;width:100%;border:0;padding:0;background:var(--soft);border-radius:16px;overflow:hidden;margin:6px 0 10px}.pvimg img,.pvimg svg{display:block;width:100%;max-height:58vh;object-fit:contain}
 .pvt{font-size:16px;line-height:1.5}
+.tico{position:relative}.tbadge{position:absolute;top:-4px;right:-6px;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:#d9432f;color:#fff;font:700 11px/18px system-ui,sans-serif;text-align:center;box-shadow:0 0 0 2px var(--panel)}
+.alr{padding:4px 6px}.al{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;text-align:left;padding:10px 6px;font:inherit;color:inherit;border-bottom:1px solid var(--line)}.al:last-child{border-bottom:0}.al span{flex:1;font-size:15px}
+.al i{flex:0 0 10px;height:10px;border-radius:5px;background:#d39b2a}.al.hi i{background:#d9432f}.al.hi span{font-weight:600}
 </style>
 </head>
 <body>
@@ -590,7 +593,7 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 <nav id="tabs" aria-label="Hauptmenü">
   <button data-tab="map" aria-current="page"><span class="tico"><svg class="i" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></span><span>Karte</span></button>
   <button data-tab="spots"><span class="tico"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>Spots</span></button>
-  <button data-tab="shoots"><span class="tico"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/></svg></span><span>Orga</span></button>
+  <button data-tab="shoots"><span class="tico"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/></svg><b id="orgBadge" class="tbadge" hidden></b></span><span>Orga</span></button>
   <button data-tab="poses"><span class="tico"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v7M7 11l5-2 5 2M9 21l3-6 3 6"/></svg></span><span>Posen</span></button>
   <button data-tab="studio"><span class="tico"><svg class="i" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span><span>Studio</span></button>
 </nav>
@@ -676,7 +679,7 @@ const DB={db:null,
     r.onupgradeneeded=()=>{const d=r.result,h=n=>d.objectStoreNames.contains(n);if(!h('shots'))d.createObjectStore('shots',{keyPath:'id'});if(!h('weddings'))d.createObjectStore('weddings',{keyPath:'id'});if(!h('fairs'))d.createObjectStore('fairs',{keyPath:'id'});if(!h('kv'))d.createObjectStore('kv',{keyPath:'k'});if(!h('spots'))d.createObjectStore('spots',{keyPath:'id'});if(!h('photos'))d.createObjectStore('photos',{keyPath:'id'}).createIndex('spot','spotId');if(!h('poses'))d.createObjectStore('poses',{keyPath:'id'});if(!h('shoots'))d.createObjectStore('shoots',{keyPath:'id'});if(!h('setups'))d.createObjectStore('setups',{keyPath:'id'})};
     r.onsuccess=()=>{this.db=r.result;res()};r.onerror=()=>rej(r.error)})},
   st(n,m='readonly'){return this.db.transaction(n,m).objectStore(n)},
-  all(n){return rq(this.st(n).getAll())},put(n,v,keep){if(!keep&&(n!=='kv'||v.k==='gear')){v.updated=Date.now();bumpChanges();tombSet(n+'/'+(n==='kv'?v.k:v.id),0);scheduleSync()}return rq(this.st(n,'readwrite').put(v))},del(n,id,keep){if(!keep){tombSet(n+'/'+id,Date.now());bumpChanges();scheduleSync()}return rq(this.st(n,'readwrite').delete(id))}
+  all(n){return rq(this.st(n).getAll())},put(n,v,keep){if(!keep&&(n!=='kv'||v.k==='gear')){v.updated=Date.now();bumpChanges();tombSet(n+'/'+(n==='kv'?v.k:v.id),0);scheduleSync()}if(typeof updateAlerts==='function')updateAlerts();return rq(this.st(n,'readwrite').put(v))},del(n,id,keep){if(!keep){tombSet(n+'/'+id,Date.now());bumpChanges();scheduleSync()}return rq(this.st(n,'readwrite').delete(id))}
 };
 
 /* ---------- Zustand ---------- */
@@ -2022,7 +2025,7 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const APPV='v31';
+const APPV='v32';
 function diag(){const old=document.getElementById('dg');if(old){old.remove();return}
   const pr=document.createElement('div');pr.style.cssText='position:fixed;top:0;left:0;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);visibility:hidden';document.body.appendChild(pr);
   const cs=getComputedStyle(pr),sa=[cs.paddingTop,cs.paddingBottom].map(x=>parseFloat(x));pr.remove();
@@ -2269,7 +2272,7 @@ document.addEventListener('visibilitychange',()=>{if(!SY.on)return;if(document.v
 addEventListener('online',()=>scheduleSync(2000));
 
 /* ---------- Orga: Shootings & Hochzeiten ---------- */
-Object.assign(IC,{qr:'<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2zM16 16h2v2h-2z"/>',phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'});
+Object.assign(IC,{bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/>',qr:'<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2zM16 16h2v2h-2z"/>',phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'});
 S.weds=[];
 const wed=id=>S.weds.find(x=>x.id===id);
 async function saveWed(x){await DB.put('weddings',x);if(!S.weds.includes(x))S.weds.push(x)}
@@ -2309,6 +2312,7 @@ function renderOrga(){S.view='orga';const t=todayISO(),all=[...orgItems(),...fai
    ${orgSeg('ov')}
    <div class="tiles"><div><b>${wy}</b><small>Hochzeiten ${y}</small></div><div><b>${wn}</b><small>Hochzeiten ${y+1}</small></div><div><b>${m30}</b><small>Termine in 30 Tagen</small></div></div>
    <div class="row2"><button class="btn acc" data-og="newwed">${ic('plus')} Hochzeit</button><button class="btn" data-og="newshoot">${ic('plus')} Shooting</button></div>
+   ${alertsHTML()}
    <h3>Nächste Termine</h3>${next.length?next.slice(0,12).map(orgRow).join(''):'<p class="ex">Keine Termine geplant.</p>'}
    ${undated.length?`<h3>Ohne Termin <span class="sum">${undated.length}</span></h3>${undated.map(orgRow).join('')}`:''}
    ${deliver.length?`<h3>Noch zu liefern <span class="sum over">${deliver.length}</span></h3>${deliver.map(orgRow).join('')}`:''}
@@ -2394,7 +2398,8 @@ function renderWedEdit(id){const x=wed(id);if(!x)return renderOrga();S.view='wed
    <button class="btn acc big" data-og="wdone">Fertig</button>
    <div class="foot"><span></span><span><button class="lnk dng" data-og="wdel">${ic('trash')} Hochzeit löschen</button></span></div></div>`,true);
   const pb=body.querySelector('[data-wst] [aria-pressed=true]');if(pb)pb.parentNode.scrollLeft=Math.max(0,pb.offsetLeft-60)}
-function wedIcs(x){const pad=n=>String(n).padStart(2,'0'),d=x.date.replace(/-/g,''),now=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',e=s=>String(s||'').replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n');
+function wedIcs(x){return addAlarms(wedIcs0(x))}
+function wedIcs0(x){const pad=n=>String(n).padStart(2,'0'),d=x.date.replace(/-/g,''),now=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',e=s=>String(s||'').replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n');
   const tms=(x.timeline||[]).filter(r=>r.t).map(r=>+r.t.slice(0,2)*60+ +r.t.slice(3,5));if(x.time!==''&&x.time!=null)tms.push(+x.time);
   let a,b;if(tms.length){const st=Math.min(...tms),dur=(+x.hours||10)*60,s=new Date(x.date+'T00:00');s.setMinutes(st);const en=new Date(s.getTime()+dur*6e4);
     const f=z=>`${z.getFullYear()}${pad(z.getMonth()+1)}${pad(z.getDate())}T${pad(z.getHours())}${pad(z.getMinutes())}00`;a='DTSTART:'+f(s);b='DTEND:'+f(en)}
@@ -2487,7 +2492,8 @@ function renderFairEdit(id){const x=fair(id);if(!x)return renderFairs();S.view='
    <section class="grp"><h4>Notizen</h4><label><textarea data-fk="notes" rows="4" placeholder="Angebot zur Messe, Erfahrungen, nächstes Jahr anders …">${esc(x.notes||'')}</textarea></label></section>
    <button class="btn acc big" data-fg="done">Fertig</button></div>`,true);
   const pb=body.querySelector('[data-fst] [aria-pressed=true]');if(pb)pb.parentNode.scrollLeft=Math.max(0,pb.offsetLeft-60)}
-function fairIcs(x){const pad=n=>String(n).padStart(2,'0'),e=s=>String(s||'').replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n'),now=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',pl=x.place||{};
+function fairIcs(x){return addAlarms(fairIcs0(x))}
+function fairIcs0(x){const pad=n=>String(n).padStart(2,'0'),e=s=>String(s||'').replace(/([,;\\])/g,'\\$1').replace(/\n/g,'\\n'),now=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z',pl=x.place||{};
   const days=[];if(x.date){const d=new Date(x.date+'T12:00'),end=new Date((x.date2||x.date)+'T12:00');for(;d<=end&&days.length<7;d.setDate(d.getDate()+1))days.push(d.toISOString().slice(0,10))}
   const st=x.build||x.from,ev=days.map((d,i)=>{const ds=d.replace(/-/g,'');let a,b;if(st&&x.to){a='DTSTART:'+ds+'T'+st.replace(':','')+'00';b='DTEND:'+ds+'T'+x.to.replace(':','')+'00'}else{const n=new Date(d+'T12:00');n.setDate(n.getDate()+1);a='DTSTART;VALUE=DATE:'+ds;b='DTEND;VALUE=DATE:'+n.toISOString().slice(0,10).replace(/-/g,'')}
     return ['BEGIN:VEVENT','UID:'+x.id+'-'+i+'@zweistil','DTSTAMP:'+now,a,b,'SUMMARY:'+e(x.name||'Hochzeitsmesse'),'LOCATION:'+e([pl.name,pl.addr].filter(Boolean).join(', ')),'DESCRIPTION:'+e([x.booth&&'Stand: '+x.booth,x.build&&'Aufbau ab '+x.build+' Uhr',x.notes].filter(Boolean).join('\n')),'END:VEVENT'].join('\r\n')});
@@ -2519,6 +2525,34 @@ body.addEventListener('change',fInput);
 let fT;body.addEventListener('input',e=>{if(S.view==='fairEdit'&&e.target.matches('input[type=text],input[type=tel],input[type=email],input[type=number],textarea')){clearTimeout(fT);fT=setTimeout(()=>fInput(e),400)}});
 body.addEventListener('keydown',e=>{if(e.key==='Enter'&&['ldN','ldC','ldX'].includes(e.target.id)){e.preventDefault();const b=body.querySelector('[data-fg=lead]');if(b)b.click()}});
 
+
+/* ---------- Hinweise, Badge & Erinnerungen ---------- */
+const VAL=(d,t)=>`BEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:${d}\r\nTRIGGER:${t}\r\nEND:VALARM`;
+const addAlarms=ics=>ics.replace(/BEGIN:VEVENT[\s\S]*?END:VEVENT/g,m=>{if(m.includes('BEGIN:VALARM'))return m;const sum=(m.match(/SUMMARY:([^\r\n]*)/)||[])[1]||'Termin';return m.replace('END:VEVENT',`${VAL(sum,'-P1D')}\r\n${/DTSTART:\d/.test(m)?VAL(sum,'-PT2H')+'\r\n':''}END:VEVENT`)});
+function orgAlerts(){const t=todayISO(),out=[],dd=d=>days(d),when=n=>n===0?'Heute':n===1?'Morgen':`In ${n} Tagen`;
+  const ev=[];for(const w of S.weds)if(w.date&&w.status!=='abgesagt')ev.push({d:w.date,txt:'💍 Hochzeit '+(w.couple||''),time:w.time,og:'wed',id:w.id});
+  for(const x of S.shoots)if(x.date&&!x.wedDay&&shootStatus(x)!=='abgesagt')ev.push({d:x.date,txt:'📷 '+x.name,time:x.time,og:'shoot',id:x.id,sh:x});
+  for(const f of S.fairs)if(f.date&&f.status!=='abgesagt')ev.push({d:f.date,txt:'🎪 '+(f.name||'Hochzeitsmesse'),time:'',og:'fair',id:f.id});
+  for(const e of ev){const n=dd(e.d);if(n<0||n>7)continue;out.push({hi:n<=1,n,txt:`${when(n)}: ${e.txt}${e.time!==''&&e.time!=null?' · '+hm(e.time)+' Uhr':''}`,og:e.og,id:e.id});
+    if(e.sh&&n<=1){const pk=(e.sh.pack||[]).filter(i=>!i.done).length;if(pk)out.push({hi:true,n,txt:`Packliste „${e.sh.name}“: noch ${pk} Teil${pk===1?'':'e'} offen`,og:'shoot',id:e.id})}}
+  const due=(list,owner,og,id)=>(list||[]).forEach(td=>{if(td.t&&!td.done&&td.due){const n=dd(td.due);if(n<=2)out.push({hi:n<=0,n,txt:`${n<0?'Überfällig':n===0?'Heute fällig':n===1?'Morgen fällig':'Fällig in 2 Tagen'}: ${td.t} (${owner})`,og,id})}});
+  for(const w of S.weds){if(w.status==='abgesagt')continue;due(w.todos,w.couple||'Hochzeit','wed',w.id);
+    if(w.date){const n=dd(w.date);if(w.deposit&&!w.depPaid&&n>=0&&n<=30)out.push({hi:n<=14,n,txt:`Anzahlung offen: ${w.couple||'Hochzeit'} (${eur(w.deposit)})`,og:'wed',id:w.id});
+      if(n<-28&&!DONE.has(w.status))out.push({hi:n<-56,n,txt:`Noch nicht geliefert: ${w.couple||'Hochzeit'} – Hochzeit war vor ${-n} Tagen`,og:'wed',id:w.id});
+      if(w.price&&!w.restPaid&&n<-14&&w.status==='geliefert')out.push({hi:false,n,txt:`Restzahlung offen: ${w.couple||'Hochzeit'}`,og:'wed',id:w.id})}}
+  for(const f of S.fairs){if(f.status==='abgesagt')continue;due(f.todos,f.name||'Messe','fair',f.id);
+    if(f.date&&f.fee&&!f.feePaid){const n=dd(f.date);if(n>=0&&n<=21)out.push({hi:n<=7,n,txt:`Standgebühr offen: ${f.name||'Messe'} (${eur(f.fee)})`,og:'fair',id:f.id})}
+    if(f.date){const n=dd(f.date);if(n<0&&n>=-3&&(f.leads||[]).some(l=>!l.wedId))out.push({hi:true,n,txt:`Messe-Kontakte nachfassen: ${(f.leads||[]).filter(l=>!l.wedId).length} offen (${f.name||'Messe'})`,og:'fair',id:f.id})}}
+  return out.sort((a,b)=>(b.hi-a.hi)||a.n-b.n)}
+function alertsHTML(){const A=orgAlerts();const perm=('Notification' in window)&&('setAppBadge' in navigator)&&Notification.permission==='default';
+  if(!A.length&&!perm)return '';
+  return `<h3>Zu beachten ${A.length?`<span class="sum ${A.some(a=>a.hi)?'over':''}">${A.length}</span>`:''}</h3>${A.length?`<div class="card alr">${A.map(a=>`<button class="al ${a.hi?'hi':''}" data-og="${a.og}" data-id="${a.id}"><i></i><span>${esc(a.txt)}</span>›</button>`).join('')}</div>`:''}
+   ${perm?`<button class="btn sm" data-alperm style="margin-top:8px">${ic('bell')} Hinweise als Zahl am App-Symbol anzeigen</button>`:''}`}
+let alT;function updateAlerts(){clearTimeout(alT);alT=setTimeout(()=>{let n=0;try{n=orgAlerts().filter(a=>a.hi).length}catch(e){return}
+  const b=$('#orgBadge');if(b){b.textContent=n>9?'9+':n;b.hidden=!n}
+  try{if('setAppBadge' in navigator&&('Notification' in window)&&Notification.permission==='granted'){n?navigator.setAppBadge(n):navigator.clearAppBadge()}}catch(e){}},300)}
+document.addEventListener('click',async e=>{if(!e.target.closest('[data-alperm]'))return;try{const r=await Notification.requestPermission();if(r==='granted'){toast('Erlaubt – dringende Hinweise erscheinen als Zahl am App-Symbol');updateAlerts()}else toast('Nicht erlaubt – in den iOS-Einstellungen änderbar')}catch(err){toast('Auf diesem Gerät nicht verfügbar')}if(S.view==='orga')renderOrga()});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')updateAlerts()});setInterval(updateAlerts,15*60*1000);
 /* ---------- Wischen zum Löschen ---------- */
 const swr=(k,id,html)=>`<div class="swr" data-swk="${k}" data-swid="${id}"><button type="button" class="swdel" data-swdel tabindex="-1">${ic('trash')}<span>Löschen</span></button><div class="swc">${html}</div></div>`;
 const SWW=92;let swS=null,swOpen=null,swBlock=0;
@@ -2577,7 +2611,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-act=card]')){e.
   mergePoses([]);
   try{await DB.open();S.spots=await DB.all('spots');for(const x of S.spots)if(migrate(x))DB.put('spots',x);for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
     for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);
-    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');S.weds=await DB.all('weddings');S.fairs=await DB.all('fairs');await loadGear();if(SY.on)scheduleSync(2500);else setTimeout(backupReminder,2500);window.hideSplash&&hideSplash()}
+    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');S.weds=await DB.all('weddings');S.fairs=await DB.all('fairs');await loadGear();if(SY.on)scheduleSync(2500);else setTimeout(backupReminder,2500);window.hideSplash&&hideSplash();updateAlerts()}
   catch(e){toast('Lokaler Speicher nicht verfügbar (privater Modus?) – Daten werden nicht gespeichert',null,null,8000)}
   renderMarkers();
   // kein Willkommensbildschirm beim Start
