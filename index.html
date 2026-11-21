@@ -2673,16 +2673,16 @@ document.addEventListener('click',e=>{const g=e.target.closest('[data-gnew]');if
 const RAD={on:false,frames:[],layers:[],i:0,timer:null};window.RAD=RAD;
 function radTimes(){const step=5*60e3,now=Date.now(),ref=Math.floor((now-10*60e3)/step)*step;RAD.ref=ref;const out=[];for(let k=-2;k<=4;k++)out.push(ref+k*30*60e3);return out}
 const RB={w:5.0,e:16.0,s:46.6,n:55.6},m3x=l=>l*20037508.34/180,m3y=l=>Math.log(Math.tan((90+l)*Math.PI/360))/(Math.PI/180)*20037508.34/180;
-function radLayer(t){const bb=[m3x(RB.w),m3y(RB.s),m3x(RB.e),m3y(RB.n)].map(v=>v.toFixed(0)).join(','),W=1100,H=Math.round(W*(m3y(RB.n)-m3y(RB.s))/(m3x(RB.e)-m3x(RB.w)));
+function radLayer(t){const bb=[m3x(RB.w),m3y(RB.s),m3x(RB.e),m3y(RB.n)].map(v=>v.toFixed(0)).join(','),W=900,H=Math.round(W*(m3y(RB.n)-m3y(RB.s))/(m3x(RB.e)-m3x(RB.w)));
   const u=`https://maps.dwd.de/geoserver/dwd/wms?service=WMS&request=GetMap&layers=dwd:Niederschlagsradar&styles=&format=image/png&transparent=true&version=1.3.0&width=${W}&height=${H}&crs=EPSG:3857&bbox=${bb}&time=${new Date(t).toISOString().replace('.000','')}`;
   return L.imageOverlay(u,[[RB.s,RB.w],[RB.n,RB.e]],{opacity:0,pane:'radarPane',attribution:'Radar © DWD',interactive:false})}
-function radShow(i){RAD.i=i;RAD.layers.forEach((l,k)=>l.setOpacity(k===i?.72:0));const t=RAD.frames[i],d=Math.round((t-RAD.ref)/60e3),hh=new Date(t).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+function radShow(i){RAD.i=i;let v=i;if(RAD.ok&&!RAD.ok[i]){let best=-1;RAD.ok.forEach((o,k)=>{if(o&&(best<0||Math.abs(k-i)<Math.abs(best-i)))best=k});if(best>=0)v=best}RAD.layers.forEach((l,k)=>l.setOpacity(k===v?.75:0));const t=RAD.frames[i],d=Math.round((t-RAD.ref)/60e3),hh=new Date(t).toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
   $('#radTime').textContent=(d===0?`Jetzt · ${hh}`:d<0?`vor ${-d} Min · ${hh}`:`Vorhersage +${d} Min · ${hh}`)+(RAD.ok&&!RAD.ok[i]?' · lädt …':'');$('#radRange').value=i;$('#radbar').classList.toggle('fc',d>0)}
 function radStop(){clearInterval(RAD.timer);RAD.timer=null;$('#radPlay').innerHTML=ic('play')}
 function radPlay(){if(RAD.timer)return radStop();$('#radPlay').innerHTML=ic('pause');RAD.timer=setInterval(()=>radShow((RAD.i+1)%RAD.frames.length),900)}
 function radarToggle(force){const on=force!=null?force:!RAD.on;if(on===RAD.on)return;RAD.on=on;
   if(on){if(!map.getPane('radarPane')){const p=map.createPane('radarPane',map.getPane('rotatePane')||undefined);p.style.zIndex=350;p.style.pointerEvents='none'}
-    if(!sheet.hidden)closeSheet();RAD.frames=radTimes();RAD.ok=RAD.frames.map(()=>false);RAD.layers=RAD.frames.map(t=>radLayer(t));const order=[2,3,1,4,0,5,6];let n=0;const next=()=>{if(!RAD.on||n>=order.length)return;const k=order[n++],l=RAD.layers[k];l.once('load',()=>{RAD.ok[k]=true;if(RAD.i===k)radShow(k);next()});l.once('error',next);l.addTo(map)};next();if(map.getZoom()>11)map.setZoom(10);
+    if(!sheet.hidden)closeSheet();RAD.frames=radTimes();RAD.ok=RAD.frames.map(()=>false);RAD.layers=RAD.frames.map(t=>radLayer(t));RAD.layers.forEach((l,k)=>{l.once('load',()=>{RAD.ok[k]=true;radShow(RAD.i)});l.addTo(map)});if(map.getZoom()>11)map.setZoom(10);
     $('#radbar').hidden=false;document.body.classList.add('radar');radShow(2);radStop()}
   else{radStop();RAD.layers.forEach(l=>map.removeLayer(l));RAD.layers=[];$('#radbar').hidden=true;document.body.classList.remove('radar')}
   setLayer(ls.get('layer','osm'))}
