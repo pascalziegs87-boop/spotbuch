@@ -565,7 +565,7 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 #btnNorth svg{transition:transform .15s}
 .radbar{position:fixed;left:10px;right:10px;bottom:calc(var(--tbh) + 10px);z-index:700;background:var(--panel);border-radius:18px;box-shadow:var(--shadow);display:flex;align-items:center;gap:8px;padding:8px 8px}
 .radmid{flex:1;min-width:0}.radmid input{width:100%;accent-color:var(--pin);margin:2px 0}.radlab{display:flex;flex-direction:column;font-size:12px;color:var(--mute)}.radlab b{color:var(--ink);font-size:14px}.radbar.fc .radlab b{color:#4f7fd9}
-.radlab i{display:inline-block;width:10px;height:8px;border-radius:2px;margin:0 2px 0 6px;vertical-align:0}.rl1{background:#9fd8ff}.rl2{background:#3a7bd5}.rl3{background:#d9432f}
+.radlab i{display:inline-block;width:10px;height:8px;border-radius:2px;margin:0 2px 0 6px;vertical-align:0}.rl1{background:#6fe3e3}.rl2{background:#2fa84f}.rl3{background:linear-gradient(90deg,#f2d22e,#d9432f)}
 body.radar .fabs{bottom:calc(var(--tbh) + 92px)}.qgrid .qe{font-size:22px;line-height:22px}
 </style>
 </head>
@@ -2681,7 +2681,7 @@ function radShow(i){RAD.i=i;RAD.layers.forEach((l,k)=>l.setOpacity(k===i?.72:0))
 function radStop(){clearInterval(RAD.timer);RAD.timer=null;$('#radPlay').innerHTML=ic('play')}
 function radPlay(){if(RAD.timer)return radStop();$('#radPlay').innerHTML=ic('pause');RAD.timer=setInterval(()=>radShow((RAD.i+1)%RAD.frames.length),900)}
 function radarToggle(force){const on=force!=null?force:!RAD.on;if(on===RAD.on)return;RAD.on=on;
-  if(on){if(!map.getPane('radarPane')){const p=map.createPane('radarPane');p.style.zIndex=350;p.style.pointerEvents='none'}
+  if(on){if(!map.getPane('radarPane')){const p=map.createPane('radarPane',map.getPane('rotatePane')||undefined);p.style.zIndex=350;p.style.pointerEvents='none'}
     if(!sheet.hidden)closeSheet();RAD.frames=radTimes();RAD.ok=RAD.frames.map(()=>false);RAD.layers=RAD.frames.map(t=>radLayer(t));const order=[2,3,1,4,0,5,6];let n=0;const next=()=>{if(!RAD.on||n>=order.length)return;const k=order[n++],l=RAD.layers[k];l.once('load',()=>{RAD.ok[k]=true;if(RAD.i===k)radShow(k);next()});l.once('error',next);l.addTo(map)};next();if(map.getZoom()>11)map.setZoom(10);
     $('#radbar').hidden=false;document.body.classList.add('radar');radShow(2);radStop()}
   else{radStop();RAD.layers.forEach(l=>map.removeLayer(l));RAD.layers=[];$('#radbar').hidden=true;document.body.classList.remove('radar')}
