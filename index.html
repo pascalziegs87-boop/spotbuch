@@ -549,6 +549,14 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 #splash{flex-direction:column;gap:22px}.spl-s{margin:0;color:#c8b4a0;font:500 15px/1.5 system-ui,-apple-system,sans-serif;letter-spacing:.06em;text-align:center;animation:spl 1.1s .25s ease both}
 .spl-v{position:absolute;right:16px;bottom:calc(14px + env(safe-area-inset-bottom,0px));color:rgba(200,180,160,.55);font:500 11px/1 system-ui,-apple-system,sans-serif;letter-spacing:.04em}
 .vinfo{color:var(--mute);font-size:13px;margin-top:18px}.vinfo summary{cursor:pointer}.vinfo li{margin:4px 0}
+.hwx{display:flex;align-items:center;gap:14px;background:var(--panel);border-radius:16px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.06);margin:4px 0 8px}.hwx>b{font-size:34px;font-weight:700}.hwx span{font-size:15px;line-height:1.35}.hwx small{color:var(--mute);font-size:13px}
+.hsun{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:14px;margin:0 2px 6px}.hsun .i{width:18px;height:18px}
+.hnext{background:#1b1d21;color:#fff;border-radius:18px;padding:16px;margin:4px 0}.hnext h3{color:#fff;font-size:20px;margin:4px 0 6px;text-transform:none;letter-spacing:0}.hnext p{margin:0 0 10px;color:#d6d3cc;display:flex;gap:6px;align-items:center}.hnext p .i{width:16px;height:16px}
+.hnk{color:#c8b4a0;font-size:13px;font-weight:600}.hbtn{display:flex;gap:8px}.hnext .btn:not(.acc){background:#2c2f35;color:#fff;border-color:#2c2f35}.hnext .wx{margin-top:12px;color:var(--ink)}
+.hday{background:var(--panel);border-radius:18px;padding:14px;margin:8px 0;box-shadow:0 1px 4px rgba(0,0,0,.08)}.hday h2{margin:2px 0 10px}.hdk{color:var(--pin);font-weight:700;font-size:13px}
+.tlr.past{opacity:.45}.tlr.now .tlb{outline:2px solid var(--pin)}
+#sheet.home{min-height:calc(var(--vh,100vh) - var(--st) - var(--tbh) - 16px)}
+.qgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.qgrid button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 6px;border:0;border-radius:16px;background:var(--panel);color:var(--ink);font:600 13px/1.2 inherit;box-shadow:0 1px 3px rgba(0,0,0,.06)}.qgrid .i{width:22px;height:22px}
 </style>
 </head>
 <body>
@@ -594,7 +602,7 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 </div>
 
 <nav id="tabs" aria-label="Hauptmenü">
-  <button data-tab="map" aria-current="page"><span class="tico"><svg class="i" viewBox="0 0 24 24"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/></svg></span><span>Karte</span></button>
+  <button data-tab="home" aria-current="page"><span class="tico"><svg class="i" viewBox="0 0 24 24"><path d="M3 11 12 4l9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/></svg></span><span>Start</span></button>
   <button data-tab="spots"><span class="tico"><svg class="i" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></span><span>Spots</span></button>
   <button data-tab="shoots"><span class="tico"><svg class="i" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/></svg><b id="orgBadge" class="tbadge" hidden></b></span><span>Orga</span></button>
   <button data-tab="poses"><span class="tico"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2.5"/><path d="M12 8v7M7 11l5-2 5 2M9 21l3-6 3 6"/></svg></span><span>Posen</span></button>
@@ -800,7 +808,7 @@ const resetWin=()=>{if(window.scrollY||document.documentElement.scrollTop||docum
 document.addEventListener('focusout',()=>setTimeout(()=>{const a=document.activeElement;if(!a||!a.matches('input,textarea,select'))resetWin()},150));
 if(window.visualViewport)visualViewport.addEventListener('resize',()=>{if(visualViewport.height>innerHeight*.8)setTimeout(resetWin,50)});
 addEventListener('scroll',()=>{const a=document.activeElement;if(!a||!a.matches('input,textarea,select'))resetWin()},{passive:true});
-function showSheet(html,full=false){body.innerHTML=html;sheet.hidden=false;resetWin();sheet.classList.toggle('full',full);body.scrollTop=0;if(typeof syncTabs==='function')syncTabs()}
+function showSheet(html,full=false){body.innerHTML=html;sheet.hidden=false;sheet.classList.toggle('home',S.view==='home');resetWin();sheet.classList.toggle('full',full);body.scrollTop=0;if(typeof syncTabs==='function')syncTabs()}
 function closeSheet(){simLayer.clearLayers();if(simTimer){clearInterval(simTimer);simTimer=null}
   if(S.wiz){const ws=spot(S.wiz.id);collectForm(ws);S.wiz=null;if(ws.name==='Neuer Spot'&&!phOf(ws.id).length){S.draft=ws.id;discardDraft();return}
     S.draft=null;if(ws.name==='Neuer Spot')ws.name='Unbenannter Spot';saveSpot(ws);openSpot(ws.id);return}
@@ -1086,7 +1094,7 @@ function renderList(){S.view='list';const cols=[...new Set(S.spots.map(x=>x.col)
   const so=S.sort;arr.sort((a,b)=>so==='name'?a.s.name.localeCompare(b.s.name,'de'):so==='new'?b.s.created-a.s.created:so==='rating'?(b.s.rating||0)-(a.s.rating||0):
     (a.d??dist(mc.lat,mc.lng,a.s.lat,a.s.lng))-(b.d??dist(mc.lat,mc.lng,b.s.lat,b.s.lng)));
   const sel=(k,list,label)=>`<select data-f="${k}" aria-label="${label}" class="${S.f[k]?'on':''}"><option value="">${label}</option>${list.map(x=>`<option value="${esc(x[0])}" ${S.f[k]===x[0]?'selected':''}>${esc(x[1])}</option>`).join('')}</select>`;
-  showSheet(`<div class="hd"><div style="flex:1"><h2>Meine Spots</h2><div class="meta"><span>${arr.length} von ${S.spots.length}${S.f.q?` · Suche „${esc(S.f.q)}“`:''}</span></div></div><button class="ib" data-act="close" aria-label="Schließen">${ic('x')}</button></div>
+  showSheet(`<div class="hd"><div style="flex:1"><h2>Meine Spots</h2><div class="meta"><span>${arr.length} von ${S.spots.length}${S.f.q?` · Suche „${esc(S.f.q)}“`:''}</span></div></div><button class="btn sm" data-act="close">${ic('route')} Karte</button></div>
    <div class="seg" role="group" aria-label="Sortierung">${[['dist','Nähe'],['new','Neu'],['rating','Top'],['name','A–Z']].map(x=>`<button data-sort="${x[0]}" aria-pressed="${x[0]===so}">${x[1]}</button>`).join('')}</div>
    <div class="envrow">${ENVS.map(c=>`<button data-envf="${c[0]}" aria-pressed="${S.f.env.includes(c[0])}" style="--c:${c[2]}"><i></i>${c[1]}</button>`).join('')}</div>
    <div class="bar3">${sel('light',LIGHT,'Licht')}${sel('col',cols.map(c=>[c,c]),'Sammlung')}${sel('status',STATUS,'Status')}</div>
@@ -1776,11 +1784,11 @@ $('#run').addEventListener('click',e=>{const R=$('#run');if(R.classList.contains
 document.addEventListener('visibilitychange',async()=>{if(!$('#run').hidden&&document.visibilityState==='visible'&&navigator.wakeLock){try{run.lock=await navigator.wakeLock.request('screen')}catch(e){}}});
 
 /* ---------- Menüleiste unten ---------- */
-function syncTabs(){const v=sheet.hidden?null:S.view,t=!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'||v==='settings'?'map':v==='setups'||v==='setup'||v==='lib'||v==='shot'?'studio':v==='gear'||v==='mood'?'shoots':v==='list'?'spots':v==='poseLib'||v==='poseView'||(v==='poseEdit'||v==='poseCrop')&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
+function syncTabs(){const v=sheet.hidden?null:S.view,t=v==='home'||v==='settings'||v==='card'?'home':!v||v==='spot'||v==='edit'||v==='wiz'||v==='welcome'?'spots':v==='setups'||v==='setup'||v==='lib'||v==='shot'?'studio':v==='gear'||v==='mood'?'shoots':v==='list'?'spots':v==='poseLib'||v==='poseView'||(v==='poseEdit'||v==='poseCrop')&&!(S.poseBack||'').startsWith('pick:')?'poses':'shoots';
   document.querySelectorAll('#tabs [data-tab]').forEach(b=>b.setAttribute('aria-current',b.dataset.tab===t?'page':'false'))}
 new MutationObserver(syncTabs).observe(sheet,{attributes:true,attributeFilter:['hidden']});
 $('#tabs').onclick=e=>{const b=e.target.closest('[data-tab]');if(!b)return;const t=b.dataset.tab;
-  if(t==='map'){if(S.plan&&!S.sel)closePlanner();if(!sheet.hidden)closeSheet()}
+  if(t==='home'){if(S.plan)closePlanner();renderHome()}
   if(t==='spots'){if(S.plan)closePlanner();renderList()}
   if(t==='shoots'){if(S.plan)closePlanner();renderOrga()}
   if(t==='poses'){if(S.plan)closePlanner();S.libTypes=[];renderPoseLib()}
@@ -2029,8 +2037,9 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const VERSION='2.6.1',APPV='v'+VERSION;
+const VERSION='2.7.0',APPV='v'+VERSION;
 const CHANGELOG=[
+ ['2.7.0','Startseite „Heute“ mit Wetter, nächstem Termin, Hochzeitstag-Modus und Schnellzugriff; Karte im Tab Spots'],
  ['2.6.1','Startbildschirm etwas länger sichtbar'],
  ['2.6.0','Zahnrad für Einstellungen, Versionsnummer, Spruch auf dem Startbildschirm'],
  ['2.5.0','Sync mit dem NAS, Hinweise „Zu beachten“, Zahl am App-Symbol, Kalender-Erinnerungen'],
@@ -2286,7 +2295,7 @@ document.addEventListener('visibilitychange',()=>{if(!SY.on)return;if(document.v
 addEventListener('online',()=>scheduleSync(2000));
 
 /* ---------- Orga: Shootings & Hochzeiten ---------- */
-Object.assign(IC,{bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/>',qr:'<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2zM16 16h2v2h-2z"/>',phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'});
+Object.assign(IC,{gear:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0"/>',qr:'<path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 14h2v2h-2zM14 18h2v2h-2zM18 18h2v2h-2zM16 16h2v2h-2z"/>',phone:'<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>'});
 S.weds=[];
 const wed=id=>S.weds.find(x=>x.id===id);
 async function saveWed(x){await DB.put('weddings',x);if(!S.weds.includes(x))S.weds.push(x)}
@@ -2567,6 +2576,56 @@ let alT;function updateAlerts(){clearTimeout(alT);alT=setTimeout(()=>{let n=0;tr
   try{if('setAppBadge' in navigator&&('Notification' in window)&&Notification.permission==='granted'){n?navigator.setAppBadge(n):navigator.clearAppBadge()}}catch(e){}},300)}
 document.addEventListener('click',async e=>{if(!e.target.closest('[data-alperm]'))return;try{const r=await Notification.requestPermission();if(r==='granted'){toast('Erlaubt – dringende Hinweise erscheinen als Zahl am App-Symbol');updateAlerts()}else toast('Nicht erlaubt – in den iOS-Einstellungen änderbar')}catch(err){toast('Auf diesem Gerät nicht verfügbar')}if(S.view==='orga')renderOrga()});
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')updateAlerts()});setInterval(updateAlerts,15*60*1000);
+/* ---------- Startseite „Heute“ ---------- */
+const HOME={lat:51.2197,lng:7.6273,name:'Lüdenscheid'};
+let homeWx=null,homeWxAt=0;
+async function homeWeather(){if(homeWx&&Date.now()-homeWxAt<20*60e3)return homeWx;
+  const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${HOME.lat}&longitude=${HOME.lng}&current=temperature_2m,weather_code,wind_speed_10m,cloud_cover&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&forecast_days=1`);
+  if(!r.ok)throw new Error('wx');homeWx=await r.json();homeWxAt=Date.now();return homeWx}
+function nextEvents(){const t=todayISO(),ev=[];
+  for(const w of S.weds)if(w.date&&w.date>=t&&w.status!=='abgesagt')ev.push({k:'w',x:w,d:w.date,tm:w.time,title:'💍 Hochzeit '+(w.couple||''),og:'wed'});
+  for(const s of S.shoots)if(s.date&&s.date>=t&&!s.wedDay&&shootStatus(s)!=='abgesagt')ev.push({k:'s',x:s,d:s.date,tm:s.time,title:'📷 '+s.name,og:'shoot'});
+  for(const f of S.fairs)if(f.date&&f.date>=t&&f.status!=='abgesagt')ev.push({k:'f',x:f,d:f.date,tm:f.from?(+f.from.slice(0,2)*60+ +f.from.slice(3,5)):'',title:'🎪 '+(f.name||'Hochzeitsmesse'),og:'fair'});
+  return ev.sort((a,b)=>a.d.localeCompare(b.d)||(+a.tm||0)-(+b.tm||0))}
+function evPlace(e){if(e.k==='w'){const p=wedPlaces(e.x),q=p.find(q=>q.type==='location'&&(q.name||q.addr))||p.find(q=>q.name||q.addr);return q?{name:q.name||'',addr:q.addr||''}:null}
+  if(e.k==='f'){const p=e.x.place||{};return p.name||p.addr?{name:p.name||'',addr:p.addr||''}:null}
+  const s0=spot((e.x.spots||[])[0]);return s0?{name:s0.name,lat:s0.lat,lng:s0.lng}:null}
+const evMaps=q=>q.lat!=null?`https://maps.apple.com/?daddr=${q.lat},${q.lng}&q=${encodeURIComponent(q.name||'')}`:mapsUrl(q);
+function wedDayHTML(w){const now=new Date(),nm=now.getHours()*60+now.getMinutes(),toM=t=>t?+t.slice(0,2)*60+ +t.slice(3,5):null;
+  const items=[...(w.timeline||[]).filter(r=>r.t||r.title).map(r=>({t:r.t,title:r.title,q:tlPlace(w,r),note:r.note})),...S.shoots.filter(s=>s.wedId===w.id&&s.wedDay).map(s=>({t:s.time!==''&&s.time!=null?hm(s.time):'',title:'📷 '+s.name,sh:s.id}))].sort((a,b)=>(a.t||'99').localeCompare(b.t||'99'));
+  let cur=-1;items.forEach((it,i)=>{const m=toM(it.t);if(m!=null&&m<=nm)cur=i});const nxt=Math.min(items.length-1,cur+1);
+  const g=(w.groups||[]).filter(r=>r.t),gd=g.filter(r=>r.done).length,ct=(w.contacts||[]).filter(c=>c.tel);
+  return `<div class="hday"><div class="hdk">Heute · Hochzeit</div><h2>${esc(w.couple||'Hochzeit')}</h2>
+   ${items.length?`<div class="tlv">${items.map((it,i)=>`<div class="tlr ${i<nxt?'past':''} ${i===nxt?'now':''}"><div class="tlt">${esc(it.t||'–')}</div><div class="tlb">${it.sh?`<button class="lnk" data-og="shoot" data-id="${it.sh}"><b>${esc(it.title)}</b> ›</button>`:`<b>${esc(it.title||'')}</b>`}${it.q?`<div class="tlp">${ic('pin')}<span>${esc(placeTxt(it.q))}</span><button class="mini mapb" data-mapq="${esc(JSON.stringify({name:it.q.name||'',addr:it.q.addr||''}))}">${ic('route')}</button></div>`:''}${it.note&&i===nxt?`<p>${telify(it.note)}</p>`:''}</div></div>`).join('')}</div>`:'<p class="ex">Noch kein Ablauf eingetragen.</p>'}
+   <div class="row2">${g.length?`<button class="btn" data-og="wed" data-id="${w.id}">Gruppenfotos ${gd}/${g.length}</button>`:''}${ct.slice(0,2).map(c=>`<a class="btn" href="tel:${esc(c.tel.replace(/[^\d+]/g,''))}">${ic('phone')} ${esc(c.role||c.name)}</a>`).join('')}</div></div>`}
+function renderHome(){S.view='home';const now=new Date(),h=now.getHours(),t=todayISO(),nm=String(ls.get('userName','')||'').trim();
+  const greet=(h<11?'Guten Morgen':h<18?'Hallo':'Guten Abend')+(nm?', '+nm:'');
+  const ev=nextEvents(),wToday=S.weds.find(w=>w.date===t&&w.status!=='abgesagt'),nx=ev.find(e=>!(wToday&&e.k==='w'&&e.x===wToday)),week=ev.filter(e=>days(e.d)<=7&&e!==nx&&!(wToday&&e.x===wToday)).slice(0,4);
+  const tt=Sun.times(now,HOME.lat,HOME.lng);let card='';
+  if(nx){const q=evPlace(nx),n=days(nx.d);card=`<div class="hnext"><div class="hnk">${n===0?'Heute':n===1?'Morgen':'In '+n+' Tagen'} · ${new Date(nx.d+'T12:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'})}${nx.tm!==''&&nx.tm!=null?' · '+hm(nx.tm)+' Uhr':''}</div>
+    <h3>${esc(nx.title)}</h3>${q?`<p>${ic('pin')} ${esc(q.name||q.addr||'')}</p>`:''}
+    <div class="hbtn"><button class="btn acc" data-og="${nx.og}" data-id="${nx.x.id}">Öffnen</button>${q?`<button class="btn" data-hmap="${esc(JSON.stringify(q))}">${ic('route')} Route</button>`:''}</div>
+    ${q&&q.lat!=null&&n<=15?`<div class="card wx" id="wxHome"></div>`:''}</div>`}
+  showSheet(`<div class="hd"><div style="flex:1"><h2>${esc(greet)}</h2><div class="meta"><span>${now.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'})}</span></div></div><button class="ib" data-hset aria-label="Einstellungen">${ic('gear')}</button></div>
+   <div class="hwx" id="hwx"><span class="ex">Wetter wird geladen …</span></div>
+   <div class="hsun">${ic('sun')} Goldene Stunde ${fmtT(tt.goldA)}–${fmtT(tt.blueA)} · Sonnenuntergang ${fmtT(tt.set)}</div>
+   ${wToday?wedDayHTML(wToday):''}
+   ${card?`<h3>${wToday?'Danach':'Als Nächstes'}</h3>${card}`:(!wToday?`<div class="empty static">${ic('cal')}<b>Keine Termine geplant</b><span>Leg eine Hochzeit, ein Shooting oder eine Messe an.</span></div>`:'')}
+   ${alertsHTML()}
+   ${week.length?`<h3>Diese Woche</h3>${week.map(e=>orgRow((e.k==='f'?fairItems():orgItems()).find(i=>i.k===e.k&&i.id===e.x.id))).join('')}`:''}
+   <h3>Schnellzugriff</h3><div class="qgrid">
+    <button data-hq="wed">${ic('plus')}<span>Hochzeit</span></button><button data-hq="shoot">${ic('plus')}<span>Shooting</span></button><button data-hq="spot">${ic('pin')}<span>Spot hier</span></button>
+    <button data-hq="map">${ic('route')}<span>Karte</span></button><button data-hq="poses">${ic('img')}<span>Posen</span></button><button data-act="card">${ic('qr')}<span>Visitenkarte</span></button></div>`,true);
+  homeWeather().then(d=>{const el=$('#hwx');if(!el)return;const c=d.current,dd=d.daily;el.innerHTML=`<b>${Math.round(c.temperature_2m)}°</b><span>${esc(WXC[c.weather_code]||'')} · ${HOME.name}<br><small>${Math.round(dd.temperature_2m_min[0])}° / ${Math.round(dd.temperature_2m_max[0])}° · Regen ${dd.precipitation_probability_max[0]??0} % · Wind ${Math.round(c.wind_speed_10m)} km/h</small></span>`}).catch(()=>{const el=$('#hwx');if(el)el.innerHTML='<span class="ex">Wetter gerade nicht abrufbar.</span>'});
+  if(nx){const q=evPlace(nx);if(q&&q.lat!=null&&days(nx.d)<=15)fillWeather($('#wxHome'),q.lat,q.lng,nx.d,nx.tm,+nx.x.duration||90)}}
+body.addEventListener('click',e=>{if(e.target.closest('[data-hset]')){$('#btnMenu').click();return}const m=e.target.closest('[data-hmap]');if(m){window.open(evMaps(JSON.parse(m.dataset.hmap)),'_blank');return}
+  const b=e.target.closest('[data-hq]');if(!b)return;const a=b.dataset.hq;
+  if(a==='wed'){const x=document.createElement('button');x.dataset.og='newwed';body.appendChild(x);x.click();x.remove();return}
+  if(a==='shoot')return renderShootEdit(null);
+  if(a==='poses'){S.libTypes=[];return renderPoseLib()}
+  if(a==='map'){closeSheet();return}
+  if(a==='spot'){closeSheet();setTimeout(()=>{const h=document.querySelector('[data-add=here]');if(h)h.click()},250)}});
+
 /* ---------- Wischen zum Löschen ---------- */
 const swr=(k,id,html)=>`<div class="swr" data-swk="${k}" data-swid="${id}"><button type="button" class="swdel" data-swdel tabindex="-1">${ic('trash')}<span>Löschen</span></button><div class="swc">${html}</div></div>`;
 const SWW=92;let swS=null,swOpen=null,swBlock=0;
@@ -2625,7 +2684,7 @@ document.addEventListener('click',e=>{if(e.target.closest('[data-act=card]')){e.
   mergePoses([]);
   try{await DB.open();S.spots=await DB.all('spots');for(const x of S.spots)if(migrate(x))DB.put('spots',x);for(const p of await DB.all('photos')){p.exif=p.exif||{};if(!S.photos.has(p.spotId))S.photos.set(p.spotId,[]);S.photos.get(p.spotId).push(p)}
     for(const l of S.photos.values())l.sort((a,b)=>a.created-b.created);
-    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');S.weds=await DB.all('weddings');S.fairs=await DB.all('fairs');await loadGear();if(SY.on)scheduleSync(2500);else setTimeout(backupReminder,2500);window.hideSplash&&hideSplash();updateAlerts()}
+    mergePoses(await DB.all('poses'));S.shoots=await DB.all('shoots');S.setups=await DB.all('setups');S.shots=await DB.all('shots');S.weds=await DB.all('weddings');S.fairs=await DB.all('fairs');await loadGear();if(SY.on)scheduleSync(2500);else setTimeout(backupReminder,2500);renderHome();window.hideSplash&&hideSplash();updateAlerts()}
   catch(e){toast('Lokaler Speicher nicht verfügbar (privater Modus?) – Daten werden nicht gespeichert',null,null,8000)}
   renderMarkers();
   // kein Willkommensbildschirm beim Start
