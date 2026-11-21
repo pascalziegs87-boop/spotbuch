@@ -1,11 +1,12 @@
 // Zweistil Fotografie Service Worker: App offline verfügbar + besuchte Kartenkacheln zwischenspeichern
-const SHELL_CACHE = 'zweistil-shell-2.7.0';
+const SHELL_CACHE = 'zweistil-shell-2.8.0';
 const TILE_CACHE = 'spotbuch-tiles-v1';
 const MAX_TILES = 4000;
 const SHELL = [
   './', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png', './logo.png', './qrcode.js',
   'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css',
-  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'
+  'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js',
+  'https://unpkg.com/leaflet-rotate@0.6.2/dist/leaflet-rotate.js'
 ];
 const TILE_HOSTS = ['tile.openstreetmap.org', 'server.arcgisonline.com', 'tile.opentopomap.org'];
 
