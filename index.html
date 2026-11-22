@@ -2051,8 +2051,9 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const VERSION='2.9.0',APPV='v'+VERSION;
+const VERSION='2.9.1',APPV='v'+VERSION;
 const CHANGELOG=[
+ ['2.9.1','Hinweis, wenn der verschlüsselte NAS-Ordner gesperrt ist'],
  ['2.9.0','Regenradar vom DWD mit Verlauf der letzten Stunde und Vorhersage für 2 Stunden'],
  ['2.8.0','Karte mit zwei Fingern drehen (Kompass-Knopf richtet nach Norden aus), Orts- und Adresssuche, Übergabe an Apple Karten/Google Maps'],
  ['2.7.0','Startseite „Heute“ mit Wetter, nächstem Termin, Hochzeitstag-Modus und Schnellzugriff; Karte im Tab Spots'],
@@ -2265,7 +2266,7 @@ const SY={busy:false,again:false,t:null,msg:'',get url(){return String(ls.get('s
 function tombSet(k,v){const t=ls.get('tomb',{});if(v)t[k]=v;else delete t[k];ls.set('tomb',t)}
 async function syApi(path,opt={}){let r;try{r=await fetch(SY.url+path,{...opt,cache:'no-store',headers:{...(opt.headers||{}),Authorization:'Bearer '+SY.tok}})}
   catch(e){throw new Error('NAS nicht erreichbar – Adresse, Internet oder Zertifikat prüfen')}
-  if(!r.ok)throw new Error(r.status===401?'Token passt nicht':r.status===413?'Datei zu groß für den Server':'NAS antwortet mit Fehler '+r.status);return r}
+  if(!r.ok)throw new Error(r.status===401?'Token passt nicht':r.status===413?'Datei zu groß für den Server':r.status===503?'NAS-Ordner ist gesperrt – in der Synology entsperren':'NAS antwortet mit Fehler '+r.status);return r}
 function sySer(v,owner,field,blobs){if(v instanceof Blob){const key=`${owner}.${field}.${v.size}`.replace(/[^A-Za-z0-9_.-]/g,'_');blobs.set(key,v);return {$b:key}}
   if(Array.isArray(v))return v.map((x,i)=>sySer(x,owner,field+i,blobs));
   if(v&&typeof v==='object'&&!(v instanceof Date)){const o={},oid=v.id||owner;for(const k of Object.keys(v))o[k]=sySer(v[k],oid,k,blobs);return o}return v}
