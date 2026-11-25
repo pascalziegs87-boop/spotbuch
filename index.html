@@ -1479,6 +1479,7 @@ const Sketch=(()=>{
 
 /* ---------- Shootings & Posen ---------- */
 const STYPES=[['paar','Paarshooting'],['hochzeit','Hochzeit'],['portrait','Portrait'],['familie','Familie'],['hund','Mit Hund'],['pferd','Mit Pferd'],['sonst','Sonstiges']];
+const PTYPES=[['paar','Paarshooting'],['hochzeit','Hochzeit'],['maenner','Männer & Bräutigam'],['portrait','Portrait'],['familie','Familie'],['hund','Mit Hund'],['pferd','Mit Pferd']];
 const PB=[
  ['p_walk','walk',['paar','hochzeit'],'Hand in Hand spazieren','Geht langsam auf mich zu, haltet euch an der Hand und schaut euch an – nicht in die Kamera. Ruhig mal lachen.','Serienbild, leicht von unten. Mehrmals laufen lassen.'],
  ['p_forehead','forehead',['paar','hochzeit'],'Stirn an Stirn','Ganz nah zueinander, Stirn an Stirn, Augen schließen und einmal tief durchatmen.','Gegenlicht, offene Blende, eng schneiden.'],
@@ -1526,7 +1527,7 @@ async function savePose(p){p.updated=Date.now();const rec={...p};if(rec.builtin)
 const resetUrl=id=>{for(const k of ['t','f']){const u=S.urls.get(id+k);if(u){URL.revokeObjectURL(u);S.urls.delete(id+k)}}};
 const shoot=id=>S.shoots.find(x=>x.id===id);
 async function saveShoot(x){x.updated=Date.now();await DB.put('shoots',x);if(!S.shoots.includes(x))S.shoots.push(x)}
-const relTypes=t=>t==='hochzeit'?['hochzeit','paar']:t==='sonst'?[]:[t];
+const relTypes=t=>t==='hochzeit'?['hochzeit','paar','maenner']:t==='sonst'?[]:[t];
 const fmtD=d=>d?new Date(d+'T12:00').toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short',year:'numeric'}):'ohne Datum';
 const hm=m=>m==null||m===''?'':String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
 const ICS={crop:'<path d="M6 2v14a2 2 0 0 0 2 2h14"/><path d="M18 22V8a2 2 0 0 0-2-2H2"/>',minus:'<path d="M5 12h14"/>',cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M4 10h16M9 3v4M15 3v4"/>',map:'<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3z"/><path d="M9 3v15M15 6v15"/>',list:'<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11l2 2 4-4M9 17h6"/>',eye:'<path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
@@ -1630,7 +1631,7 @@ async function exportIcs(x){if(!x.date){toast('Bitte zuerst ein Datum eintragen'
   const name=(x.name||'shooting').replace(/[^\wäöüÄÖÜß-]+/g,'-')+'.ics';await deliver(new Blob([icsText(x)],{type:'text/calendar'}),name)}
 
 /* Posen auswählen */
-function typeChips(sel,attr){return `<div class="envrow">${STYPES.filter(t=>t[0]!=='sonst').map(t=>`<button ${attr}="${t[0]}" aria-pressed="${sel.includes(t[0])}">${t[1]}</button>`).join('')}<button ${attr}="mine" aria-pressed="${sel.includes('mine')}">Eigene</button></div>`}
+function typeChips(sel,attr){return `<div class="envrow">${PTYPES.map(t=>`<button ${attr}="${t[0]}" aria-pressed="${sel.includes(t[0])}">${t[1]}</button>`).join('')}<button ${attr}="mine" aria-pressed="${sel.includes('mine')}">Eigene</button></div>`}
 const filterPoses=sel=>{const ts=sel.filter(t=>t!=='mine');return poseList(ts.length?ts:null).filter(p=>!p.builtin||p.blob)};
 function renderPosePick(id){const x=shoot(id);S.view='posePick';S.shootId=id;S.pickTypes=S.pickTypes||relTypes(x.type);const inS=new Set(x.items.map(i=>i.pose));
   const list=filterPoses(S.pickTypes);
@@ -1649,7 +1650,7 @@ function renderPoseLib(){S.view='poseLib';S.libTypes=S.libTypes||[];const list=f
     <button class="pc add" data-sh="newpose"><span class="pim">${Sketch.svg('custom')}</span><b>Eigene Pose anlegen</b></button></div>
    `,true)}
 function renderPoseView(pid){const p=S.poses.get(pid);if(!p)return renderPoseLib();S.view='poseView';S.poseId=pid;
-  showSheet(`<div class="hd"><div style="flex:1"><h2>${esc(p.title)}</h2><div class="meta">${(p.types||[]).map(t=>`<span class="tag">${esc(lab(STYPES,t))}</span>`).join('')}</div></div><button class="ib" data-sh="pvback" aria-label="Zurück zur Bibliothek">${ic('back')}</button></div>
+  showSheet(`<div class="hd"><div style="flex:1"><h2>${esc(p.title)}</h2><div class="meta">${(p.types||[]).map(t=>`<span class="tag">${esc(lab(PTYPES,t))}</span>`).join('')}</div></div><button class="ib" data-sh="pvback" aria-label="Zurück zur Bibliothek">${ic('back')}</button></div>
    <button class="pvimg" data-sh="pvlb">${poseImg(p,true)}</button>
    <div class="qa"><button class="q pri" data-sh="pvedit">${ic('edit')}<span>Bearbeiten</span></button></div>
    ${p.guide?`<h3>So sagst du es dem Paar</h3><div class="card prose pvt">${esc(p.guide).replace(/\n/g,'<br>')}</div>`:''}
@@ -1660,7 +1661,7 @@ function renderPoseEdit(pid,back){S.view='poseEdit';S.poseBack=back||S.poseBack;
    <div class="pprev">${poseImg(p,true)}</div>
    <div class="row2"><button type="button" class="btn sm" data-sh="posephoto">${ic('cam')} ${p.blob?'Foto ersetzen':'Eigenes Beispielfoto'}</button>${p.blob?`<button type="button" class="btn sm" data-sh="cropopen">${ic('crop')} Zuschneiden</button><button type="button" class="btn sm" data-sh="posephotodel">${p.builtin?'Zurück zur Skizze':'Foto entfernen'}</button>`:''}</div>
    <section class="grp"><label>Titel<input type="text" name="title" value="${esc(p.title)}" placeholder="z. B. Stirn an Stirn"></label>
-    <div class="lab">Passt zu${optsHTML(STYPES.filter(t=>t[0]!=='sonst'),p.types,'types')}</div></section>
+    <div class="lab">Passt zu${optsHTML(PTYPES,p.types,'types')}</div></section>
    <section class="grp"><label>Anweisung fürs Paar <span class="ex">– das sagst du vor Ort</span><textarea name="guide" placeholder="Stellt euch …">${esc(p.guide)}</textarea></label>
     <label>Meine Notizen <span class="ex">– Technik, Perspektive; sieht das Paar nie</span><textarea name="tips" placeholder="Brennweite, Licht, Perspektive …">${esc(p.tips)}</textarea></label></section>
    <div class="sticky"><button type="button" class="btn" data-sh="poseback">Abbrechen</button><button class="btn acc" type="submit">Speichern</button></div>
@@ -2053,8 +2054,9 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const VERSION='2.9.2',APPV='v'+VERSION;
+const VERSION='2.10.0',APPV='v'+VERSION;
 const CHANGELOG=[
+ ['2.10.0','Neue Posen-Kategorie „Männer & Bräutigam“ – auch bei Hochzeits-Shootings vorgeschlagen'],
  ['2.9.2','Regenradar schließt zuverlässig und macht beim Sonnenstand-Planer Platz; kein Zoomen mehr durch Doppeltippen'],
  ['2.9.1','Hinweis, wenn der verschlüsselte NAS-Ordner gesperrt ist'],
  ['2.9.0','Regenradar vom DWD mit Verlauf der letzten Stunde und Vorhersage für 2 Stunden'],
