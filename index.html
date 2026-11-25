@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>Zweistil Fotografie</title>
 <meta name="theme-color" content="#1b1d21">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -567,6 +567,8 @@ a.mini{display:inline-flex;align-items:center;justify-content:center;text-decora
 .radmid{flex:1;min-width:0}.radmid input{width:100%;accent-color:var(--pin);margin:2px 0}.radlab{display:flex;flex-direction:column;font-size:12px;color:var(--mute)}.radlab b{color:var(--ink);font-size:14px}.radbar.fc .radlab b{color:#4f7fd9}
 .radlab i{display:inline-block;width:10px;height:8px;border-radius:2px;margin:0 2px 0 6px;vertical-align:0}.rl1{background:#6fe3e3}.rl2{background:#2fa84f}.rl3{background:linear-gradient(90deg,#f2d22e,#d9432f)}
 body.radar .fabs{bottom:calc(var(--tbh) + 92px)}.qgrid .qe{font-size:22px;line-height:22px}
+html,body{touch-action:manipulation}button,a,input,select,textarea,label{touch-action:manipulation}
+#radClose{width:44px;height:44px;flex:0 0 44px}
 </style>
 </head>
 <body>
@@ -772,7 +774,7 @@ async function addPhoto(spotId,file,exif){
 
 /* ---------- Karte ---------- */
 const start=ls.get('view',{c:[51.2195,7.6273],z:12});
-const map=L.map('map',{zoomControl:false,attributionControl:true,rotate:true,touchRotate:true,rotateControl:false,bearing:0,shiftKeyRotate:true}).setView(start.c,start.z);
+const map=L.map('map',{zoomControl:false,attributionControl:true,doubleClickZoom:false,rotate:true,touchRotate:true,rotateControl:false,bearing:0,shiftKeyRotate:true}).setView(start.c,start.z);
 map.attributionControl.setPrefix(false).setPosition('bottomleft');
 let base=null;
 function setLayer(k){if(!LAYERS[k])k='osm';if(base)map.removeLayer(base);base=L.tileLayer(LAYERS[k].url,LAYERS[k].o).addTo(map);map.getContainer().classList.toggle('dark-tiles',k!=='sat');ls.set('layer',k);
@@ -1021,7 +1023,7 @@ function dialSVG(s,pos,ph,dirs,mini){const C=120,R=mini?104:96,xy=(b,alt)=>{cons
    ${pos.alt>=0?`<line x1="${C}" y1="${C}" x2="${sx}" y2="${sy}" class="ds"/><circle cx="${sx}" cy="${sy}" r="${mini?18:10}" class="sun ${ph[1]}"/>`
      :(()=>{const [hx,hy]=xy(pos.bearing,0);return `<circle cx="${hx}" cy="${hy}" r="${mini?14:7}" class="sun under"/>`})()}`}
 
-function openPlanner(){const s=planTarget()||(S.plan=true,planTarget());S.plan=true;if(simTimer){clearInterval(simTimer);simTimer=null}
+function openPlanner(){if(window.RAD&&RAD.on)radarToggle(false);const s=planTarget()||(S.plan=true,planTarget());S.plan=true;if(simTimer){clearInterval(simTimer);simTimer=null}
   sheet.hidden=true;S.view=null;hideMenus();document.body.classList.add('planning');document.body.classList.toggle('plancenter',!S.sel);
   if(S.simFor!==planKey(s)){S.simMin=simDefault(s);S.simFor=planKey(s)}
   if(S.sel){const pt=map.latLngToContainerPoint([s.lat,s.lng]),pl=$('#planner');const ph=pl?pl.offsetHeight||260:260;
@@ -2051,8 +2053,9 @@ $('#fSt').onchange=async e=>{const files=[...e.target.files];e.target.value='';c
 addEventListener('resize',()=>{if(S.view==='setup')stDraw(false)});
 
 /* ---------- Bildschirm-Diagnose ---------- */
-const VERSION='2.9.1',APPV='v'+VERSION;
+const VERSION='2.9.2',APPV='v'+VERSION;
 const CHANGELOG=[
+ ['2.9.2','Regenradar schließt zuverlässig und macht beim Sonnenstand-Planer Platz; kein Zoomen mehr durch Doppeltippen'],
  ['2.9.1','Hinweis, wenn der verschlüsselte NAS-Ordner gesperrt ist'],
  ['2.9.0','Regenradar vom DWD mit Verlauf der letzten Stunde und Vorhersage für 2 Stunden'],
  ['2.8.0','Karte mit zwei Fingern drehen (Kompass-Knopf richtet nach Norden aus), Orts- und Adresssuche, Übergabe an Apple Karten/Google Maps'],
@@ -2688,7 +2691,7 @@ function radarToggle(force){const on=force!=null?force:!RAD.on;if(on===RAD.on)re
   else{radStop();RAD.layers.forEach(l=>map.removeLayer(l));RAD.layers=[];$('#radbar').hidden=true;document.body.classList.remove('radar')}
   setLayer(ls.get('layer','osm'))}
 $('#radRange').addEventListener('input',e=>{radStop();radShow(+e.target.value)});
-$('#radPlay').onclick=radPlay;$('#radClose').onclick=()=>radarToggle(false);
+$('#radPlay').onclick=radPlay;$('#radClose').onclick=()=>radarToggle(false);$('#radClose').addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();radarToggle(false)},{passive:false});
 $('#radClose').innerHTML=ic('x');$('#radPlay').innerHTML=ic('play');
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&RAD.on&&Date.now()-RAD.ref>20*60e3){radarToggle(false);radarToggle(true)}});
 /* ---------- Wischen zum Löschen ---------- */
